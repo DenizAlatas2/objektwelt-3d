@@ -1,0 +1,2307 @@
+<title>Objektwelt 3D-Modell</title>
+<style>
+:root{
+  --bg:#f3f4f6; --panel:#ffffff; --panel2:#f1f2f4; --text:#1d2127; --muted:#5f6772; --line:#dde0e5; --accent:#c2410c; --accent-text:#ffffff;
+  --hover:#eceef1; --scene:#e8eaed; --r:6px; --h:28px; --field-line:#8a919c; color-scheme:light dark;
+}
+:root[data-theme="light"]{color-scheme:light}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#121418; --panel:#1a1d22; --panel2:#22262c; --text:#e6e8eb; --muted:#9aa1ab; --line:#30353c; --accent:#f0883e; --accent-text:#1b1006;
+    --hover:#272b32; --scene:#15181b; --field-line:#5c636d; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121418; --panel:#1a1d22; --panel2:#22262c; --text:#e6e8eb; --muted:#9aa1ab; --line:#30353c; --accent:#f0883e; --accent-text:#1b1006;
+  --hover:#272b32; --scene:#15181b; --field-line:#5c636d; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:13px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{--lw:clamp(260px,22vw,330px);--rw:clamp(280px,24vw,360px);display:grid;grid-template-columns:var(--lw) minmax(0,1fr) var(--rw);grid-template-rows:auto minmax(0,1fr) 24px;height:100%}
+#app.l-off{--lw:0px} #app.l-off #left{display:none}
+#app.r-off{--rw:0px} #app.r-off #right{display:none}
+/* AP-11: schmale Breiten (bis 1400 px): Leisten liegen über dem 3D-Bild, das Bild behält seine Größe */
+#app.ovl{--lw:0px;--rw:0px}
+#app.ovl #left,#app.ovl #right{grid-column:2;grid-row:2;z-index:20;width:min(var(--ow),100%)}
+#app.ovl #left{--ow:340px;justify-self:start;border-right:1px solid var(--line)}
+#app.ovl #right{--ow:360px;justify-self:end;border-left:1px solid var(--line)}
+#app.ovl:not(.r-off) #floors{right:calc(min(360px,100%) + 10px)}
+#app.ovl:not(.l-off) #msg,#app.ovl:not(.l-off) #legend{left:calc(min(340px,100%) + 10px)}
+#app.ovl:not(.r-off) #acts{left:calc(50% - min(180px,50%));max-width:calc(100% - min(360px,100%) - 24px)}
+#app.ovl:not(.l-off) #acts{left:calc(50% + min(170px,50%));max-width:calc(100% - min(340px,100%) - 24px)}
+header{grid-column:1/4;grid-row:1;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 8px;background:var(--panel);border-bottom:1px solid var(--line);min-width:0}
+.pt{display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 8px;position:relative}
+.pt svg{display:block;flex:none}
+.pt[aria-expanded="true"]{background:var(--hover);border-color:var(--field-line)}
+.pt.dot::after{content:"";position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+header h1{font-size:14px;font-weight:600;margin:0 6px 0 0;white-space:nowrap}
+header .sp{flex:1}
+#q{flex:0 1 300px;min-width:120px;height:var(--h);padding:0 8px;border:1px solid var(--field-line);border-radius:var(--r);background:var(--panel2);color:var(--text)}
+button,select,input[type=text]{font:inherit;color:var(--text)}
+button{height:var(--h);background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:0 12px;cursor:pointer;white-space:nowrap}
+button:hover{background:var(--hover)}
+button:active{background:var(--line)}
+button.pri:active{filter:brightness(.92)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button.pri{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+button.sm{height:24px;padding:0 8px;font-size:12px}
+button[aria-pressed="true"]{border-color:var(--text);color:var(--text);background:var(--hover)}
+.qt button[aria-pressed="true"]{border-color:var(--muted);color:var(--text)}
+.ib{width:var(--h);padding:0;display:inline-flex;align-items:center;justify-content:center;border-color:transparent;background:transparent;color:var(--muted);flex:none}
+.ib:hover{color:var(--text);background:var(--hover)}
+.ib svg{display:block}
+h2 .ib,.lh .ib{width:20px;height:20px}
+select{height:var(--h);border:1px solid var(--field-line);border-radius:var(--r);background:var(--panel);padding:0 6px}
+aside{background:var(--panel);overflow:auto;min-height:0}
+#left{border-right:1px solid var(--line);display:flex;flex-direction:column}
+#right{border-left:1px solid var(--line);padding:12px}
+#tabs{display:flex;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:2}
+#tabs button{flex:1;height:32px;border:0;border-radius:0;background:transparent;padding:0 2px;border-bottom:2px solid transparent;color:var(--muted)}
+#tabs button:hover{color:var(--text);background:var(--hover)}
+#tabs button.act{border-bottom-color:var(--accent);color:var(--text);font-weight:500}
+.tab{display:none;padding:8px 12px 24px}
+.tab.act{display:block}
+#stage{position:relative;min-width:0;grid-column:2;grid-row:2;background:var(--scene)}
+#left{grid-column:1;grid-row:2} #right{grid-column:3;grid-row:2}
+/* AP-11: Geschosswahl im Bild */
+#floors{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:2px;padding:3px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);z-index:3}
+#floors button{height:26px;min-width:52px;padding:0 8px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--muted);font-variant-numeric:tabular-nums}
+#floors button:hover{color:var(--text);background:var(--hover)}
+#floors button[aria-pressed="true"]{color:var(--text);background:var(--panel2);border-color:var(--field-line)}
+#floors hr{border:0;border-top:1px solid var(--line);margin:2px 4px}
+dialog#help{width:min(560px,calc(100% - 32px));max-height:calc(100% - 64px);padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--text)}
+dialog#help::backdrop{background:rgba(0,0,0,.25)}
+#help .hh{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
+#help .hh h2{margin:0;font-size:14px;font-weight:600;color:var(--text);flex:1}
+#help .hb{padding:4px 16px 16px}
+#help p{margin:6px 0}
+canvas{display:block;width:100%;height:100%;outline:none;touch-action:none}
+#status{grid-column:1/4;grid-row:3;display:flex;gap:16px;align-items:center;padding:0 12px;font-variant-numeric:tabular-nums;background:var(--panel);border-top:1px solid var(--line);color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden}
+h2{font-size:12px;font-weight:500;color:var(--muted);margin:16px 0 6px;display:flex;align-items:center;gap:4px}
+h2:first-child{margin-top:2px}
+.row{display:flex;align-items:center;gap:6px;min-height:24px}
+.row label{flex:1;display:flex;align-items:center;gap:6px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.row label input,.row label .sw{flex:none}
+.row label .lt{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.n{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px;margin-left:auto;padding-left:6px;min-width:5ch;text-align:right}
+.sw{width:10px;height:10px;border-radius:2px;display:inline-block;flex:none}
+input[type=range]{width:72px;accent-color:var(--muted)}
+input[type=checkbox]{accent-color:var(--muted);margin:0}
+.muted{color:var(--muted)}
+.note{margin:4px 0 6px;font-size:12px;color:var(--muted)}
+.tag{display:inline-block;padding:0 4px;border:1px solid var(--line);border-radius:4px;font-size:12px;color:var(--muted);line-height:16px;margin-left:6px;white-space:nowrap;flex:none}
+table.kv{border-collapse:collapse;width:100%;font-size:12px}
+table.kv td{border-top:1px solid var(--line);padding:4px 4px;vertical-align:top;word-break:break-word}
+table.kv td:first-child{color:var(--muted);width:40%}
+#rtitle{font-size:15px;font-weight:600;margin:0;word-break:break-word}
+.idl{display:flex;align-items:center;gap:2px;color:var(--muted);font-size:12px;word-break:break-all}
+.idl .ib{width:24px;height:24px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.rel{color:var(--text);cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:2px;border:0;background:none;padding:0;height:auto;font:inherit;text-align:left;white-space:normal}
+.rel:hover{text-decoration-color:var(--accent);background:none}
+.seg{display:inline-flex;gap:2px;padding:2px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel2);flex:none}
+.seg button{border:0;border-radius:4px;height:22px;background:transparent}
+.seg button:hover{background:var(--hover)}
+.seg button.act{background:var(--panel);color:var(--text);box-shadow:0 0 0 1px var(--line)}
+.qt button[aria-pressed="false"]{color:var(--muted);border-style:dashed}
+.tree{margin-top:6px}
+.tr{display:flex;align-items:center;gap:2px;height:28px;border-radius:4px;cursor:pointer;white-space:nowrap}
+.tr:hover{background:var(--hover)}
+.tr.sel{background:color-mix(in srgb,var(--accent) 13%,transparent)}
+.tr.cur{box-shadow:inset 2px 0 0 var(--accent)}
+.tr .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;border:0;background:transparent;padding:0 2px;height:24px;text-align:left;font:inherit;color:inherit}
+.tr .t:hover{background:transparent}
+.tr.dim .t{color:var(--muted)}
+.tr .tw{width:22px;height:24px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:none;border:0;background:transparent;padding:0}
+.tr.open>.tw svg,#legend .chev.open svg,details.sec[open]>summary svg{transform:rotate(90deg)}
+.tr .ib{width:24px;height:24px}
+.tr .ib.off,.tr .ib.part{color:var(--muted)}
+.tr .sw{margin:0 4px 0 2px}
+.tmore{padding:2px 0 6px;font-size:12px}
+#tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:4px 8px;font-size:12px;max-width:360px;display:none;z-index:5}
+#msg{position:absolute;left:12px;bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:6px 10px;font-size:12px;max-width:min(60%,520px);display:none;z-index:4}
+#stage.acts-on #msg{bottom:54px}
+#prog{position:absolute;left:0;top:0;height:3px;background:var(--accent);width:0;z-index:6}
+#hint{position:absolute;right:10px;top:8px;color:var(--muted);font-size:12px;background:var(--panel);border:1px solid var(--line);padding:2px 8px;border-radius:var(--r);pointer-events:none}
+#legend{position:absolute;left:10px;top:8px;max-width:min(300px,46%);max-height:calc(100% - 70px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:4px 10px 6px 6px;font-size:12px;z-index:3}
+#legend .lh{display:flex;align-items:center;gap:4px;user-select:none;height:24px}
+#legend .lhb{display:inline-flex;align-items:center;gap:4px;height:24px;border:0;background:none;padding:0 4px 0 0;font:inherit;font-weight:500;color:var(--text)}
+#legend .lh .sp{flex:1}
+#legend .chev{display:inline-flex;color:var(--muted);width:16px;justify-content:center}
+#legend.min .lb{display:none}
+#legend .lb{padding-left:4px}
+#legend .li{display:flex;align-items:center;gap:6px;padding:1px 0;white-space:nowrap}
+#legend .li .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#legend h3{margin:8px 0 2px;font-size:12px;font-weight:500;color:var(--muted)}
+#acts{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:none;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:4px 4px 4px 12px;z-index:4;white-space:nowrap;max-width:calc(100% - 24px);overflow-x:auto}
+#acts.on{display:flex}
+#acts .cnt{font-weight:500;margin-right:4px}
+#pop{position:fixed;z-index:30;max-width:320px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;font-size:12px;line-height:1.45;display:none;color:var(--text)}
+details.sec{border-top:1px solid var(--line);margin-top:8px}
+details.sec>summary{list-style:none;display:flex;align-items:center;gap:4px;height:32px;font-weight:500;font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary .n{margin-left:auto}
+.ci{padding:4px 0;border-top:1px solid var(--line);font-size:13px}
+.ci:first-child{border-top:0}
+.ci .sub{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci .lab{color:var(--muted);font-size:12px;margin-right:6px}
+.cg{font-size:12px;color:var(--muted);margin:8px 0 2px}
+.dsl{margin:0 0 6px}
+.help td{padding:3px 6px 3px 0;vertical-align:top}
+kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:12px;font-family:inherit}
+.numin{width:56px;height:var(--h);padding:0 4px;border:1px solid var(--field-line);border-radius:var(--r);background:var(--panel2);color:var(--text);font:inherit}
+.rhead{display:flex;align-items:flex-start;gap:8px}
+/* Touch (iPad, Telefon) und schmale Fenster: Tippziele mindestens 40 px */
+@media (pointer:coarse),(max-width:900px){
+  :root{--h:40px} button.sm{height:40px} .tr{height:40px} .tr .ib,.tr .tw{width:40px;height:40px}
+  #tabs button{height:44px} .row{min-height:40px} details.sec>summary{height:44px}
+  #legend .lh,#legend .lhb{height:40px} h2 .ib,.lh .ib{width:40px;height:40px} .idl .ib{width:40px;height:40px}
+  #floors button{height:40px;min-width:56px} .seg{padding:0} .seg button{height:40px} input[type=range]{width:96px;height:40px}
+  input[type=checkbox]{width:20px;height:20px} .row label{align-self:stretch} .rel{min-height:40px;display:inline-flex;align-items:center}
+}
+@media (max-width:1180px){ header h1{display:none} }
+@media (max-width:760px){ .pt .lbl,#bHelp .lbl{display:none} .pt{padding:0;width:var(--h);justify-content:center} #styleSeg .lbl{display:none} }
+@media (max-width:600px){
+  header{flex-wrap:wrap;padding:6px 8px;row-gap:6px}
+  #q{flex:1 1 100%;order:9}
+  #sCur{display:none}
+}
+</style>
+<div id="app">
+  <header>
+    <button id="bLeft" class="pt" type="button" aria-controls="left" aria-expanded="true"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 2.5v11" stroke="currentColor" stroke-width="1.3"/><path d="M2.8 5h1.8M2.8 7h1.8M2.8 9h1.8" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg><span class="lbl">Menü</span></button>
+    <h1>Objektwelt 3D-Modell</h1>
+    <input id="q" type="text" placeholder="Suche nach ID oder Name" autocomplete="off" aria-label="Suche nach ID oder Name">
+    <span class="sp"></span>
+    <span id="styleSeg" class="seg" role="group" aria-label="Stil" title="Gleiche Objekte, nur das Aussehen ändert sich (Taste V)"><button id="bStyleA" data-st="A" aria-pressed="false">A<span class="lbl"> einfach</span></button><button id="bStyleB" data-st="B" aria-pressed="false">B<span class="lbl"> realistisch</span></button></span>
+    <button id="bHome" type="button" title="Ganzes Gebäude zeigen (Taste R)">Gesamt</button>
+    <button id="bHelp" type="button" aria-haspopup="dialog" aria-label="Hilfe"><span aria-hidden="true">?</span><span class="lbl"> Hilfe</span></button>
+    <button id="bRight" class="pt" type="button" aria-controls="right" aria-expanded="true"><span class="lbl">Details</span><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10 2.5v11" stroke="currentColor" stroke-width="1.3"/><path d="M11.4 5h1.8M11.4 7h1.8M11.4 9h1.8" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></button>
+  </header>
+
+  <aside id="left">
+    <div id="tabs" role="tablist" aria-label="Bereiche">
+      <button data-tab="t-filter" class="act" role="tab" id="tb-filter" aria-controls="t-filter" aria-selected="true">Filter</button>
+      <button data-tab="t-model" role="tab" id="tb-model" aria-controls="t-model" aria-selected="false" tabindex="-1">Modell</button>
+      <button data-tab="t-clip" role="tab" id="tb-clip" aria-controls="t-clip" aria-selected="false" tabindex="-1">Schnitt</button>
+      <button data-tab="t-views" role="tab" id="tb-views" aria-controls="t-views" aria-selected="false" tabindex="-1">Ansicht</button>
+    </div>
+
+    <div id="t-filter" class="tab act" role="tabpanel" aria-labelledby="tb-filter">
+      <h2>Zeigen <button class="ib info" data-i="Geschosse wählen Sie rechts im Bild. Ein Klick zeigt nur dieses Geschoss, mit Strg oder Umschalt kommen weitere dazu. Die Decke über dem obersten gezeigten Geschoss bleibt offen, solange das Dach aus ist."></button></h2>
+      <div class="btns qt" id="quick"></div>
+      <div class="row"><label for="cMode">Einfärbung</label><select id="cMode"><option value="material">Modell</option><option value="gewerk">Gewerk</option><option value="art">Objektart</option><option value="status">Status</option><option value="floor">Geschoss</option></select></div>
+      <details class="sec" open><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ebenen</span></summary>
+        <div class="note">Haken blendet aus, der Regler stellt die Deckkraft ein. Gewerke und Anlagen stehen im Reiter Modell.</div>
+        <div id="fLayers"></div>
+      </details>
+      <details class="sec"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Objektart</span></summary>
+        <div id="fArt"></div>
+      </details>
+      <details class="sec"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Status</span></summary>
+        <div id="fStat"></div>
+        <div class="row"><label><input type="checkbox" id="cCand"> Kandidaten halbtransparent</label></div>
+        <div class="row"><label><input type="checkbox" id="cGhost"> Ausgeblendetes blass zeigen</label></div>
+      </details>
+      <div class="btns" style="margin-top:12px"><button id="bShowAll">Filter zurücksetzen</button></div>
+    </div>
+
+    <div id="t-model" class="tab" role="tabpanel" aria-labelledby="tb-model">
+      <div class="row"><span class="seg" id="treeSeg" role="group" aria-label="Baum"><button data-m="gew" class="act" aria-pressed="true">Gewerke</button><button data-m="room" aria-pressed="false">Räume</button></span><span style="flex:1"></span><button class="ib info" data-i="Klick auf einen Namen wählt und zoomt. Mit Strg oder Umschalt kommt es zur Auswahl dazu. Das Auge blendet aus und wieder ein. Die Suche oben zeigt hier ihre Treffer."></button></div>
+      <div class="muted" id="lInfo" style="margin-top:6px"></div>
+      <div class="btns" id="lActs" hidden><button class="sm" id="lSelAll">Treffer wählen</button><button class="sm" id="lIso">Treffer isolieren</button><button class="sm" id="lClear">Suche leeren</button></div>
+      <div class="tree" id="tree"></div>
+    </div>
+
+    <div id="t-clip" class="tab" role="tabpanel" aria-labelledby="tb-clip">
+      <h2>Schnittebenen in m <button class="ib info" data-i="Die Füllung zeigt das Innere geschlossener Körper an der Schnittebene. Das ist Darstellung. Die Auswahl per Klick beachtet die Schnitte."></button></h2>
+      <div id="clipUI"></div>
+      <div class="btns"><button id="bPlan" title="Schnitt 1,5 m über dem Fußboden des Geschosses der Auswahl">Grundriss 1,5 m</button><button id="bClipOff">Schnitte aus</button></div>
+      <div class="row"><label><input type="checkbox" id="cCutFill" checked> Schnittflächen füllen</label></div>
+    </div>
+
+    <div id="t-views" class="tab" role="tabpanel" aria-labelledby="tb-views">
+      <h2>Ansichten</h2>
+      <div class="btns" id="stdViews"></div>
+      <h2>Gespeichert <button class="ib info" data-i="Eine gespeicherte Ansicht merkt Kamera, Stil, Geschosse, Filter, Ebenen, Deckkraft, Schnitte, Einfärbung und ausgeblendete oder isolierte Objekte. Sie liegt nur in diesem Browser."></button></h2>
+      <div class="row"><input id="vName" type="text" placeholder="Name" aria-label="Name der Ansicht" style="flex:1;height:var(--h);padding:0 8px;border:1px solid var(--field-line);border-radius:var(--r);background:var(--panel2)"><button id="vSave" class="pri">Speichern</button></div>
+      <div id="vList"></div>
+      <div class="btns"><button class="sm" id="vExport">Exportieren</button><button class="sm" id="vImport">Importieren</button></div>
+      <h2>Bildqualität <button class="ib info" data-i="Hoch zeigt Himmelslicht, Sonnenschatten, Umgebungsverdeckung und feine Kanten. Mittel ist ohne Schatten. Einfach ist flaches Licht. Licht, Himmel und Materialien sind Darstellung und nicht Teil der Planungsdaten."></button></h2>
+      <div class="seg" id="qualSeg" role="group" aria-label="Bildqualität"><button data-q="hoch" aria-pressed="false">Hoch</button><button data-q="mittel" aria-pressed="false">Mittel</button><button data-q="einfach" aria-pressed="false">Einfach</button></div>
+      <h2>Steuerung</h2>
+      <div class="seg" id="modeSeg" role="group" aria-label="Steuerung"><button data-m="orbit" aria-pressed="true" title="Ziehen dreht um das Ziel (Taste M)">Orbit</button><button data-m="fly" aria-pressed="false" title="Ziehen schaut sich um, W A S D bewegt (Taste M)">Fliegen</button></div>
+      <h2>Farbschema</h2>
+      <div class="seg" id="themeSeg" role="group" aria-label="Farbschema"><button data-t="auto" aria-pressed="true">Wie System</button><button data-t="light" aria-pressed="false">Hell</button><button data-t="dark" aria-pressed="false">Dunkel</button></div>
+      <div id="benchBox" hidden>
+        <h2>Leistung</h2>
+        <div class="btns"><button id="bBench">Bildrate messen</button></div>
+        <div class="muted" id="benchOut">Dreht 5 s und misst Bilder je Sekunde, das langsamste Bild, Dreiecke und Zeichenaufrufe.</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <div id="stage">
+    <div id="prog"></div>
+    <canvas id="cv" tabindex="0" aria-label="3D-Modell"></canvas>
+    <div id="legend"></div>
+    <div id="floors" role="group" aria-label="Geschoss"></div>
+    <div id="hint">Ziehen dreht, Rad zoomt, Klick wählt</div>
+    <div id="tip"></div>
+    <div id="msg" role="status"></div>
+    <div id="acts" role="toolbar" aria-label="Auswahl"></div>
+  </div>
+
+  <aside id="right">
+    <div id="attr"><p class="muted">Nichts gewählt. Ein Objekt im Modell oder im Baum anklicken.</p></div>
+  </aside>
+
+  <div id="status"><span id="sLoad">bereit</span><span id="sVis"></span><span id="sTri"></span><span id="sFps"></span><span id="sCur"></span></div>
+</div>
+
+<dialog id="help" aria-labelledby="helpT">
+  <div class="hh"><h2 id="helpT">Hilfe</h2><button class="ib" type="button" id="helpX" aria-label="Hilfe schließen"></button></div>
+  <div class="hb">
+    <h2>Erste Schritte</h2>
+    <table class="help">
+      <tr><td>Drehen</td><td>mit der Maus ziehen, auf dem Tablet mit einem Finger</td></tr>
+      <tr><td>Zoomen</td><td>Mausrad, auf dem Trackpad oder Tablet mit zwei Fingern</td></tr>
+      <tr><td>Verschieben</td><td>rechte Maustaste oder Umschalt und Ziehen, auf dem Tablet zwei Finger</td></tr>
+      <tr><td>Geschoss</td><td>rechts im Bild wählen, mit Strg oder Umschalt weitere dazu</td></tr>
+      <tr><td>Objekt</td><td>anklicken oder antippen, die Daten stehen unter Details</td></tr>
+      <tr><td>Gesamt</td><td>zeigt wieder das ganze Gebäude</td></tr>
+    </table>
+    <h2>Tasten</h2>
+    <table class="help">
+      <tr><td><kbd>Strg</kbd> oder <kbd>Umschalt</kbd> und Klick</td><td>zur Auswahl hinzufügen</td></tr>
+      <tr><td><kbd>Doppelklick</kbd> <kbd>F</kbd></td><td>auf Auswahl zoomen</td></tr>
+      <tr><td><kbd>I</kbd> <kbd>X</kbd> <kbd>H</kbd></td><td>isolieren, Röntgen, ausblenden</td></tr>
+      <tr><td><kbd>Umschalt</kbd> <kbd>H</kbd></td><td>alles zeigen</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Auswahl aufheben</td></tr>
+      <tr><td><kbd>R</kbd></td><td>Gesamtansicht</td></tr>
+      <tr><td><kbd>V</kbd></td><td>Stil A oder B</td></tr>
+      <tr><td><kbd>1</kbd> bis <kbd>6</kbd></td><td>Grundriss, Süd, Nord, West, Ost, Isometrie</td></tr>
+      <tr><td><kbd>M</kbd></td><td>Orbit oder Fliegen</td></tr>
+      <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>Q</kbd> <kbd>E</kbd>, Pfeile</td><td>fliegen und umsehen, mit Umschalt schneller</td></tr>
+      <tr><td colspan="2" class="muted">Die Tasten wirken nach einem Klick ins Bild, nicht in Feldern und Knöpfen.</td></tr>
+    </table>
+    <h2>Was dieser Viewer zeigt</h2>
+    <p>Das Gebäude als Körper aus den gespeicherten Planungsdaten. Kein BIM-Programm und kein IFC. Es werden keine Maße ergänzt. Fehlt eine Höhe, erscheint eine flache Platte. Querschnitte unter 2 cm werden mit 2 cm gezeigt. Beides steht beim Objekt unter Darstellungshinweis. Stöße zwischen Leitungsteilen sind auf Gehrung oder mit kurzem Überstand geschlossen. Das Erdreich um und unter dem Gebäude ist Darstellung. Anlagenteile ohne Körper stehen nur im Modellbaum. Durchführungen durch Wand und Decke sitzen an den gespeicherten Orten, Hülse und Manschette sind Darstellung. Die Einfärbung Brandschutz zeigt die Anforderungen aus den Planungsdaten.</p>
+    <h2>Verbindungen</h2>
+    <p>Die Liste Verbindet im Objektfenster kommt aus gespeicherten Verbindungen über Ports, Verbindungen und Trassenknoten. Kandidat und zurückgestellt sind markiert. Netz zeigen folgt den Verbindungen derselben Anlage.</p>
+    <p class="muted" id="srcInfo"></p>
+  </div>
+</dialog>
+<input type="file" id="fileIn" accept=".json" style="display:none">
+
+<script>
+/* Gehostete Fassung: Daten liegen gzip-komprimiert als Base64-Text neben der Seite (data/....gz.txt). Ladeanzeige mit Fehlermeldung. */
+(function(){
+const st={an:0,ok:0,err:0,msg:[]};let box=null;
+function show(){try{if(!box){box=document.createElement('div');box.id='ladestand';box.style.cssText='position:fixed;left:12px;bottom:34px;z-index:9999;max-width:min(520px,90vw);padding:8px 10px;border-radius:6px;font:12px/1.4 system-ui,sans-serif;background:rgba(20,22,26,.88);color:#fff;pointer-events:none;white-space:pre-wrap';(document.body||document.documentElement).appendChild(box);}
+box.textContent='Daten geladen: '+st.ok+' von '+st.an+(st.err?'  Fehler: '+st.err:'')+(st.msg.length?'\n'+st.msg.slice(-4).join('\n'):'');
+if(st.an&&st.ok===st.an&&!st.err&&!st.msg.length){setTimeout(()=>{if(st.ok===st.an&&box)box.remove(),box=null;},2500);}}catch(e){}}
+window.addEventListener('error',e=>{st.msg.push('Fehler: '+(e.message||e.type));show();});
+window.addEventListener('unhandledrejection',e=>{st.msg.push('Fehler: '+((e.reason&&(e.reason.message||e.reason))||'unbekannt'));show();});
+const of=window.fetch.bind(window);
+window.fetch=async function(u,o){const s=typeof u==='string'?u:(u&&u.url)||'';
+if(!s.startsWith('data/'))return of(u,o);
+st.an++;show();
+try{const url=new URL(s+'.gz.txt',document.baseURI).href;const r=await of(url,o);if(!r.ok){st.err++;st.msg.push('HTTP '+r.status+' '+s);show();return r;}
+const t=(await r.text()).trim();const bin=atob(t);const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);
+const buf=await new Response(new Blob([a]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer();
+st.ok++;show();return new Response(buf,{status:200});}
+catch(e){st.err++;st.msg.push('Ladefehler '+s+': '+(e&&e.message||e));show();throw e;}};
+})();
+</script>
+<script type="module">
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js';
+
+/* ====================================================================================================
+   Zustand
+   ==================================================================================================== */
+const DATA = 'data/';
+const S = {
+  man: null, idx: null, N: 0, vis: null, idToNum: new Map(), hay: null,
+  floorOn: new Set(), extraOn: new Set(), layerOn: {}, layerOp: {}, gewOff: new Set(), sysOff: new Set(), artOff: new Set(), statOff: new Set(),
+  hidden: new Set(), isolate: null, ghost: false, xray: false, gv: null, colorMode: 'material', sel: [], selSet: new Set(), last: -1,
+  files: new Map(), prims: [], objPrims: new Map(), mode: 'orbit', theme: 'auto',
+  clip: {x: {on: false, pos: 36, keep: 'lo'}, y: {on: false, pos: 24, keep: 'lo'}, z: {on: false, pos: 12, keep: 'lo'}},
+  cam: {target: new THREE.Vector3(36, 6, -24), yaw: 0.6, pitch: 0.7, dist: 110},
+  listCache: [], metrics: {},
+  style: 'A', stylePaths: new Set(), styles: ['A'], dispN: -1, cutFill: true, legendMin: false, candTransparent: false
+};
+const WHITE = new THREE.Color(1, 1, 1);
+/* Schnittflächen-Füllung (Poché): bei aktiver Schnittebene zeichnen deckende Körper nur Vorderseiten; ihre Rückseiten erscheinen über ein
+   zweites Netz (gleiche Geometrie) einfarbig dunkel und leicht nach hinten versetzt, damit sich berührende Körper nicht flimmern. */
+const CUT = {value: 0};
+const CUTMAT = new THREE.MeshBasicMaterial({color: 0x4b5058, side: THREE.BackSide, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2});
+function updateCutState(p) {
+  const on = CUT.value > 0.5 && !p.mat.transparent;
+  const side = on ? THREE.FrontSide : THREE.DoubleSide;
+  if (p.mat.side !== side) { p.mat.side = side; p.mat.needsUpdate = true; }
+  p.meshCut.visible = on && p.meshV.visible;
+}
+/* Dateien des aktiven Stils (Technik: dieselbe Datei für A und B, Eintrag mit shared_with) */
+const styleFiles = (st = S.style) => S.man.files.filter(f => (f.style || 'A') === st);
+const $ = s => document.querySelector(s);
+const el = (t, props = {}, ...kids) => { const e = Object.assign(document.createElement(t), props); kids.forEach(k => e.append(k)); return e; };
+/* Symbole als SVG (keine Schriftzeichen), lange Texte hinter einem kleinen i */
+const IC = {
+  chev: '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  eye: '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>',
+  eyePart: '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.9" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>',
+  eyeOff: '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" opacity=".5"/><path d="M2.8 13.2L13.2 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+  info: '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 7.2v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="4.9" r=".9" fill="currentColor"/></svg>',
+  close: '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  copy: '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 3.5V3A1.5 1.5 0 0 0 9 1.5H4A1.5 1.5 0 0 0 2.5 3v5A1.5 1.5 0 0 0 4 9.5h.5" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>'
+};
+const pop = el('div', {id: 'pop', role: 'tooltip'}); document.body.append(pop);
+const infoHtml = (t, name = '') => '<button class="ib info" type="button" aria-label="' + (name ? 'Info zu ' + esc(name) : 'Info') + '" aria-expanded="false" aria-controls="pop" data-i="' + String(t).replace(/"/g, '&quot;') + '">' + IC.info + '</button>';
+document.querySelectorAll('.info').forEach(b => {
+  const h = b.closest('h2'), name = h ? h.textContent.trim() : b.closest('#t-model') ? 'Baum' : '';
+  b.innerHTML = IC.info; b.type = 'button'; b.setAttribute('aria-label', name ? 'Info zu ' + name : 'Info'); b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', 'pop');
+});
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('.info');
+  if (b && b.dataset.i) {
+    e.stopPropagation(); e.preventDefault();
+    document.querySelectorAll('.info[aria-expanded="true"]').forEach(x => x.setAttribute('aria-expanded', 'false'));
+    if (pop.style.display === 'block' && pop.dataset.for === b.dataset.i) { pop.style.display = 'none'; return; }
+    pop.textContent = b.dataset.i; pop.dataset.for = b.dataset.i; pop.style.display = 'block'; b.setAttribute('aria-expanded', 'true');
+    const r = b.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+    pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.left - 8)) + 'px';
+    pop.style.top = (r.bottom + h + 12 < innerHeight ? r.bottom + 6 : Math.max(8, r.top - h - 6)) + 'px';
+    return;
+  }
+  if (!(e.target.closest && e.target.closest('#pop'))) { pop.style.display = 'none'; document.querySelectorAll('.info[aria-expanded="true"]').forEach(x => x.setAttribute('aria-expanded', 'false')); }
+}, true);
+let dirty = true;
+const invalidate = () => { dirty = true; };
+const dez = (v, d) => v.toFixed(d).replace('.', ',');  // Dezimalkomma in sichtbaren Zahlen (AP-09d)
+
+/* Weltkoordinaten (X Ost, Y Nord, Z oben) <-> three (x, y oben, z): three = (X, Z, -Y) */
+const w2t = (X, Y, Z) => new THREE.Vector3(X, Z, -Y);
+const t2w = v => [v.x, -v.z, v.y];
+
+/* ====================================================================================================
+   Szene
+   ==================================================================================================== */
+const cv = $('#cv');
+const DEBUG = new URLSearchParams(location.search).has('debug');  // ?debug: Zeichenpuffer behalten (Bildschirmfotos im verdeckten Fenster)
+const renderer = new THREE.WebGLRenderer({canvas: cv, antialias: true, alpha: false, powerPreference: 'high-performance', preserveDrawingBuffer: DEBUG});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.localClippingEnabled = false;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, 1, 0.05, 800);
+camera.up.set(0, 1, 0);
+const hemi = new THREE.HemisphereLight(0xffffff, 0x8a93a0, 1.15);
+const head = new THREE.DirectionalLight(0xffffff, 1.2);
+const sun = new THREE.DirectionalLight(0xffffff, 0.55);
+sun.position.set(-40, 80, 30);
+scene.add(hemi, head, head.target, sun);
+const worldGroup = new THREE.Group();
+const selGroup = new THREE.Group();
+scene.add(worldGroup, selGroup);
+const clipPlanes = [];
+renderer.clippingPlanes = clipPlanes;
+/* Einfaches Umgebungsbild (Verlauf Boden -> Himmel), nur für metallische Darstellungsmaterialien in Stil B; keine externe Datei */
+let envTex = null;
+try {
+  const pm = new THREE.PMREMGenerator(renderer), es = new THREE.Scene(), g = new THREE.SphereGeometry(50, 32, 16), pa = g.attributes.position, cols = [];
+  const lo = new THREE.Color(0x77706a), hi = new THREE.Color(0xf2f5fa);
+  for (let i = 0; i < pa.count; i++) { const c = new THREE.Color().lerpColors(lo, hi, Math.max(0, Math.min(1, pa.getY(i) / 50 * 0.8 + 0.5))); cols.push(c.r, c.g, c.b); }
+  g.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+  es.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({vertexColors: true, side: THREE.BackSide})));
+  envTex = pm.fromScene(es, 0.04).texture; pm.dispose(); g.dispose();
+} catch (e) { envTex = null; console.warn('Umgebungsbild nicht verfügbar', e); }
+
+/* ====================================================================================================
+   Bildkette (AP-09a): Stil B mit Himmel und daraus gefiltertem Umgebungslicht (IBL, selbst erzeugt, keine Datei), Sonne mit
+   weichen Schatten, AgX-Tonemapping, Umgebungsverdeckung (SSAO) und feinen Kantenlinien in einem eigenen Nachbearbeitungsdurchgang.
+   Keine Zusatzbibliothek (three 0.160 vom cdnjs). Qualitätsstufen: hoch (Schatten + AO + Kanten), mittel (AO + Kanten),
+   einfach (bisherige Darstellung). Standard: Stil B hoch, Stil A einfach. Schatten werden nur bei Änderungen der Szene neu
+   berechnet (nicht beim Drehen der Kamera).
+   ==================================================================================================== */
+const QUAL = {A: 'einfach', B: 'hoch'};
+const LOOK = {exposure: 1.1, sun: 4.3, env: 0.7, hemi: 0.0, ao: 1.0, edge: 0.45, sat: 1.35};  // Abstimmung Stil B (Darstellung), AP-09c mehr Kontrast
+try { const q = JSON.parse(localStorage.getItem('ow_quality') || 'null'); if (q && q.A && q.B) Object.assign(QUAL, q); } catch (e) {}
+const qual = () => QUAL[S.style] || 'einfach';
+const SUN_DIR = new THREE.Vector3(0.42, 0.55, 0.72).normalize();  // three: x Ost, y oben, z Süd. Sonne aus Süd-Südost, etwa 33 Grad hoch (Darstellung)
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.autoUpdate = false;
+sun.shadow.mapSize.set(4096, 4096);
+sun.shadow.bias = -0.0004;
+sun.shadow.normalBias = 0.03;
+let shadowDirty = true;
+const invalidateShadow = () => { shadowDirty = true; invalidate(); };
+
+function makeSkyTexture(ground) {
+  // Equirect-Bild 1024x512: oben Zenit, Mitte Horizont, unten Boden; Sonnenhof an der Sonnenrichtung
+  const w = 1024, h = 512, c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0, 0, 0, h);
+  // AP-09d: das Umgebungslicht (ground) bekommt einen blasseren Himmel, sonst werden Schattenflächen deutlich blau
+  const sk = ground ? ['#717a86', '#9da5ae', '#d2d6d9'] : ['#4f7fb8', '#80a9d8', '#c5d8ea'];
+  gr.addColorStop(0.00, sk[0]); gr.addColorStop(0.25, sk[1]); gr.addColorStop(0.44, sk[2]); gr.addColorStop(0.495, '#eef1f2');
+  if (ground) { gr.addColorStop(0.505, '#b6b7b4'); gr.addColorStop(0.60, '#9c9d9a'); gr.addColorStop(1.00, '#80817e'); }   // neutral, sonst werden Decken und Stürze unten bräunlich
+  else { gr.addColorStop(0.505, '#dde2e5'); gr.addColorStop(1.00, '#cdd3d7'); }
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  const u = Math.atan2(SUN_DIR.z, SUN_DIR.x) / (2 * Math.PI) + 0.5, v = Math.asin(SUN_DIR.y) / Math.PI + 0.5;
+  const sx = u * w, sy = (1 - v) * h;
+  for (const [r, a] of [[220, 0.22], [70, 0.35], [14, 0.95]]) {
+    const rg = g.createRadialGradient(sx, sy, 0, sx, sy, r);
+    rg.addColorStop(0, 'rgba(255,248,232,' + a + ')'); rg.addColorStop(1, 'rgba(255,248,232,0)');
+    g.fillStyle = rg; g.fillRect(sx - r, sy - r, 2 * r, 2 * r);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const SKY = {bg: null, env: null};
+try {
+  SKY.bg = makeSkyTexture(false);
+  const pm = new THREE.PMREMGenerator(renderer), g = makeSkyTexture(true);
+  SKY.env = pm.fromEquirectangular(g).texture; pm.dispose(); g.dispose();
+} catch (e) { console.warn('Himmel/Umgebungslicht nicht verfügbar', e); }
+
+/* Umgebungsboden: großer Boden um das Grundstück, blendet in der Ferne in den Dunst des Himmels über (Darstellung, kein Weltobjekt).
+   Sichtbar nur in Stil B (hoch/mittel) mit Gruppe Außen und Ebene Außenanlagen. Unter dem Gebäude ausgespart. */
+const GROUND = {mesh: null, haze: new THREE.Color().setStyle('#e4e7e8', THREE.SRGBColorSpace)};
+function makeGround() {
+  if (GROUND.mesh || !S.man) return;
+  const sh = new THREE.Shape([new THREE.Vector2(-3000, -3000), new THREE.Vector2(3000, -3000), new THREE.Vector2(3000, 3000), new THREE.Vector2(-3000, 3000)]);
+  const bo = S.man.building_outline;
+  if (bo && bo.length > 2) sh.holes.push(new THREE.Path(bo.map(q => new THREE.Vector2(q[0], q[1]))));
+  const g = new THREE.ShapeGeometry(sh); g.rotateX(-Math.PI / 2);
+  const m = new THREE.MeshStandardMaterial({color: new THREE.Color().setStyle('#a4a894', THREE.SRGBColorSpace), roughness: 1, metalness: 0});
+  m.onBeforeCompile = sh2 => {
+    sh2.uniforms.haze = {value: GROUND.haze};
+    sh2.vertexShader = 'varying vec3 vWP;\n' + sh2.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh2.fragmentShader = 'uniform vec3 haze; varying vec3 vWP;\n' + sh2.fragmentShader.replace('#include <fog_fragment>',
+      'float hd = length(vWP.xz - cameraPosition.xz); gl_FragColor.rgb = mix(gl_FragColor.rgb, haze, smoothstep(120.0, 1400.0, hd));');
+  };
+  const mesh = new THREE.Mesh(g, m);
+  mesh.position.y = (S.man.ground_z ?? -0.17); mesh.receiveShadow = true; mesh.visible = false; mesh.renderOrder = -2;
+  scene.add(mesh); GROUND.mesh = mesh;
+}
+function syncGround(rich) {
+  makeGround();
+  if (GROUND.mesh) GROUND.mesh.visible = !!rich && S.extraOn.has('SONST') && !!S.layerOn.aussen;
+}
+
+/* Nachbearbeitung: Szene in MSAA-Ziel (Farbe HalfFloat + Tiefe), AO in halber Größe aus der Tiefe (Normalen aus der Tiefe rekonstruiert),
+   tiefenbewusste Unschärfe, Zusammensetzen mit Kantenlinien, Tonemapping und sRGB. */
+const PP = {rt: null, ao: null, ao2: null, w: 0, h: 0, quad: null, cam: new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)};
+PP.scene = new THREE.Scene();
+PP.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2));
+PP.quad.frustumCulled = false;
+PP.scene.add(PP.quad);
+const VS = 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }';
+const DEPTH_FN = `
+uniform sampler2D tDepth; uniform mat4 projInv; uniform vec2 texel;
+vec3 viewPos(vec2 uv){ float d = texture2D(tDepth, uv).x; vec4 p = projInv * vec4(uv * 2.0 - 1.0, d * 2.0 - 1.0, 1.0); return p.xyz / p.w; }
+vec3 viewNormal(vec2 uv, vec3 p){
+  vec3 pr = viewPos(uv + vec2(texel.x, 0.0)), pl = viewPos(uv - vec2(texel.x, 0.0));
+  vec3 pu = viewPos(uv + vec2(0.0, texel.y)), pd = viewPos(uv - vec2(0.0, texel.y));
+  vec3 dx = abs(pr.z - p.z) < abs(pl.z - p.z) ? pr - p : p - pl;
+  vec3 dy = abs(pu.z - p.z) < abs(pd.z - p.z) ? pu - p : p - pd;
+  return normalize(cross(dx, dy));
+}`;
+const AO_MAT = new THREE.ShaderMaterial({
+  uniforms: {tDepth: {value: null}, projInv: {value: new THREE.Matrix4()}, proj: {value: new THREE.Matrix4()}, texel: {value: new THREE.Vector2()}, radius: {value: 0.85}, bias: {value: 0.05}},
+  vertexShader: VS, depthTest: false, depthWrite: false,
+  fragmentShader: DEPTH_FN + `
+uniform mat4 proj; uniform float radius; uniform float bias; varying vec2 vUv;
+float hash(vec2 p){ return fract(52.9829189 * fract(dot(p, vec2(0.06711056, 0.00583715)))); }   // Interleaved Gradient Noise: kein Streifenmuster wie sin-Hash auf der GPU
+void main(){
+  float d = texture2D(tDepth, vUv).x;
+  if (d >= 1.0) { gl_FragColor = vec4(1.0); return; }
+  vec3 p = viewPos(vUv), n = viewNormal(vUv, p);
+  float r = radius * clamp(-p.z / 12.0, 0.35, 3.0);   // Radius wächst mit dem Abstand (Übersicht und Nahsicht)
+  float a0 = hash(gl_FragCoord.xy) * 6.2831853, occ = 0.0;
+  const int N = 12;
+  for (int i = 0; i < N; i++) {
+    float fi = (float(i) + 0.5) / float(N);
+    float ang = a0 + float(i) * 2.39996323;
+    vec3 t = normalize(cross(n, abs(n.y) < 0.9 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0)));
+    vec3 b = cross(n, t);
+    float s = sqrt(fi);
+    vec3 dir = normalize(t * cos(ang) * s + b * sin(ang) * s + n * sqrt(max(0.0, 1.0 - fi)));
+    vec3 q = p + n * r * 0.04 + dir * r * mix(0.15, 1.0, fi);
+    vec4 c = proj * vec4(q, 1.0); vec2 uv = c.xy / c.w * 0.5 + 0.5;
+    if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) continue;
+    float sz = viewPos(uv).z;
+    float rc = smoothstep(0.0, 1.0, r / max(abs(p.z - sz), 1e-4));
+    occ += (sz >= q.z + bias * r ? 1.0 : 0.0) * rc;
+  }
+  float ao = 1.0 - occ / float(N);
+  gl_FragColor = vec4(vec3(ao), 1.0);
+}`});
+const BLUR_MAT = new THREE.ShaderMaterial({
+  uniforms: {tAO: {value: null}, tDepth: {value: null}, projInv: {value: new THREE.Matrix4()}, texel: {value: new THREE.Vector2()}, dir: {value: new THREE.Vector2(1, 0)}},
+  vertexShader: VS, depthTest: false, depthWrite: false,
+  fragmentShader: DEPTH_FN + `
+uniform sampler2D tAO; uniform vec2 dir; varying vec2 vUv;
+void main(){
+  // Gewicht nach Abstand zur Fläche, nicht zur Tiefe: auf schräg gesehenen Wänden ändert sich die Tiefe entlang der Zeile,
+  // ohne Neigung würde nur senkrecht geglättet (senkrechte Streifen)
+  vec2 st = dir * texel * 2.0;
+  float z0 = viewPos(vUv).z, zp = viewPos(vUv + st).z, zm = viewPos(vUv - st).z, s = 0.0, w = 0.0;
+  float sl = abs(zp - z0) < abs(z0 - zm) ? zp - z0 : z0 - zm;
+  for (int i = -4; i <= 4; i++) {
+    vec2 uv = vUv + st * float(i);
+    float z = viewPos(uv).z;
+    float k = exp(-float(i * i) / 10.0) * (1.0 / (1.0 + abs(z - z0 - sl * float(i)) * 40.0 / max(-z0, 0.5)));
+    s += texture2D(tAO, uv).x * k; w += k;
+  }
+  gl_FragColor = vec4(vec3(s / max(w, 1e-4)), 1.0);
+}`});
+const COMP_MAT = new THREE.ShaderMaterial({
+  uniforms: {tColor: {value: null}, tAO: {value: null}, tDepth: {value: null}, projInv: {value: new THREE.Matrix4()}, texel: {value: new THREE.Vector2()},
+             aoStrength: {value: 0.85}, edge: {value: 0.55}, useAO: {value: 1}, sat: {value: 1.0}},
+  vertexShader: VS, depthTest: false, depthWrite: false, toneMapped: true,
+  fragmentShader: DEPTH_FN + `
+uniform sampler2D tColor; uniform sampler2D tAO; uniform float aoStrength; uniform float edge; uniform float useAO; uniform float sat; varying vec2 vUv;
+void main(){
+  vec4 col = texture2D(tColor, vUv);
+  float d = texture2D(tDepth, vUv).x;
+  vec3 c = col.rgb;
+  if (d < 1.0) {
+    float ao = useAO > 0.5 ? texture2D(tAO, vUv).x : 1.0;
+    c *= mix(1.0, ao, aoStrength);
+    // Kantenlinien: Sprung in der Tiefe (relativ) oder im Normalenwinkel zwischen Nachbarn
+    vec3 p = viewPos(vUv), n = viewNormal(vUv, p);
+    float e = 0.0;
+    for (int k = 0; k < 4; k++) {
+      vec2 o = k == 0 ? vec2(texel.x, 0.0) : k == 1 ? vec2(-texel.x, 0.0) : k == 2 ? vec2(0.0, texel.y) : vec2(0.0, -texel.y);
+      vec3 q = viewPos(vUv + o);
+      float dz = abs(q.z - p.z) / max(-p.z, 0.3);
+      e = max(e, smoothstep(0.012, 0.04, dz));
+      vec3 nq = viewNormal(vUv + o, q);
+      e = max(e, smoothstep(0.35, 0.75, 1.0 - dot(n, nq)) * 0.6);
+    }
+    float fade = clamp(1.0 - (-p.z - 60.0) / 140.0, 0.35, 1.0);   // ferne Kanten schwächer
+    c *= 1.0 - edge * e * fade;
+  }
+  float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+  c = max(mix(vec3(l), c, sat), 0.0);   // Sättigung vor der Tonkurve (AgX entsättigt stark)
+  gl_FragColor = vec4(c, 1.0);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
+}`});
+
+function ensureTargets() {
+  const w = renderer.domElement.width, h = renderer.domElement.height;
+  if (PP.rt && PP.w === w && PP.h === h) return;
+  for (const k of ['rt', 'ao', 'ao2']) if (PP[k]) { if (PP[k].depthTexture) PP[k].depthTexture.dispose(); PP[k].dispose(); }
+  PP.w = w; PP.h = h;
+  PP.rt = new THREE.WebGLRenderTarget(w, h, {type: THREE.HalfFloatType, samples: 4, depthTexture: new THREE.DepthTexture(w, h, THREE.UnsignedIntType)});
+  PP.rt.depthTexture.minFilter = PP.rt.depthTexture.magFilter = THREE.NearestFilter;
+  const hw = Math.max(1, w >> 1), hh = Math.max(1, h >> 1);
+  PP.ao = new THREE.WebGLRenderTarget(hw, hh, {type: THREE.UnsignedByteType, depthBuffer: false});
+  PP.ao2 = new THREE.WebGLRenderTarget(hw, hh, {type: THREE.UnsignedByteType, depthBuffer: false});
+}
+function pass(mat, target) { PP.quad.material = mat; renderer.setRenderTarget(target); renderer.render(PP.scene, PP.cam); }
+
+let lookMode = '';
+function applyLook() {
+  // Licht je Stil/Qualität. Stil A und „einfach“: bisherige Darstellung (Halbkugel + Kopflicht + schwache Sonne, ohne Tonemapping).
+  const q = qual(), rich = q !== 'einfach' && S.style === 'B';
+  const key = S.style + q + (S.theme || '');
+  if (key === lookMode) return; lookMode = key;
+  OWU.on.value = q === 'einfach' ? 0 : 1;  // Muster Stil B nur bei hoch und mittel
+  if (rich) {
+    scene.environment = SKY.env; scene.background = SKY.bg;
+    renderer.toneMapping = THREE.AgXToneMapping; renderer.toneMappingExposure = LOOK.exposure;
+    hemi.intensity = LOOK.hemi; head.intensity = 0.0; sun.intensity = LOOK.sun; sun.castShadow = q === 'hoch';
+    sun.color.setHex(0xfff8f0);  // AP-09d kaum warme Sonne zum blassen Himmelslicht, Asphalt und Dach bleiben neutral grau
+  } else {
+    scene.environment = null;
+    scene.background = new THREE.Color(getComputedStyle(document.documentElement).getPropertyValue('--scene').trim() || '#e9edf3');
+    renderer.toneMapping = THREE.NoToneMapping; renderer.toneMappingExposure = 1;
+    hemi.intensity = (S.theme === 'dark' || (S.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches)) ? 0.95 : 1.15;
+    head.intensity = 1.2; sun.intensity = 0.55; sun.color.setHex(0xffffff); sun.castShadow = false; sun.position.set(-40, 80, 30); sun.target.position.set(0, 0, 0); sun.target.updateMatrixWorld();
+  }
+  for (const p of S.prims) { p.mat.envMap = rich ? null : (envTex && p.metal > 0 ? envTex : null); p.mat.envMapIntensity = rich ? LOOK.env : 0.8; p.mat.needsUpdate = true; }
+  shadowDirty = true;
+}
+function fitSun() {
+  // Schattenkamera auf die sichtbare Szene (Kugel um die Begrenzung), Sonne aus fester Richtung
+  const b = sceneBounds(), c = b.getCenter(new THREE.Vector3()), r = Math.max(5, b.getSize(new THREE.Vector3()).length() / 2 + 1);
+  sun.position.copy(c).addScaledVector(SUN_DIR, r * 2);
+  sun.target.position.copy(c); sun.target.updateMatrixWorld();
+  const sc = sun.shadow.camera;
+  sc.left = -r; sc.right = r; sc.top = r; sc.bottom = -r; sc.near = 0.5; sc.far = r * 4; sc.updateProjectionMatrix();
+  sun.shadow.normalBias = 0.02 * Math.max(1, r / 40);
+}
+function drawFrame() {
+  applyLook();
+  const q = qual(), rich = q !== 'einfach' && S.style === 'B';
+  syncGround(rich);
+  if (sun.castShadow && shadowDirty) { fitSun(); renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
+  if (!rich) { renderer.setRenderTarget(null); renderer.render(scene, camera); return; }
+  ensureTargets();
+  renderer.setRenderTarget(PP.rt); renderer.render(scene, camera);
+  const pi = camera.projectionMatrixInverse, tx = new THREE.Vector2(1 / PP.w, 1 / PP.h), th = new THREE.Vector2(1 / PP.ao.width, 1 / PP.ao.height);
+  AO_MAT.uniforms.tDepth.value = PP.rt.depthTexture; AO_MAT.uniforms.projInv.value.copy(pi); AO_MAT.uniforms.proj.value.copy(camera.projectionMatrix); AO_MAT.uniforms.texel.value.copy(tx);
+  pass(AO_MAT, PP.ao);
+  BLUR_MAT.uniforms.tDepth.value = PP.rt.depthTexture; BLUR_MAT.uniforms.projInv.value.copy(pi); BLUR_MAT.uniforms.texel.value.copy(th);
+  BLUR_MAT.uniforms.tAO.value = PP.ao.texture; BLUR_MAT.uniforms.dir.value.set(1, 0); pass(BLUR_MAT, PP.ao2);
+  BLUR_MAT.uniforms.tAO.value = PP.ao2.texture; BLUR_MAT.uniforms.dir.value.set(0, 1); pass(BLUR_MAT, PP.ao);
+  const U = COMP_MAT.uniforms;
+  U.aoStrength.value = LOOK.ao; U.edge.value = LOOK.edge; U.sat.value = LOOK.sat;
+  U.tColor.value = PP.rt.texture; U.tAO.value = PP.ao.texture; U.tDepth.value = PP.rt.depthTexture; U.projInv.value.copy(pi); U.texel.value.copy(tx);
+  pass(COMP_MAT, null);
+}
+function setQuality(q) {
+  QUAL[S.style] = q; try { localStorage.setItem('ow_quality', JSON.stringify(QUAL)); } catch (e) {}
+  lookMode = ''; invalidateShadow(); syncQualUI();
+}
+function syncQualUI() { document.querySelectorAll('#qualSeg button').forEach(b => { const on = b.dataset.q === qual(); b.classList.toggle('act', on); b.setAttribute('aria-pressed', on); }); }
+
+function applyTheme() {
+  const dark = S.theme === 'dark' || (S.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+  if (S.theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', S.theme);
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--scene').trim() || (dark ? '#12161b' : '#e9edf3');
+  scene.background = new THREE.Color(bg);
+  hemi.intensity = dark ? 0.95 : 1.15;
+  document.querySelectorAll('#themeSeg button').forEach(b => { const on = b.dataset.t === S.theme; b.classList.toggle('act', on); b.setAttribute('aria-pressed', on); });
+  lookMode = '';
+  invalidate();
+}
+document.querySelectorAll('#themeSeg button').forEach(b => b.onclick = () => { S.theme = b.dataset.t; try { localStorage.setItem('ow_theme', S.theme); } catch (e) {} applyTheme(); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => S.theme === 'auto' && applyTheme());
+try { S.theme = localStorage.getItem('ow_theme') || 'auto'; } catch (e) {}
+
+function resize() {
+  const r = $('#stage').getBoundingClientRect();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));  // AP-11: volle Bildschirmauflösung, auch nach Monitorwechsel
+  renderer.setSize(Math.max(10, r.width), Math.max(10, r.height), false);
+  camera.aspect = r.width / Math.max(1, r.height);
+  camera.updateProjectionMatrix();
+  invalidate();
+}
+new ResizeObserver(resize).observe($('#stage'));
+(function watchDpr() { try { matchMedia('(resolution: ' + (window.devicePixelRatio || 1) + 'dppx)').addEventListener('change', () => { resize(); watchDpr(); }, {once: true}); } catch (e) {} })();
+const dprOff = () => renderer.getPixelRatio() !== Math.min(window.devicePixelRatio || 1, 2);
+window.addEventListener('resize', () => { if (dprOff()) resize(); });
+setInterval(() => { if (dprOff()) resize(); }, 1000);  // Monitorwechsel oder Browserzoom, falls kein Ereignis kommt
+
+/* AP-11: Seitenleisten. Über 1400 px stehen sie neben dem Bild, offen oder zu nach Wahl des Betrachters (im Browser gemerkt).
+   Bis 1400 px liegen sie über dem Bild und starten zu. Eine Auswahl öffnet dort die Details. Das Bild passt sich über den
+   ResizeObserver an (Seitenverhältnis der Kamera neu, nichts verzerrt). */
+const PANEL = {st: {l: true, r: true}, ov: {l: false, r: false}, wide: null, auto: -1};
+try { const o = JSON.parse(localStorage.getItem('ow_panels') || '{}'); if (o && typeof o === 'object') { if ('l' in o) PANEL.st.l = !!o.l; if ('r' in o) PANEL.st.r = !!o.r; } } catch (e) {}
+const isWide = () => innerWidth > 1400;
+function layoutPanels() {
+  const wide = isWide();
+  if (PANEL.wide !== null && wide !== PANEL.wide) PANEL.ov = {l: false, r: false};
+  PANEL.wide = wide;
+  const st = wide ? PANEL.st : PANEL.ov, app = $('#app');
+  app.classList.toggle('ovl', !wide); app.classList.toggle('l-off', !st.l); app.classList.toggle('r-off', !st.r);
+  $('#bLeft').setAttribute('aria-expanded', st.l ? 'true' : 'false'); $('#bRight').setAttribute('aria-expanded', st.r ? 'true' : 'false');
+  $('#bLeft').title = st.l ? 'Menü schließen' : 'Menü mit Filter, Modell, Schnitt und Ansicht öffnen';
+  $('#bRight').title = st.r ? 'Details schließen' : (S.last >= 0 ? 'Details zum gewählten Objekt öffnen' : 'Details öffnen');
+  $('#bRight').classList.toggle('dot', !st.r && S.last >= 0);
+}
+function setPanel(side, open) {
+  if (isWide()) { PANEL.st[side] = open; try { localStorage.setItem('ow_panels', JSON.stringify(PANEL.st)); } catch (e) {} }
+  else { PANEL.ov[side] = open; if (open && innerWidth < 1000) PANEL.ov[side === 'l' ? 'r' : 'l'] = false; }
+  layoutPanels();
+}
+$('#bLeft').onclick = () => setPanel('l', $('#bLeft').getAttribute('aria-expanded') !== 'true');
+$('#bRight').onclick = () => setPanel('r', $('#bRight').getAttribute('aria-expanded') !== 'true');
+function panelsOnSelect() {
+  if (S.last >= 0 && S.last !== PANEL.auto && !isWide()) { PANEL.auto = S.last; setPanel('r', true); return; }
+  if (S.last < 0) { PANEL.auto = -1; if (!isWide() && PANEL.ov.r) { setPanel('r', false); return; } }
+  layoutPanels();
+}
+addEventListener('resize', layoutPanels);
+layoutPanels();
+/* Hilfe als Dialog, Hinweis für den ersten Besuch, Messung nur mit ?debug */
+$('#helpX').innerHTML = IC.close;
+$('#bHelp').onclick = () => { const d = $('#help'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); };
+$('#helpX').onclick = () => $('#help').close();
+$('#help').addEventListener('click', e => { if (e.target === $('#help')) $('#help').close(); });
+const COARSE = matchMedia('(pointer: coarse)').matches;
+$('#hint').textContent = COARSE ? 'Ein Finger dreht, zwei Finger zoomen, Tippen wählt' : 'Ziehen dreht, Rad zoomt, Klick wählt';
+try { if (localStorage.getItem('ow_hint') === '1') $('#hint').hidden = true; } catch (e) {}
+const hideHint = () => { if ($('#hint').hidden) return; $('#hint').hidden = true; try { localStorage.setItem('ow_hint', '1'); } catch (e) {} };
+cv.addEventListener('pointerdown', hideHint); cv.addEventListener('wheel', hideHint, {passive: true});
+if (DEBUG) $('#benchBox').hidden = false;
+
+/* ====================================================================================================
+   Kamera
+   ==================================================================================================== */
+function updateCamera() {
+  const c = S.cam;
+  c.pitch = Math.max(-1.55, Math.min(1.55, c.pitch));
+  c.dist = Math.max(0.3, Math.min(600, c.dist));
+  const cp = Math.cos(c.pitch);
+  camera.position.set(c.target.x + c.dist * cp * Math.sin(c.yaw), c.target.y + c.dist * Math.sin(c.pitch), c.target.z + c.dist * cp * Math.cos(c.yaw));
+  camera.near = Math.max(0.03, Math.min(2, c.dist / 400));
+  camera.far = Math.max(300, c.dist * 8);
+  camera.lookAt(c.target);
+  camera.updateProjectionMatrix();
+  head.position.copy(camera.position);
+  head.target.position.copy(c.target);
+  const w = t2w(c.target);
+  if (DEBUG) $('#sCur').textContent = 'Ziel X ' + dez(w[0], 1) + '  Y ' + dez(w[1], 1) + '  Z ' + dez(w[2], 1) + ', Abstand ' + dez(c.dist, 1) + ' m';
+}
+function viewDir() { return new THREE.Vector3().subVectors(S.cam.target, camera.position).normalize(); }
+function setView(name) {
+  const c = S.cam, b = sceneBounds();
+  const ctr = b.getCenter(new THREE.Vector3()), sz = b.getSize(new THREE.Vector3());
+  const r = Math.max(sz.x, sz.z, sz.y * 1.2, 8);
+  c.target.copy(ctr);
+  const presets = {top: [0, 1.5, 1.25], south: [0, 0.15, 1.1], north: [Math.PI, 0.15, 1.1], west: [-Math.PI / 2, 0.15, 1.1], east: [Math.PI / 2, 0.15, 1.1], iso: [0.75, 0.62, 1.25]};
+  const p = presets[name] || presets.iso;
+  c.yaw = p[0]; c.pitch = p[1]; c.dist = r * p[2];
+  invalidate();
+}
+function sceneBounds() {
+  const b = new THREE.Box3();
+  for (const p of S.prims) if (p.meshV.visible) b.union(p.bbox);
+  if (b.isEmpty()) {
+    const f = S.man ? S.man.floors : [];
+    b.set(new THREE.Vector3(0, f.length ? f[0].lo : -4, -48), new THREE.Vector3(72, f.length ? f[f.length - 1].hi : 24, 0));
+  }
+  return b;
+}
+function zoomToBox(b, margin = 1.5) {
+  const ctr = b.getCenter(new THREE.Vector3()), sz = b.getSize(new THREE.Vector3());
+  const r = Math.max(sz.length() / 2, 0.15);
+  S.cam.target.copy(ctr);
+  S.cam.dist = Math.max(0.6, r * margin / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.9);
+  invalidate();
+}
+$('#bHome').onclick = () => setView('iso');
+function setMode(m, quiet = false) {
+  S.mode = m === 'fly' ? 'fly' : 'orbit';
+  document.querySelectorAll('#modeSeg button').forEach(b => { const on = b.dataset.m === S.mode; b.classList.toggle('act', on); b.setAttribute('aria-pressed', on); });
+  if (!quiet) showMsg(S.mode === 'orbit' ? 'Orbit, Ziehen dreht um das Ziel' : 'Fliegen, Ziehen schaut sich um, W A S D bewegt', 2500);
+}
+document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => setMode(b.dataset.m));
+setMode('orbit', true);
+
+/* ====================================================================================================
+   GLB-Leser (glTF 2.0 binär). Eigener Minimalleser: GLTFLoader/OrbitControls liegen nicht auf cdnjs.
+   Unterstützt: POSITION, _OBJECTID, Indizes (u8/u16/u32), Materialien (baseColorFactor, alphaMode), Node-Hierarchie ohne Transformation.
+   ==================================================================================================== */
+function parseGLB(buf) {
+  const dv = new DataView(buf);
+  if (dv.getUint32(0, true) !== 0x46546C67) throw new Error('keine GLB-Datei');
+  let off = 12, json = null, binOff = -1;
+  while (off < buf.byteLength) {
+    const len = dv.getUint32(off, true), type = dv.getUint32(off + 4, true);
+    if (type === 0x4E4F534A) json = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, off + 8, len)));
+    else if (type === 0x004E4942) binOff = off + 8;
+    off += 8 + len;
+  }
+  const acc = i => {
+    const a = json.accessors[i], bv = json.bufferViews[a.bufferView];
+    const o = binOff + (bv.byteOffset || 0) + (a.byteOffset || 0), n = a.count * ({SCALAR: 1, VEC2: 2, VEC3: 3, VEC4: 4}[a.type]);
+    const T = {5126: Float32Array, 5125: Uint32Array, 5123: Uint16Array, 5121: Uint8Array}[a.componentType];
+    return new T(buf, o, n);
+  };
+  const out = [];
+  for (const mesh of json.meshes) for (const pr of mesh.primitives) {
+    const pos = acc(pr.attributes.POSITION);
+    const oid = pr.attributes._OBJECTID !== undefined ? acc(pr.attributes._OBJECTID) : null;
+    let idx = acc(pr.indices);
+    if (!(idx instanceof Uint32Array)) idx = Uint32Array.from(idx);
+    const m = json.materials[pr.material || 0] || {};
+    const pbr = m.pbrMetallicRoughness || {};
+    const ex = m.extras || {};
+    out.push({pos, oid, idx, mat: {name: m.name || '', key: ex.key || '', label: ex.label || '', color: pbr.baseColorFactor || [0.7, 0.7, 0.7, 1],
+                                   rough: pbr.roughnessFactor ?? 0.9, metal: pbr.metallicFactor ?? 0}});
+  }
+  return {prims: out, extras: (json.asset || {}).extras || {}};
+}
+
+/* ====================================================================================================
+   Laden: Index, Manifest, GLB je Geschoss und Ebene
+   ==================================================================================================== */
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function showMsg(t, ms = 3500) { const m = $('#msg'); m.textContent = t; m.style.display = 'block'; clearTimeout(showMsg.t); if (ms) showMsg.t = setTimeout(() => m.style.display = 'none', ms); }
+let loadsRunning = 0, loadsTotal = 0, loadsDone = 0;
+function progress() { $('#prog').style.width = loadsTotal ? (100 * loadsDone / loadsTotal) + '%' : '0'; if (loadsDone >= loadsTotal && loadsTotal) setTimeout(() => { loadsTotal = loadsDone = 0; $('#prog').style.width = '0'; }, 400); }
+
+async function loadFile(f) {
+  const rec = {state: 'loading', f};
+  S.files.set(f.path, rec);
+  loadsTotal++; loadsRunning++; progress();
+  const t0 = performance.now();
+  try {
+    const r = await fetch(DATA + f.path);
+    if (!r.ok) throw new Error(f.path + ': HTTP ' + r.status);
+    const buf = await r.arrayBuffer();
+    const t1 = performance.now();
+    const g = parseGLB(buf);
+    for (const pr of g.prims) addPrim(pr, f, rec);
+    const t2 = performance.now();
+    rec.state = 'ready'; rec.ms = {fetch: t1 - t0, parse: t2 - t1}; rec.bytes = buf.byteLength;
+    S.metrics.fetchMs = (S.metrics.fetchMs || 0) + (t1 - t0); S.metrics.parseMs = (S.metrics.parseMs || 0) + (t2 - t1); S.metrics.bytes = (S.metrics.bytes || 0) + buf.byteLength;
+  } catch (e) { rec.state = 'error'; console.error(e); showMsg('Ladefehler: ' + e.message, 8000); }
+  loadsRunning--; loadsDone++; progress();
+  S.metrics.lastLoadMs = performance.now() - t0;
+  refreshStatus(); applyVisibility();
+}
+
+/* Muster in Weltkoordinaten für Stil B (AP-09d): Dielen, Fliesen, Platten, Pflaster, Asphaltkorn, Kies, Rasen, Beton, Putz und
+   ein dunkler Sockel an der Fassade. Nur Farbe, keine Texturdatei. Fugen werden mit dem Abstand ausgeblendet (kein Flimmern).
+   Darstellung, kein Weltdatum. Aus bei Bildqualität einfach und in den Einfärbungen (dort Scheitelfarben, USE_COLOR). */
+const PAT_KIND = {boden_nuf: 1, boden_san: 2, boden_vf: 3, boden_tf: 4, decke: 5, wandkern: 5, stuetze: 5, traeger: 5, treppe: 5, podest: 5, band: 5, schwelle: 5,
+  wand: 6, sturz: 6, trennwand: 6, fassade: 7, belag_park: 8, belag_logistik: 8, belag_fuss: 9, belag_rad: 9, gruen: 10, dachbelag: 11, hofbelag: 12,
+  dachzone_rlt: 13, dachzone_kaelte: 14, dachzone_zugang: 15, moebel: 16, tuerblatt: 16, polster: 17};
+const OWU = {on: {value: 1}, plinth: {value: 0.30}, gBase: {value: 0.22}, gMax: {value: 0.8}};
+const PAT_GLSL = `
+uniform float owOn; uniform float owPlinth; varying vec3 vWP;
+float owH(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float owN(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(owH(i), owH(i + vec2(1.0, 0.0)), f.x), mix(owH(i + vec2(0.0, 1.0)), owH(i + vec2(1.0, 1.0)), f.x), f.y); }
+float owF(vec2 p){ return 0.5 * owN(p) + 0.3 * owN(p * 2.03 + 7.1) + 0.2 * owN(p * 4.11 + 3.7); }
+float owFine(vec2 p){ vec2 a = fwidth(p); return 1.0 - smoothstep(0.35, 0.9, max(a.x, a.y)); }
+vec2 owCell(vec2 p, vec2 s, float off){ float r = floor(p.y / s.y); return vec2(floor(p.x / s.x + off * r), r); }
+float owJoint(vec2 p, vec2 s, float off, float w){
+  float r = floor(p.y / s.y);
+  vec2 q = vec2(p.x / s.x + off * r, p.y / s.y);
+  vec2 d = (0.5 - abs(fract(q) - 0.5)) * s;
+  vec2 a = fwidth(p) * 1.2;
+  float l = max(1.0 - smoothstep(w, w + a.x, d.x), 1.0 - smoothstep(w, w + a.y, d.y));
+  return l * (1.0 - smoothstep(0.06, 0.3, max(a.x / s.x, a.y / s.y)));
+}
+float owSlab(vec2 uv, vec2 s, float off, float w, float jd, float var){
+  return (1.0 + var * (owH(owCell(uv, s, off)) - 0.5) * 2.0) * (1.0 - jd * owJoint(uv, s, off, w));
+}
+float owPattern(vec3 wp){
+  vec3 nw = normalize(cross(dFdx(wp), dFdy(wp)));
+  bool hor = abs(nw.y) > 0.7;
+  vec2 uv = hor ? wp.xz : (abs(nw.x) > abs(nw.z) ? vec2(wp.z, wp.y) : vec2(wp.x, wp.y));
+  float m = 1.0;
+#if OW_KIND == 1
+  vec2 s = vec2(1.6, 0.18); vec2 id = owCell(uv, s, 0.37);
+  m = (0.9 + 0.2 * owH(id)) * (0.95 + 0.1 * owN(vec2(uv.x * 1.2, uv.y * 45.0) + id * 13.0) * owFine(uv * 45.0)) * (1.0 - 0.35 * owJoint(uv, s, 0.37, 0.0015));
+#elif OW_KIND == 2
+  m = owSlab(uv, vec2(0.3), 0.0, 0.002, 0.16, 0.02);
+#elif OW_KIND == 3
+  m = owSlab(uv, vec2(0.6), 0.0, 0.002, 0.2, 0.04) * (0.96 + 0.08 * owF(uv * 1.3));
+#elif OW_KIND == 4
+  m = 0.95 + 0.1 * owF(uv * 0.7);
+#elif OW_KIND == 5
+  m = (0.93 + 0.12 * owF(uv * 0.8)) * (0.97 + 0.06 * owN(uv * 9.0) * owFine(uv * 9.0));
+  if (!hor) m *= 1.0 - 0.12 * owJoint(uv, vec2(2.4, 1.2), 0.0, 0.002);
+#elif OW_KIND == 6
+  m = 0.975 + 0.05 * owN(uv * 6.0) * owFine(uv * 6.0);
+#elif OW_KIND == 7
+  m = 0.97 + 0.06 * owN(uv * 5.0) * owFine(uv * 5.0);
+  if (wp.y < owPlinth) m = (0.48 + 0.06 * owF(uv * 1.5)) * (1.0 - 0.15 * owJoint(uv, vec2(2.4, 9.0), 0.0, 0.003));
+#elif OW_KIND == 8
+  m = (0.93 + 0.12 * owN(uv * 11.0) * owFine(uv * 11.0)) * (0.95 + 0.1 * owF(uv * 0.25));
+#elif OW_KIND == 9
+  m = owSlab(uv, vec2(0.24, 0.12), 0.5, 0.003, 0.25, 0.05);
+#elif OW_KIND == 10
+  m = (0.82 + 0.3 * owF(uv * 0.45)) * (0.94 + 0.12 * owN(uv * 7.0) * owFine(uv * 7.0));
+#elif OW_KIND == 11
+  m = (0.88 + 0.24 * owN(uv * 32.0) * owFine(uv * 32.0)) * (0.96 + 0.08 * owF(uv * 0.5));
+#elif OW_KIND == 12
+  m = owSlab(uv, vec2(0.8, 0.4), 0.5, 0.004, 0.25, 0.04);
+#elif OW_KIND == 13
+  m = owSlab(uv, vec2(0.5), 0.0, 0.005, 0.35, 0.05);
+#elif OW_KIND == 14
+  m = (1.0 - 0.45 * owJoint(uv, vec2(0.035, 0.1), 0.0, 0.004)) * (1.0 - 0.3 * owJoint(uv, vec2(1.0, 0.5), 0.0, 0.01));
+#elif OW_KIND == 15
+  m = owSlab(uv, vec2(0.4), 0.0, 0.004, 0.3, 0.05);
+#elif OW_KIND == 16
+  m = 0.95 + 0.1 * owN(vec2(uv.x * 2.0, uv.y * 30.0)) * owFine(uv * 30.0);
+#elif OW_KIND == 17
+  m = 0.96 + 0.08 * owN(uv * 40.0) * owFine(uv * 40.0);
+#endif
+  return m;
+}`;
+// AP-09e: Glas Stil B spiegelt leicht. Anteil nach Fresnel (senkrecht wenig, flach viel), Spiegelbild aus dem Umgebungslicht.
+// Ein durchsichtiges Material dämpft sonst auch die Spiegelung mit seiner Deckkraft.
+const GLASS_GLSL = `
+#if defined( USE_ENVMAP ) && ! defined( USE_COLOR )
+  if (owOn > 0.5) {
+    float owFr = owGBase + (1.0 - owGBase) * pow(1.0 - clamp(abs(dot(normal, geometryViewDir)), 0.0, 1.0), 5.0);
+    float owR = min(owGMax, owFr);
+    vec3 owRef = getIBLRadiance(geometryViewDir, normal, 0.04);
+    float owA = diffuseColor.a + (1.0 - diffuseColor.a) * owR;
+    outgoingLight = (outgoingLight * diffuseColor.a * (1.0 - owR) + owRef * owR) / max(owA, 0.001);
+    diffuseColor.a = owA;
+  }
+#endif
+#include <opaque_fragment>`;
+function attachPattern(mat, kind, glass) {
+  // Die Netze haben keine Normalen (flatShading rechnet sie im Pixel). three nimmt die Normale aber für den Schattenversatz
+  // (normalBias): ohne Attribut wird daraus NaN und kein Pixel liegt im Schatten. Deshalb feste Normale nach oben (AP-09d).
+  mat.onBeforeCompile = sh => {
+    sh.vertexShader = sh.vertexShader.replace('#include <beginnormal_vertex>', 'vec3 objectNormal = vec3(0.0, 1.0, 0.0);');
+    if (glass) {
+      sh.uniforms.owOn = OWU.on; sh.uniforms.owGBase = OWU.gBase; sh.uniforms.owGMax = OWU.gMax;
+      sh.fragmentShader = 'uniform float owOn; uniform float owGBase; uniform float owGMax;\n' + sh.fragmentShader.replace('#include <opaque_fragment>', GLASS_GLSL);
+    }
+    if (!kind) return;
+    sh.uniforms.owOn = OWU.on; sh.uniforms.owPlinth = OWU.plinth;
+    sh.vertexShader = 'varying vec3 vWP;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    sh.fragmentShader = '#define OW_KIND ' + kind + '\n' + PAT_GLSL + '\n' + sh.fragmentShader.replace('#include <color_fragment>',
+      '#include <color_fragment>\n#ifndef USE_COLOR\n  if (owOn > 0.5) diffuseColor.rgb *= owPattern(vWP);\n#endif');
+  };
+  mat.customProgramCacheKey = () => 'owpat' + kind + (glass ? 'g' : '');
+}
+
+function addPrim(pr, f, rec) {
+  const nT = pr.idx.length / 3, nV = pr.pos.length / 3;
+  const triObj = new Uint32Array(nT);
+  const ranges = [];
+  let cur = -1, ra = 0;
+  for (let t = 0; t < nT; t++) {
+    const o = pr.oid ? pr.oid[pr.idx[3 * t]] | 0 : 0;
+    triObj[t] = o;
+    if (o !== cur) { if (cur >= 0) ranges.push(cur, ra, t); cur = o; ra = t; }
+  }
+  if (cur >= 0) ranges.push(cur, ra, nT);
+  const nR = ranges.length / 3;
+  const rO = new Uint32Array(nR), rA = new Uint32Array(nR), rB = new Uint32Array(nR), bb = new Float32Array(nR * 6);
+  const pos = pr.pos, idx = pr.idx;
+  const pb = new THREE.Box3();
+  let mnx = 1e9, mny = 1e9, mnz = 1e9, mxx = -1e9, mxy = -1e9, mxz = -1e9;
+  for (let r = 0; r < nR; r++) {
+    rO[r] = ranges[3 * r]; rA[r] = ranges[3 * r + 1]; rB[r] = ranges[3 * r + 2];
+    let a = 1e9, b = 1e9, c = 1e9, d = -1e9, e = -1e9, g = -1e9;
+    for (let k = rA[r] * 3; k < rB[r] * 3; k++) {
+      const v = idx[k] * 3, x = pos[v], y = pos[v + 1], z = pos[v + 2];
+      if (x < a) a = x; if (x > d) d = x; if (y < b) b = y; if (y > e) e = y; if (z < c) c = z; if (z > g) g = z;
+    }
+    bb[6 * r] = a; bb[6 * r + 1] = b; bb[6 * r + 2] = c; bb[6 * r + 3] = d; bb[6 * r + 4] = e; bb[6 * r + 5] = g;
+    if (a < mnx) mnx = a; if (b < mny) mny = b; if (c < mnz) mnz = c; if (d > mxx) mxx = d; if (e > mxy) mxy = e; if (g > mxz) mxz = g;
+  }
+  pb.set(new THREE.Vector3(mnx, mny, mnz), new THREE.Vector3(mxx, mxy, mxz));
+  const geo = new THREE.BufferGeometry();
+  const posAttr = new THREE.BufferAttribute(pos, 3);
+  geo.setAttribute('position', posAttr);
+  const visIdx = new Uint32Array(idx.length);
+  const ia = new THREE.BufferAttribute(visIdx, 1); ia.setUsage(THREE.DynamicDrawUsage);
+  geo.setIndex(ia); geo.setDrawRange(0, 0);
+  geo.boundingBox = pb.clone();
+  geo.boundingSphere = pb.getBoundingSphere(new THREE.Sphere());
+  const c = pr.mat.color;
+  // Metall ohne Umgebungsbild wirkt schwarz: Darstellung begrenzt (Stil B), Rauheit aus der GLB (Glas darf glatt bleiben und spiegelt den Himmel)
+  const metal = pr.mat.metal || 0;
+  const mat = new THREE.MeshStandardMaterial({flatShading: true, side: THREE.DoubleSide, roughness: c[3] < 0.999 ? Math.max(0.04, pr.mat.rough) : Math.max(0.25, pr.mat.rough), metalness: envTex ? Math.min(metal, 0.6) : 0});
+  mat.color.setRGB(c[0], c[1], c[2], THREE.LinearSRGBColorSpace);
+  if (envTex && metal > 0) { mat.envMap = envTex; mat.envMapIntensity = 0.8; }
+  const mkey = pr.mat.key || pr.mat.name.split('|')[1], styB = (f.style || 'A') === 'B';
+  const pkind = styB ? PAT_KIND[mkey] : 0;
+  attachPattern(mat, pkind || 0, styB && mkey === 'glas');
+  // Lichtfläche der Leuchte und Rettungszeichen leuchten (AP-09f, Darstellung)
+  if (styB && (mkey === 'licht' || mkey === 'schild_gruen')) { mat.emissive.copy(mat.color); mat.emissiveIntensity = mkey === 'licht' ? 1.6 : 0.6; }
+  const meshV = new THREE.Mesh(geo, mat);
+  meshV.frustumCulled = true;
+  meshV.receiveShadow = true;
+  meshV.visible = false;
+  const meshCut = new THREE.Mesh(geo, CUTMAT);
+  meshCut.visible = false;
+  worldGroup.add(meshV, meshCut);
+  const nm = pr.mat.name.split('|');
+  const p = {f, layer: f.layer, group: f.group, style: f.style || 'A', status: nm[2] || 'base', mkey: pr.mat.key || nm[1] || '', mlabel: pr.mat.label || '', tga: (pr.mat.key || nm[1]) === 'tga',
+             metal, pos, idx, nV, nT, triObj, rO, rA, rB, bb, nR, bbox: pb, geo, posAttr, visIdx, ia, mat, meshV, meshCut, baseAlpha: c[3], baseColor: mat.color.clone(), oid: pr.oid, colAttr: null, ghost: null};
+  rec.prims = rec.prims || []; rec.prims.push(p);
+  S.prims.push(p);
+  for (let r = 0; r < nR; r++) { let l = S.objPrims.get(rO[r]); if (!l) S.objPrims.set(rO[r], l = []); l.push([p, r]); }
+  applyLayerMaterial(p);
+  if (S.colorMode !== 'material') paintPrim(p);
+}
+
+function ensureGhost(p) {
+  if (p.ghost) return p.ghost;
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', p.posAttr);
+  const arr = new Uint32Array(p.idx.length);
+  const ia = new THREE.BufferAttribute(arr, 1); ia.setUsage(THREE.DynamicDrawUsage);
+  geo.setIndex(ia); geo.setDrawRange(0, 0);
+  geo.boundingBox = p.bbox.clone(); geo.boundingSphere = p.bbox.getBoundingSphere(new THREE.Sphere());
+  const mat = new THREE.MeshBasicMaterial({color: 0x8a96a8, transparent: true, opacity: 0.07, depthWrite: false, side: THREE.DoubleSide});
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.renderOrder = -1; mesh.visible = false;
+  worldGroup.add(mesh);
+  return p.ghost = {geo, arr, ia, mat, mesh};
+}
+
+/* Laden bei Bedarf: Geschoss gewählt und Ebene sichtbar -> Dateien laden */
+function neededFiles(st = S.style) {
+  const need = [];
+  for (const f of styleFiles(st)) {
+    if (S.files.has(f.path)) continue;
+    const floorSel = f.group === 'MULTI' ? (S.floorOn.size > 0 || S.extraOn.size > 0) : f.group[0] === 'F' ? S.floorOn.has(+f.group.slice(1)) : S.extraOn.has(f.group);
+    if (floorSel && S.layerOn[f.layer]) need.push(f);
+  }
+  return need;
+}
+function loadMany(need) {
+  // kleine zuerst, höchstens 4 gleichzeitig; liefert ein Promise, das nach allen Dateien erfüllt ist
+  const queue = need.slice().sort((a, b) => a.bytes - b.bytes);
+  const workers = Array.from({length: 4}, async () => { while (queue.length) { const f = queue.shift(); if (!S.files.has(f.path)) await loadFile(f); else while (S.files.get(f.path).state === 'loading') await sleep(40); } });
+  return Promise.all(workers);
+}
+function syncLoads() { if (S.man) return loadMany(neededFiles()); }
+
+/* ====================================================================================================
+   Sichtbarkeit
+   ==================================================================================================== */
+function computeVis() {
+  const I = S.idx, N = S.N, vis = S.vis;
+  let floorMask = 0; for (const i of S.floorOn) floorMask |= 1 << i;
+  const grp = I.groups;
+  const layerVis = I.layers.map(l => !!S.layerOn[l.key]);
+  const iso = S.isolate, hid = S.hidden, gv = S.gv, ghostAll = S.ghost, xr = S.xray;
+  // Decken: die Decke über dem obersten gewählten Geschoss bleibt offen (Blick hinein), außer das Dach ist eingeschaltet
+  const deckeL = I.layers.findIndex(l => l.key === 'decke');
+  const topSel = S.floorOn.size ? Math.max(...S.floorOn) : -1, roofOn = S.extraOn.has('DACH');
+  let cnt = 0;
+  for (let i = 0; i < N; i++) {
+    let ok;
+    const fm = I.fmask[i];
+    if (fm) ok = (fm & floorMask) !== 0; else ok = S.extraOn.has(grp[I.group[i]]);
+    if (ok) {
+      const l = I.layer[i];
+      if (l >= 0 && !layerVis[l]) ok = false;
+      else if (l === deckeL && fm && !roofOn && 31 - Math.clz32(fm) >= topSel) ok = false;
+      else if (S.gewOff.has(I.gewerk[i]) || S.sysOff.has(I.system[i]) || S.artOff.has(I.art[i]) || S.statOff.has(I.status[i])) ok = false;
+    }
+    const base = ok;  // Filter erfüllt, vor Ausblenden und Isolieren
+    if (ok && (hid.has(i) || (iso && !iso.has(i)))) ok = false;
+    vis[i] = ok ? 1 : 0;
+    gv[i] = !ok && (ghostAll || (xr && base)) ? 1 : 0;  // blass: alles Ausgeblendete (Schalter) oder beim Röntgen der Rest
+    if (ok && I.body[i]) cnt++;
+  }
+  S.visCount = cnt;
+}
+function applyVisibility() {
+  if (!S.idx) return;
+  computeVis();
+  let tris = 0;
+  for (const p of S.prims) tris += rebuildPrim(p);
+  S.metrics.tris = tris;
+  shadowDirty = true;
+  refreshStatus();
+  updateSelectionMeshes();
+  renderActs();
+  legendSoon();
+  bsVis();
+  invalidate();
+}
+const activePrims = n => (S.objPrims.get(n) || []).filter(([p]) => S.stylePaths.has(p.f.path));
+function rebuildPrim(p) {
+  const gOk = p.group === 'MULTI' || (p.group[0] === 'F' ? S.floorOn.has(+p.group.slice(1)) : S.extraOn.has(p.group));
+  if (!S.stylePaths.has(p.f.path) || !gOk) {  // anderer Stil (bleibt geladen) oder Geschoss abgewählt (z. B. geschossübergreifendes Darstellungsobjekt Fenster)
+    p.geo.setDrawRange(0, 0); p.meshV.visible = false; p.meshCut.visible = false; p.nVis = 0;
+    if (p.ghost) { p.ghost.geo.setDrawRange(0, 0); p.ghost.mesh.visible = false; }
+    return 0;
+  }
+  const vis = S.vis, ia = p.visIdx, src = p.idx, rO = p.rO, rA = p.rA, rB = p.rB;
+  const ghostOn = (S.ghost || S.xray) && S.layerOn[p.layer] && p.groupLoaded !== false, gv = S.gv;
+  const gh = ghostOn ? ensureGhost(p) : p.ghost;
+  if (gh) gh.mat.opacity = S.xray ? 0.12 : 0.07;
+  let wv = 0, wg = 0;
+  for (let r = 0; r < p.nR; r++) {
+    const a = rA[r] * 3, b = rB[r] * 3;
+    if (vis[rO[r]]) { ia.set(src.subarray(a, b), wv); wv += b - a; }
+    else if (ghostOn && gv[rO[r]]) { gh.arr.set(src.subarray(a, b), wg); wg += b - a; }
+  }
+  p.geo.setDrawRange(0, wv); p.ia.needsUpdate = true; p.meshV.visible = wv > 0 && !!S.layerOn[p.layer];
+  p.nVis = wv / 3;
+  updateCutState(p);
+  if (gh) { gh.geo.setDrawRange(0, wg); gh.ia.needsUpdate = true; gh.mesh.visible = ghostOn && wg > 0; }
+  return wv / 3;
+}
+function applyLayerMaterial(p) {
+  // Kandidaten (Entscheidung main 16.11.): standardmäßig deckend und aufgehellt; Schnellschalter „Kandidaten halbtransparent“ = alte Darstellung
+  const op = S.layerOp[p.layer] ?? 1;
+  const cand = p.status === 'candidate' && !S.candTransparent;
+  p.dispColor = cand ? p.baseColor.clone().lerp(WHITE, 0.5) : p.baseColor;
+  if (S.colorMode === 'material') p.mat.color.copy(p.dispColor);
+  const a = (cand ? 1 : p.baseAlpha) * op;
+  p.mat.opacity = a; p.mat.transparent = a < 0.999; p.mat.depthWrite = !(a < 0.999);
+  p.mat.forceSinglePass = true;  // durchsichtige Körper in einem Durchgang (spart ein Viertel Zeichenzeit, Messung AP-05)
+  p.mat.needsUpdate = true;
+  p.meshV.castShadow = !p.mat.transparent;
+  shadowDirty = true;
+  updateCutState(p);
+}
+function refreshStatus() {
+  $('#sVis').textContent = S.idx ? ((S.visCount || 0).toLocaleString('de') + ' von ' + S.idx.body.reduce((a, b) => a + b, 0).toLocaleString('de') + ' Körpern sichtbar') : '';
+  $('#sTri').textContent = DEBUG ? Math.round(S.metrics.tris || 0).toLocaleString('de') + ' Dreiecke' : '';
+  const ld = [...S.files.values()].filter(r => r.state === 'loading').length;
+  $('#sLoad').textContent = ld ? ('lädt ' + ld + ' Dateien') : DEBUG ? ('geladen ' + [...S.files.values()].filter(r => r.state === 'ready').length + ' Dateien, ' + dez((S.metrics.bytes || 0) / 1e6, 1) + ' MB') : '';
+}
+
+/* ====================================================================================================
+   Einfärbung nach Kategorie (Vertexfarben)
+   ==================================================================================================== */
+function hsl(h, s, l) { const c = new THREE.Color(); c.setHSL(h, s, l, THREE.SRGBColorSpace); return c; }
+let catLUT = null;
+function buildLUT(mode) {
+  const I = S.idx, N = S.N, lut = new Float32Array(N * 3);
+  const colFor = {
+    gewerk: i => hsl((I.gewerk[i] * 0.137) % 1, 0.6, 0.55),
+    art: i => hsl((I.art[i] * 0.381) % 1, 0.55, 0.55),
+    status: i => [new THREE.Color('#2f9e5e'), new THREE.Color('#e0a020'), new THREE.Color('#8794a8')][I.status[i]] || new THREE.Color('#999'),
+    floor: i => { const m = I.fmask[i]; if (!m) return new THREE.Color('#999'); const f = 31 - Math.clz32(m & -m); return hsl((f * 0.16) % 1, 0.6, 0.55); },
+    brand: i => bsColor(i)
+  }[mode];
+  for (let i = 0; i < N; i++) { const c = colFor(i); lut[3 * i] = c.r; lut[3 * i + 1] = c.g; lut[3 * i + 2] = c.b; }
+  return lut;
+}
+function paintPrim(p) {
+  if (S.colorMode === 'material') {
+    p.mat.vertexColors = false; p.mat.color.copy(p.dispColor || p.baseColor); p.mat.needsUpdate = true; return;
+  }
+  if (!catLUT) return;
+  if (!p.colAttr) { p.colAttr = new THREE.BufferAttribute(new Float32Array(p.nV * 3), 3); p.geo.setAttribute('color', p.colAttr); }
+  const c = p.colAttr.array, oid = p.oid;
+  for (let v = 0; v < p.nV; v++) { const o = oid[v] * 3; c[3 * v] = catLUT[o]; c[3 * v + 1] = catLUT[o + 1]; c[3 * v + 2] = catLUT[o + 2]; }
+  p.colAttr.needsUpdate = true;
+  p.mat.vertexColors = true; p.mat.color.setRGB(1, 1, 1); p.mat.needsUpdate = true;
+}
+function setColorMode(m) {
+  S.colorMode = m;
+  catLUT = m === 'material' ? null : buildLUT(m);
+  for (const p of S.prims) paintPrim(p);
+  bsBands();
+  invalidate();
+}
+
+/* ====================================================================================================
+   Brandschutz (AP-11, vorbereitet): data/brandschutz.json ist optional. Objekte je Klasse eingefärbt, Rettungswege und Grenzen als
+   flache Bänder, Klick zeigt die Anforderung aus den Planungsdaten. Ohne Datei gibt es die Einfärbung Brandschutz nicht.
+   Datei: klassen [{key, label, farbe}], texte [...], o {n, k, t} (Objektnummer, Klasse, Text), l [{k, t, id, tab, g, p [[X, Y, Z], ...]}].
+   ==================================================================================================== */
+const BS = {d: null, of: new Map(), col: [], grp: null, segs: [], neutral: new THREE.Color('#c3c7cc')};
+async function loadBS() {
+  if (!S.man || !S.man.brandschutz) return;
+  try {
+    const r = await fetch(DATA + S.man.brandschutz); if (!r.ok) return;
+    const d = await r.json(); if (d.n !== S.worldN) return;
+    BS.d = d; BS.col = d.klassen.map(k => new THREE.Color(k.farbe));
+    d.o.n.forEach((n, i) => BS.of.set(n, i));
+    const opt = document.createElement('option'); opt.value = 'brand'; opt.textContent = 'Brandschutz'; $('#cMode').append(opt);
+    if (S.colorMode === 'brand') setColorMode('brand');
+  } catch (e) { console.warn(e); }
+}
+function bsColor(i) { const k = BS.d ? BS.of.get(i) : undefined; return k === undefined ? BS.neutral : BS.col[BS.d.o.k[k]]; }
+const groupOn = g => g === 'MULTI' || (g[0] === 'F' ? S.floorOn.has(+g.slice(1)) : S.extraOn.has(g));
+function bsVis() { if (BS.grp) for (const m of BS.grp.children) m.visible = S.colorMode === 'brand' && groupOn(m.userData.g); }
+function bsBands() {
+  if (!BS.grp && S.colorMode === 'brand' && BS.d && BS.d.l.length) {
+    BS.grp = new THREE.Group(); scene.add(BS.grp);
+    const parts = new Map(), HW = 0.15, DZ = 0.04;  // halbe Bandbreite und Abstand über der Linie in m (Darstellung)
+    BS.d.l.forEach((L, li) => {
+      const key = L.k + '|' + L.g; let a = parts.get(key); if (!a) parts.set(key, a = {k: L.k, g: L.g, pos: []});
+      for (let j = 0; j + 1 < L.p.length; j++) {
+        const [x0, y0, z0] = L.p[j], [x1, y1, z1] = L.p[j + 1], dx = x1 - x0, dy = y1 - y0, len = Math.hypot(dx, dy);
+        const nx = len > 1e-6 ? -dy / len * HW : HW, ny = len > 1e-6 ? dx / len * HW : 0;
+        const q = [w2t(x0 + nx, y0 + ny, z0 + DZ), w2t(x0 - nx, y0 - ny, z0 + DZ), w2t(x1 - nx, y1 - ny, z1 + DZ), w2t(x1 + nx, y1 + ny, z1 + DZ)];
+        for (const v of [q[0], q[1], q[2], q[0], q[2], q[3]]) a.pos.push(v.x, v.y, v.z);
+        BS.segs.push({li, a: w2t(x0, y0, z0 + DZ), b: w2t(x1, y1, z1 + DZ), g: L.g});
+      }
+    });
+    for (const a of parts.values()) {
+      const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(a.pos, 3));
+      const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color: BS.col[a.k], side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4}));
+      m.userData.g = a.g; m.renderOrder = 3; BS.grp.add(m);
+    }
+  }
+  bsVis();
+}
+function bsPick(cx, cy) {  // Band unter dem Zeiger (Bildschirmabstand bis 9 px), sonst -1
+  if (!BS.grp || S.colorMode !== 'brand') return -1;
+  const r = cv.getBoundingClientRect(), px = cx - r.left, py = cy - r.top;
+  const sc = v => { const p = v.clone().project(camera); return p.z > 1 ? null : [(p.x + 1) / 2 * r.width, (1 - p.y) / 2 * r.height]; };
+  let best = 81, li = -1;
+  for (const s of BS.segs) {
+    if (!groupOn(s.g)) continue;
+    const a = sc(s.a), b = sc(s.b); if (!a || !b) continue;
+    const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy;
+    const t = l2 > 0 ? Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / l2)) : 0;
+    const ex = a[0] + t * dx - px, ey = a[1] + t * dy - py, d2 = ex * ex + ey * ey;
+    if (d2 < best) { best = d2; li = s.li; }
+  }
+  return li;
+}
+function bsHtml(k, t) {
+  const c = BS.d.klassen[k];
+  return '<div class="li"><span class="sw" style="background:' + c.farbe + '"></span><span class="t">' + esc(c.label) + '</span></div><p class="dsl">' + esc(BS.d.texte[t] || 'Anforderung in den Planungsdaten ohne Angabe') + '</p>';
+}
+function bsShowLine(li) {
+  const L = BS.d.l[li], f = L.g[0] === 'F' ? S.man.floors[+L.g.slice(1)] : null;
+  select(-1); secOpen.bs = secOpen.bs ?? true;
+  $('#attr').innerHTML = '<div class="rhead"><div id="rtitle">' + esc(BS.d.klassen[L.k].label) + '</div></div><div class="idl"><span>' + esc(L.id || '') + '</span></div>' +
+    '<table class="kv" style="margin-top:8px"><tr><td>Geschoss</td><td>' + esc(f ? f.label : 'mehrere') + '</td></tr><tr><td>Herkunft</td><td title="' + esc(L.tab || '') + '">' + esc(TAB_LABEL[L.tab] || 'Planungsdaten') + '</td></tr></table>' +
+    sec('bs', 'Brandschutz', null, bsHtml(L.k, L.t));
+  PANEL.auto = -2; if (!isWide()) setPanel('r', true); else layoutPanels();
+}
+
+/* ====================================================================================================
+   Picking (CPU, Strahl gegen Objekt-Hüllquader, dann Dreiecke der Treffer-Objekte)
+   ==================================================================================================== */
+const ray = new THREE.Raycaster();
+function clipped(x, y, z) {
+  for (const pl of clipPlanes) if (pl.normal.x * x + pl.normal.y * y + pl.normal.z * z + pl.constant < 0) return true;
+  return false;
+}
+function pick(clientX, clientY) {
+  const r = cv.getBoundingClientRect();
+  const nx = ((clientX - r.left) / r.width) * 2 - 1, ny = -((clientY - r.top) / r.height) * 2 + 1;
+  camera.updateMatrixWorld();
+  ray.setFromCamera({x: nx, y: ny}, camera);
+  const o = ray.ray.origin, d = ray.ray.direction;
+  const ox = o.x, oy = o.y, oz = o.z, dx = d.x, dy = d.y, dz = d.z;
+  const ix = 1 / (dx || 1e-12), iy = 1 / (dy || 1e-12), iz = 1 / (dz || 1e-12);
+  let bestT = Infinity, bestObj = -1;
+  const vis = S.vis;
+  for (const p of S.prims) {
+    if (!p.meshV.visible) continue;
+    const bbp = p.bbox;
+    // grober Test gegen die Gesamt-Hülle
+    let t1 = (bbp.min.x - ox) * ix, t2 = (bbp.max.x - ox) * ix;
+    let tmin = Math.min(t1, t2), tmax = Math.max(t1, t2);
+    t1 = (bbp.min.y - oy) * iy; t2 = (bbp.max.y - oy) * iy; tmin = Math.max(tmin, Math.min(t1, t2)); tmax = Math.min(tmax, Math.max(t1, t2));
+    t1 = (bbp.min.z - oz) * iz; t2 = (bbp.max.z - oz) * iz; tmin = Math.max(tmin, Math.min(t1, t2)); tmax = Math.min(tmax, Math.max(t1, t2));
+    if (tmax < Math.max(tmin, 0)) continue;
+    const bb = p.bb, pos = p.pos, idx = p.idx;
+    for (let rr = 0; rr < p.nR; rr++) {
+      if (!vis[p.rO[rr]]) continue;
+      const k = rr * 6;
+      t1 = (bb[k] - ox) * ix; t2 = (bb[k + 3] - ox) * ix;
+      tmin = Math.min(t1, t2); tmax = Math.max(t1, t2);
+      t1 = (bb[k + 1] - oy) * iy; t2 = (bb[k + 4] - oy) * iy; tmin = Math.max(tmin, Math.min(t1, t2)); tmax = Math.min(tmax, Math.max(t1, t2));
+      t1 = (bb[k + 2] - oz) * iz; t2 = (bb[k + 5] - oz) * iz; tmin = Math.max(tmin, Math.min(t1, t2)); tmax = Math.min(tmax, Math.max(t1, t2));
+      if (tmax < Math.max(tmin, 0) || tmin > bestT) continue;
+      for (let t = p.rA[rr]; t < p.rB[rr]; t++) {
+        const a = idx[3 * t] * 3, b = idx[3 * t + 1] * 3, c = idx[3 * t + 2] * 3;
+        const e1x = pos[b] - pos[a], e1y = pos[b + 1] - pos[a + 1], e1z = pos[b + 2] - pos[a + 2];
+        const e2x = pos[c] - pos[a], e2y = pos[c + 1] - pos[a + 1], e2z = pos[c + 2] - pos[a + 2];
+        const px = dy * e2z - dz * e2y, py = dz * e2x - dx * e2z, pz = dx * e2y - dy * e2x;
+        const det = e1x * px + e1y * py + e1z * pz;
+        if (det > -1e-12 && det < 1e-12) continue;
+        const inv = 1 / det, tx = ox - pos[a], ty = oy - pos[a + 1], tz = oz - pos[a + 2];
+        const u = (tx * px + ty * py + tz * pz) * inv;
+        if (u < 0 || u > 1) continue;
+        const qx = ty * e1z - tz * e1y, qy = tz * e1x - tx * e1z, qz = tx * e1y - ty * e1x;
+        const v = (dx * qx + dy * qy + dz * qz) * inv;
+        if (v < 0 || u + v > 1) continue;
+        const tt = (e2x * qx + e2y * qy + e2z * qz) * inv;
+        if (tt <= camera.near || tt >= bestT) continue;
+        if (clipPlanes.length && clipped(ox + dx * tt, oy + dy * tt, oz + dz * tt)) continue;
+        bestT = tt; bestObj = p.rO[rr];
+      }
+    }
+  }
+  return bestObj >= 0 ? {n: bestObj, t: bestT} : null;
+}
+
+/* ====================================================================================================
+   Auswahl, Hervorhebung
+   ==================================================================================================== */
+const selMat = new THREE.MeshStandardMaterial({color: 0xff9f1c, emissive: 0xff7a00, emissiveIntensity: 0.55, flatShading: true, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2});
+const selGhostMat = new THREE.MeshBasicMaterial({color: 0xff9f1c, transparent: true, opacity: 0.28, depthTest: false, depthWrite: false, side: THREE.DoubleSide});
+function updateSelectionMeshes() {
+  for (const m of [...selGroup.children]) { selGroup.remove(m); m.geometry.dispose(); }
+  if (!S.sel.length) return;
+  const byPrim = new Map();
+  for (const n of S.sel) {
+    if (!S.vis[n]) continue;
+    for (const [p, r] of activePrims(n)) {
+      let l = byPrim.get(p); if (!l) byPrim.set(p, l = []);
+      l.push(r);
+    }
+  }
+  for (const [p, rs] of byPrim) {
+    let tot = 0; for (const r of rs) tot += (p.rB[r] - p.rA[r]) * 3;
+    const arr = new Uint32Array(tot); let w = 0;
+    for (const r of rs) { const s = p.idx.subarray(p.rA[r] * 3, p.rB[r] * 3); arr.set(s, w); w += s.length; }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', p.posAttr); geo.setIndex(new THREE.BufferAttribute(arr, 1));
+    const m1 = new THREE.Mesh(geo, selMat), m2 = new THREE.Mesh(geo, selGhostMat);
+    m1.renderOrder = 10; m2.renderOrder = 11; m1.frustumCulled = m2.frustumCulled = false;
+    selGroup.add(m1, m2);
+  }
+}
+function objBox(n) {
+  const b = new THREE.Box3();
+  const I = S.idx, k = I.bbox[n];
+  if (activePrims(n).length) {
+    for (const [p, r] of activePrims(n)) b.union(new THREE.Box3(new THREE.Vector3(p.bb[6 * r], p.bb[6 * r + 1], p.bb[6 * r + 2]), new THREE.Vector3(p.bb[6 * r + 3], p.bb[6 * r + 4], p.bb[6 * r + 5])));
+    return b;
+  }
+  if (I.body[n]) { // Welt-cm -> three
+    b.set(w2t(k[0] / 100, k[4] / 100, k[2] / 100).min(w2t(k[3] / 100, k[1] / 100, k[5] / 100)), w2t(k[0] / 100, k[4] / 100, k[2] / 100).max(w2t(k[3] / 100, k[1] / 100, k[5] / 100)));
+    const a = w2t(k[0] / 100, k[1] / 100, k[2] / 100), c = w2t(k[3] / 100, k[4] / 100, k[5] / 100);
+    b.set(a.clone().min(c), a.clone().max(c));
+  }
+  return b;
+}
+async function select(n, add = false, opts = {}) {
+  if (n < 0) { S.sel = []; S.selSet.clear(); S.last = -1; updateSelectionMeshes(); renderAttr(); renderTree(true); renderActs(); invalidate(); return; }
+  if (add) { if (S.selSet.has(n)) { S.selSet.delete(n); S.sel = S.sel.filter(x => x !== n); } else { S.selSet.add(n); S.sel.push(n); } }
+  else { S.sel = [n]; S.selSet = new Set([n]); }
+  S.last = S.sel.length ? S.sel[S.sel.length - 1] : -1;
+  updateSelectionMeshes();
+  renderAttr();
+  renderTree(true);
+  renderActs();
+  invalidate();
+}
+async function goTo(n, opts = {}) {
+  // Objekt aus Liste/Suche/Bezug: Geschoss laden und fokussieren, auch wenn es gefiltert war
+  const I = S.idx;
+  if (I.body[n]) {
+    const g = I.groups[I.group[n]];
+    let changed = false;
+    if (g[0] === 'F') { const fi = +g.slice(1); if (!S.floorOn.has(fi)) { S.floorOn.add(fi); changed = true; } }
+    else if (!S.extraOn.has(g)) { S.extraOn.add(g); changed = true; }
+    const l = I.layer[n];
+    if (l >= 0 && !S.layerOn[I.layers[l].key]) { S.layerOn[I.layers[l].key] = true; changed = true; }
+    for (const [set, v] of [[S.gewOff, I.gewerk[n]], [S.sysOff, I.system[n]], [S.artOff, I.art[n]], [S.statOff, I.status[n]]]) if (set.has(v)) { set.delete(v); changed = true; }
+    if (S.hidden.has(n)) { S.hidden.delete(n); changed = true; }
+    if (S.isolate && !S.isolate.has(n)) { S.isolate.add(n); changed = true; }
+    if (changed) { buildFilterUI(); syncLoads(); applyVisibility(); }
+    const f = styleFiles().find(ff => ff.group === g && ff.layer === I.layers[l]?.key);
+    if (f) { for (let k = 0; k < 400 && (!S.files.has(f.path) || S.files.get(f.path).state === 'loading'); k++) await sleep(50); }
+    applyVisibility();
+  }
+  await select(n, !!opts.add);
+  if (opts.zoom !== false && I.body[n]) { const b = objBox(n); if (!b.isEmpty()) zoomToBox(b, 2.2); }
+}
+
+/* ====================================================================================================
+   Attributpanel
+   ==================================================================================================== */
+const attrCache = new Map(), attrPack = new Map();
+function getAttrChunk(k) {
+  if (!attrCache.has(k)) { const pk = k >> 3; if (!attrPack.has(pk)) attrPack.set(pk, fetch(DATA + 'attr/p' + pk + '.json').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })); attrCache.set(k, attrPack.get(pk).then(d => d[String(k)])); }
+  return attrCache.get(k);
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+function floorLabel(n) {
+  const I = S.idx, m = I.fmask[n]; const out = [];
+  for (let i = 0; i < S.man.floors.length; i++) if (m & (1 << i)) out.push(S.man.floors[i].label);
+  if (!out.length) { const g = I.groups[I.group[n]]; return g === 'DACH' ? 'Dach' : g === 'SONST' ? 'Außen/sonstiges' : g; }
+  return out.join(', ');
+}
+const statShort = c => ['Basis', 'Kandidat', 'zurückgestellt'][c] || '';
+const byName = (x, y) => S.idx.name[x].localeCompare(S.idx.name[y], 'de', {numeric: true});
+const secOpen = {con: true, inr: true, srv: true, cnt: true, sby: true, ds: true, geo: false, rel: true, att: false, pc: true};
+// Kurze deutsche Namen für Bezugsfelder der Welt (Wunsch main nach AP-10). Der Feldname steht im Tooltip.
+const REL_LABEL = {served_space_ids: 'Versorgt', space_id: 'Raum', space_ids: 'Räume', connected_route_ids: 'Leitungen', joined_route_ids: 'Leitung verbunden',
+  route_ids: 'Leitungen', owner_id: 'Gehört zu', portal_id: 'Öffnung', from_support_id: 'Auflager Anfang', to_support_id: 'Auflager Ende',
+  parent_furnishing_id: 'Teil von', parent_component_id: 'Teil von', from_space_id: 'Von Raum', to_space_id: 'Zu Raum', swing_into_space_id: 'Öffnet in',
+  enclosed_space_id: 'Umschließt', support_scope: 'Trägt für', source_ids: 'Quelle', roof_zone_id: 'Dachzone', site_id: 'Grundstück', label: 'Name verweist auf',
+  to_node: 'Endpunkt', from_node: 'Anfangspunkt'};
+const relLabel = k => REL_LABEL[k] || k;
+// AP-10b: Tabellen, Unterarten und Verbindungsarten der Welt kurz auf Deutsch. Unbekannte Schlüssel fallen weg, der Rohschlüssel steht im Tooltip.
+const TAB_LABEL = {distribution_route: 'Leitung (Verteilung)', distribution_terminal: 'Endgerät (Verteilung)', distribution_port_v08: 'Anschluss (Verteilung)',
+  central_route: 'Leitung (zentral)', central_port: 'Anschluss (zentral)', central_link: 'Verknüpfung (zentral)', central_connection_v10: 'Verbindung (zentral)',
+  central_electrical_connection_v10: 'Elektroverbindung (zentral)', central_envelope: 'Gerätehülle', plant_component: 'Anlagenteil', plant_volume: 'Anlagenvolumen',
+  plant_route: 'Anlagenleitung', furnishing: 'Ausstattung', structural_member: 'Tragwerk', structural_support: 'Auflager', wall_segment: 'Wand',
+  threshold_surface: 'Schwelle', portal: 'Öffnung', portal_door_design: 'Türplanung', space: 'Raum', architectural_partition: 'Trennwand',
+  sanitary_layout_item: 'Sanitärobjekt', gastro_layout_item: 'Küchenobjekt', stair_flight: 'Treppenlauf', stair_landing: 'Podest', archive_storage_layout: 'Archivregal',
+  coordinated_technical_route: 'Trasse (abgestimmt)', site_landuse: 'Grundstücksnutzung', site: 'Grundstück', lift_geometry: 'Aufzug', technical_roof_zone: 'Technikzone Dach',
+  slab_concept: 'Decke', riser_enclosure_v11: 'Schachtwand', roof_enclosure_design: 'Dach', darstellung: 'Darstellung',
+  garage_structure: 'Bauwerk Tiefgarage', garage_lane: 'Fahrgasse', garage_parking_bay: 'Stellplatz', garage_access_device: 'Gerät Zufahrt',
+  fire_compartment: 'Brand- oder Rauchabschnitt', fire_stop_element: 'Abschottung oder Klappe', escape_route_path: 'Rettungsweg', escape_exit: 'Ausgang',
+  fire_service_area: 'Feuerwehrfläche', smoke_vent: 'Rauchableitung', building_element_fire_rating: 'Feuerwiderstand'};
+const SUB_LABEL = {p05_single_physical_divided_carrier: 'geteilter Kabelträger', heating_pipe: 'Heizungsrohr', branch: 'Abzweig', local_branch: 'Abzweig',
+  local_branch_v09: 'Abzweig', trunk: 'Hauptstrang', primary_beam: 'Hauptträger', column: 'Stütze', explicit_column_or_internal_wall_v06: 'Stütze oder Innenwand',
+  core_wall_anchor: 'Kernwand', door: 'Tür', hinged: 'Drehflügel', double_hinged: 'zweiflügelig', task_chair: 'Bürostuhl', office_desk: 'Schreibtisch',
+  mobile_meeting_chair: 'Besprechungsstuhl', guest_chair: 'Besucherstuhl', dining_table: 'Esstisch', low_cabinet: 'Unterschrank', sanitary_partition: 'Sanitärtrennwand',
+  wc: 'WC', washbasin: 'Waschtisch', stair: 'Treppe', office_work: 'Büro', common_circulation: 'Verkehrsfläche', meeting: 'Besprechung', staff_break: 'Pause',
+  storage: 'Lager', heating_extension_branch: 'Heizungsabzweig', local_heating_branch: 'Heizungsabzweig', cooling_water_branch: 'Kühlwasserabzweig',
+  local_hot_distribution: 'Warmwasserverteilung', cold_after_safety_group: 'Kaltwasser nach Sicherheitsgruppe', condensate_pumped: 'Kondensat gepumpt',
+  condensate_gravity_connection: 'Kondensat im Gefälle', room_final_cable_path: 'Endleitung im Raum', local_device_cable: 'Gerätekabel', local_sensor_cable: 'Fühlerkabel',
+  workplace_final_tail: 'Zuleitung Arbeitsplatz', physical_shared_data_carrier: 'gemeinsamer Datenkanal', candidate_electrical_cable_jacket: 'Kabelmantel',
+  candidate_water_control_pipe_segment: 'Regelstrecke', candidate_local_hh_control_wire: 'Steuerleitung', candidate_local_separated_24V_coil_conductor: 'Steuerleiter 24 V'};
+const KIND_LABEL = {candidate_separate_terminal_to_jacket_core: 'Ader zum Anschluss', physical_cable_entry_into_carrier: 'Kabeleinführung', internal_equipment_through_connection: 'Durchgang im Gerät',
+  physical_carrier_joint_mate: 'Trägerstoß', candidate_potable_series_joint: 'Trinkwasser in Reihe', candidate_serial_potable_joint: 'Trinkwasser in Reihe',
+  held_explicit_distinct_meter_conductor: 'Zählerleiter', candidate_coincident_carrier_tray_node_joint: 'Trägerknoten', candidate_direct_busbar_tap: 'Abgriff Stromschiene',
+  candidate_heating_series_joint: 'Heizung in Reihe', candidate_junction_to_luminaire_feed_zone: 'Zuleitung Leuchte', stored_route: 'gespeicherte Leitung',
+  explicit_field_conductor_in_selected_harness: 'Leiter im Kabelbaum', cable_occupies_carrier: 'Kabel im Träger', candidate_coincident_route_or_terminal_joint: 'Stoß',
+  authored_individual_cable_conductor: 'Einzelleiter', electrical_insulated_core_in_named_carrier: 'Ader im Träger', internal_cabinet_wire_netlist: 'Verdrahtung im Schrank',
+  bounded_equipment_face_mate: 'Geräteanschluss', candidate_individual_conductor_in_shared_physical_bundle: 'Leiter im Bündel', direct_connected_transition: 'Übergang',
+  assembly_part_in_body: 'Bauteil im Gerät', Strom: 'Strom'};
+function sec(k, title, n, body, head = '') {
+  return '<details class="sec" data-k="' + k + '"' + (secOpen[k] ? ' open' : '') + '><summary>' + IC.chev + '<span>' + esc(title) + '</span>' +
+    (n !== null && n !== undefined ? '<span class="n">' + n.toLocaleString('de') + '</span>' : '') + '</summary>' + head + body + '</details>';
+}
+function objLink(o, sub = '', tag = '', lab = '', tip = '') {
+  return '<div class="ci">' + (lab ? '<span class="lab">' + esc(lab) + '</span>' : '') + '<button type="button" class="rel" data-n="' + o + '" title="' + esc(S.idx.id[o]) + '">' + esc(S.idx.name[o]) + '</button>' + tag +
+    (sub ? '<div class="sub" title="' + esc(tip || sub) + '">' + esc(sub) + '</div>' : '') + '</div>';
+}
+// AP-09e: Herkunft „Liegt in Raum“ als kurzer Text, das Weltfeld steht im Hinweis
+const ROOM_VIA = {'portal.from_space_id': 'Öffnung aus diesem Raum', 'portal.to_space_id': 'Öffnung in diesen Raum', 'portal_door_design.swing_into_space_id': 'Tür schlägt in diesen Raum'};
+const roomVia = f => ROOM_VIA[f] || 'Raum laut Planungsdaten';
+async function renderAttr() {
+  const box = $('#attr');
+  panelsOnSelect();
+  if (S.last < 0) { box.innerHTML = '<p class="muted">Nichts gewählt. Ein Objekt im Modell oder im Baum anklicken.</p>'; return; }
+  const n = S.last, I = S.idx;
+  if (S.conFor !== n) { S.conAll = false; S.conFor = n; }
+  const sysi = I.systems[I.system[n]];
+  let h = '<div class="rhead"><div id="rtitle">' + esc(I.name[n]) + '</div></div>' +
+    '<div class="idl"><span>' + (I.name[n] === I.id[n] ? '' : esc(I.id[n])) + '</span><button type="button" class="ib" id="aCopy" title="ID kopieren" aria-label="ID kopieren">' + IC.copy + '</button></div>';
+  if (S.sel.length > 1) h += '<div class="note">' + S.sel.length.toLocaleString('de') + ' gewählt, hier das zuletzt gewählte</div>';
+  const kv = [['Art', I.arts[I.art[n]] + (SUB_LABEL[I.sub[n]] ? ', ' + SUB_LABEL[I.sub[n]] : ''), I.sub[n] ? 'Unterart in den Planungsdaten: ' + I.sub[n] : ''], ['Geschoss', floorLabel(n)], ['Gewerk', I.gewerke[I.gewerk[n]]]];
+  if (sysi && sysi.id) kv.push(['Anlage', sysi.label]);
+  kv.push(['Status', I.statuses[I.status[n]]]);
+  if (!I.body[n]) kv.push(['Körper', 'keiner, nur im Baum']);
+  const mats = [...new Set(activePrims(n).map(([p]) => p.tga ? 'Systemfarbe' : String(matLabel(p)).replace(/\s*\(Darstellung\)/, '')))];
+  if (mats.length) kv.push(['Darstellung ' + S.style, mats.join(', ') + (S.style === 'B' && !mats.every(m => m === 'Systemfarbe') ? ' (Darstellung, nicht in den Planungsdaten)' : '')]);
+  h += '<table class="kv" style="margin-top:8px">' + kv.map(r => '<tr><td>' + esc(r[0]) + '</td><td' + (r[2] ? ' title="' + esc(r[2]) + '"' : '') + '>' + esc(r[1]) + '</td></tr>').join('') + '</table>';
+  if (BS.d && BS.of.has(n)) { const j = BS.of.get(n); secOpen.bs = secOpen.bs ?? true; h += sec('bs', 'Brandschutz', null, bsHtml(BS.d.o.k[j], BS.d.o.t[j])); }
+  h += '<div id="aCon"></div><div id="aBody" class="note" style="margin-top:8px">Attribute werden geladen</div>';
+  box.innerHTML = h;
+  $('#aCopy').onclick = () => { navigator.clipboard && navigator.clipboard.writeText(I.id[n]); showMsg('ID kopiert', 1500); };
+  renderCon(n);
+  try {
+    const k = Math.floor(n / I.chunk), chunk = await getAttrChunk(k);
+    if (S.last !== n) return;
+    const a = chunk[String(n)];
+    const m = v => dez(v / 100, 2);
+    let b = '';
+    if (a.ds && a.ds.length) b += sec('ds', 'Darstellungshinweis', null, a.ds.map(x => '<p class="dsl">' + esc(x) + '</p>').join(''));
+    const bb = I.bbox[n];
+    if (I.body[n]) b += sec('geo', 'Geometrie', null, '<table class="kv">' + a.geo.map(g => '<tr><td>' + esc(g[0]) + '</td><td>' + esc(g[1]) + '</td></tr>').join('') +
+      '<tr><td>Hüllquader in m</td><td>X ' + m(bb[0]) + ' bis ' + m(bb[3]) + '<br>Y ' + m(bb[1]) + ' bis ' + m(bb[4]) + '<br>Z ' + m(bb[2]) + ' bis ' + m(bb[5]) + '</td></tr></table>');
+    if (a.rel && a.rel.length) b += sec('rel', 'Bezüge', a.rel.length, a.rel.map(r => {
+      const tn = S.idToNum.get(r[1]);
+      return '<div class="ci"><span class="lab" title="' + esc(r[0]) + '">' + esc(relLabel(r[0])) + '</span>' + (tn === undefined ? esc(r[1]) : '<button type="button" class="rel" data-n="' + tn + '" title="' + esc(r[1]) + '">' + esc(I.name[tn]) + '</button>') + '</div>';
+    }).join(''));
+    b += sec('att', 'Attribute' + (TAB_LABEL[a.tab] ? ', ' + TAB_LABEL[a.tab] : ''), a.f.length, '<p class="note" title="Tabelle in den Planungsdaten: ' + esc(a.tab) + '">Planungsstatus: ' + esc(I.raw_status[I.rawstatus[n]] || 'ohne Angabe') + '. Gespeicherte Werte der Planung. Leere Felder fehlen hier, leer ist nicht 0.</p><table class="kv">' +
+      a.f.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</table>');
+    if (a.pc && a.pc.length) b += sec('pc', 'Anlagenteil', null, '<table class="kv">' + a.pc.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</table>');
+    $('#aBody').className = ''; $('#aBody').innerHTML = b;
+  } catch (e) { $('#aBody').textContent = 'Attribute nicht geladen: ' + e.message; }
+}
+$('#attr').addEventListener('toggle', e => { const d = e.target; if (d.dataset && d.dataset.k) secOpen[d.dataset.k] = d.open; }, true);
+$('#attr').addEventListener('click', e => {
+  const a = e.target.closest('.rel[data-n]'); if (!a) return;
+  const add = e.ctrlKey || e.metaKey || e.shiftKey; goTo(+a.dataset.n, {add, zoom: !add});
+});
+
+/* ====================================================================================================
+   Verbindungen (AP-10): graph.json mit Kanten nur aus gespeicherten Weltverbindungen (Prüfung G6), geladen beim ersten Bedarf.
+   Kante: a, b Objektnummern, c Status (0 Basis, 1 Kandidat, 2 zurückgestellt), k getragen oder enthalten, r Herkunftszeile, s Seite (Anfang, Ende).
+   ==================================================================================================== */
+let GR = null, grP = null;
+function loadGraph() {
+  if (grP) return grP;
+  grP = fetch(DATA + 'graph.json').then(r => r.ok ? r.json() : null).then(g => {
+    if (!g || g.n !== S.worldN) return GR = {none: true};
+    const N = S.N, E = g.e, m = E.a.length, deg = new Uint32Array(N + 1);
+    for (let i = 0; i < m; i++) { deg[E.a[i]]++; deg[E.b[i]]++; }
+    const off = new Uint32Array(N + 1); for (let i = 0; i < N; i++) off[i + 1] = off[i] + deg[i];
+    const adj = new Uint32Array(off[N]), at = off.slice(0, N);
+    for (let i = 0; i < m; i++) { adj[at[E.a[i]]++] = i; adj[at[E.b[i]]++] = i; }
+    const served = new Map(), servedBy = new Map(), roomOf = new Map(), content = new Map();
+    g.served.o.forEach((o, k) => { let s = served.get(o); if (!s) served.set(o, s = new Set()); for (const r of g.served.lists[g.served.l[k]]) { s.add(r); let b = servedBy.get(r); if (!b) servedBy.set(r, b = new Set()); b.add(o); } });
+    g.room.o.forEach((o, k) => { const r = g.room.s[k], f = g.room.f[k]; let a = roomOf.get(o); if (!a) roomOf.set(o, a = new Map()); a.set(r, f); let c = content.get(r); if (!c) content.set(r, c = new Map()); c.set(o, f); });
+    TR.mem.clear();
+    return GR = {g, E, off, adj, served, servedBy, roomOf, content};
+  }).catch(e => { console.warn(e); return GR = {none: true}; });
+  return grP;
+}
+function edgesOf(n) {
+  const out = [], E = GR.E;
+  for (let k = GR.off[n]; k < GR.off[n + 1]; k++) {
+    const e = GR.adj[k], first = E.a[e] === n, s = E.s ? E.s[e] : 0;
+    out.push({e, o: first ? E.b[e] : E.a[e], c: E.c[e], k: E.k[e], side: first ? s % 3 : Math.floor(s / 3)});
+  }
+  return out;
+}
+async function renderCon(n) {
+  const box = $('#aCon'); if (!box) return;
+  if (!GR) { box.innerHTML = '<p class="note">Verbindungen werden geladen</p>'; await loadGraph(); if (S.last !== n || !$('#aCon')) return; }
+  if (GR.none) { box.innerHTML = ''; return; }
+  const I = S.idx, E = GR.E, g = GR.g;
+  const via = e => { const r = g.refs[E.r[e]], t = g.tables[r[0]], k = g.kinds[r[2]] || ''; return 'über ' + (TAB_LABEL[t] || 'gespeicherte Verbindung') + (KIND_LABEL[k] ? ', ' + KIND_LABEL[k] : ''); };
+  const viaRaw = e => { const r = g.refs[E.r[e]], kt = (g.kinds_text || g.kinds)[r[2]]; return g.tables[r[0]] + ' ' + r[1] + (kt ? ', ' + kt : ''); };
+  const tagOf = x => (x.c ? '<span class="tag">' + statShort(x.c) + '</span>' : '') + (x.k ? '<span class="tag">getragen</span>' : '');
+  const ed = edgesOf(n).sort((x, y) => (x.side || 9) - (y.side || 9) || x.c - y.c || byName(x.o, y.o));
+  let h = '';
+  if (ed.length) {
+    const lim = S.conAll ? 5000 : 40;
+    h += sec('con', 'Verbindet', ed.length, ed.slice(0, lim).map(x => objLink(x.o, I.arts[I.art[x.o]] + ', ' + via(x.e), tagOf(x), x.side === 1 ? 'Anfang' : x.side === 2 ? 'Ende' : '', 'Planungsdaten: ' + viaRaw(x.e))).join('') +
+      (ed.length > lim ? '<div class="tmore"><button type="button" class="rel" id="conMore">Weitere ' + (ed.length - lim).toLocaleString('de') + ' zeigen</button></div>' : ''),
+      '<div class="btns"><button class="sm" id="aNet" title="Folgt den Verbindungen derselben Anlage. Das Netz bleibt deckend, der Rest wird blass.">Netz zeigen</button></div>');
+  } else if (I.layer[n] >= 0 && I.layers[I.layer[n]].key.startsWith('tga_')) h += sec('con', 'Verbindet', 0, '<p class="note">Keine gespeicherte Verbindung zu einem gezeichneten Objekt.</p>');
+  const list = (set, lim, sub) => { const a = [...set].sort(byName); return a.slice(0, lim).map(o => { const t = sub ? sub(o) : I.arts[I.art[o]]; return Array.isArray(t) ? objLink(o, t[0], '', '', t[1]) : objLink(o, t); }).join('') + (a.length > lim ? '<p class="note">und ' + (a.length - lim).toLocaleString('de') + ' weitere</p>' : ''); };
+  const inR = GR.roomOf.get(n), sv = GR.served.get(n), cont = GR.content.get(n), by = GR.servedBy.get(n);
+  if (inR) h += sec('inr', 'Liegt in Raum', inR.size, list(inR.keys(), 20, o => { const f = g.room.fields[inR.get(o)]; return [roomVia(f), 'Feld ' + f]; }));
+  if (sv) h += sec('srv', 'Versorgt Räume', sv.size, list(sv, 40));
+  if (cont) {
+    const groups = new Map(); for (const o of cont.keys()) { const a = I.arts[I.art[o]]; let l = groups.get(a); if (!l) groups.set(a, l = []); l.push(o); }
+    const body = [...groups.entries()].sort((x, y) => y[1].length - x[1].length).map(([a, l]) => '<div class="cg">' + esc(a) + ' ' + l.length.toLocaleString('de') + '</div>' + list(l, S.conAll ? 5000 : 12)).join('');
+    h += sec('cnt', 'Rauminhalt', cont.size, body, '<div class="btns"><button class="sm" id="aRoomSet" title="Raum und Inhalt deckend, der Rest blass">Raum mit Inhalt zeigen</button>' + (S.conAll ? '' : '<button class="sm" id="cntAll">Alle Namen</button>') + '</div>');
+  }
+  if (by) h += sec('sby', 'Versorgt von', by.size, list(by, 40));
+  box.innerHTML = h;
+  if ($('#aNet')) $('#aNet').onclick = () => showNet(n);
+  if ($('#conMore')) $('#conMore').onclick = () => { S.conAll = true; renderCon(n); };
+  if ($('#cntAll')) $('#cntAll').onclick = () => { S.conAll = true; renderCon(n); };
+  if ($('#aRoomSet')) $('#aRoomSet').onclick = () => showSet(new Set([n, ...cont.keys()]), n, 'Raum mit Inhalt');
+}
+function netOf(n, maxc, cap = 5000) {
+  // Breitensuche über Verbindungen (ohne getragen oder enthalten), weiter nur innerhalb derselben Anlage. Ohne Anlage nur die direkten Nachbarn.
+  const I = S.idx, E = GR.E, s = I.system[n], seen = new Set([n]), q = [n];
+  while (q.length && seen.size < cap) {
+    const u = q.pop();
+    for (let k = GR.off[u]; k < GR.off[u + 1]; k++) {
+      const e = GR.adj[k];
+      if (E.k[e] || E.c[e] > maxc) continue;
+      const v = E.a[e] === u ? E.b[e] : E.a[e];
+      if (seen.has(v)) continue;
+      seen.add(v);
+      if (s && I.system[v] === s) q.push(v);
+    }
+  }
+  return seen;
+}
+async function showNet(n) {
+  const held = S.idx.status_keys.indexOf('held'), heldOn = held >= 0 && !S.statOff.has(held);
+  const net = netOf(n, heldOn ? 2 : 1), all = heldOn ? net : netOf(n, 2);
+  const note = all.size > net.size ? ' Mit zurückgestellten Verbindungen wären es ' + all.size.toLocaleString('de') + '. Dafür im Filter den Status zurückgestellt einschalten.' : '';
+  await showSet(net, n, 'Netz', note);
+}
+async function showSet(set, n, what, note = '') {
+  // Geschosse und Ebenen der Objekte laden, Gewerk, Anlage und Objektart freigeben, dann Menge wählen und röntgen
+  const I = S.idx;
+  let changed = false;
+  for (const o of set) {
+    if (!I.body[o]) continue;
+    const g = I.groups[I.group[o]], fm = I.fmask[o];
+    if (fm) { for (let i = 0; i < S.man.floors.length; i++) if ((fm & (1 << i)) && !S.floorOn.has(i)) { S.floorOn.add(i); changed = true; } }
+    else if (g !== 'MULTI' && g[0] !== 'F' && !S.extraOn.has(g)) { S.extraOn.add(g); changed = true; }
+    const l = I.layer[o]; if (l >= 0 && !S.layerOn[I.layers[l].key]) { S.layerOn[I.layers[l].key] = true; changed = true; }
+    for (const [st, v] of [[S.gewOff, I.gewerk[o]], [S.sysOff, I.system[o]], [S.artOff, I.art[o]]]) if (st.has(v)) { st.delete(v); changed = true; }
+    if (S.hidden.has(o)) { S.hidden.delete(o); changed = true; }
+  }
+  if (changed) { buildFilterUI(); showMsg(what + ' wird geladen', 0); await syncLoads(); }
+  S.sel = [...set].filter(o => o !== n); S.sel.push(n); S.selSet = new Set(S.sel); S.last = n;
+  S.isolate = new Set(set); S.xray = true;
+  applyVisibility(); renderAttr(); renderTree(true);
+  const b = new THREE.Box3(); for (const o of set) if (S.vis[o] && I.body[o]) b.union(objBox(o));
+  if (!b.isEmpty()) zoomToBox(b, 1.3);
+  let shown = 0; for (const o of set) if (S.vis[o] && I.body[o]) shown++;
+  showMsg(what + ', ' + set.size.toLocaleString('de') + ' Objekte' + (set.size > shown ? ', davon ' + (set.size - shown).toLocaleString('de') + ' ohne Körper oder ausgefiltert' : '') + '.' + note, 8000);
+}
+function zoomSel() { if (!S.sel.length) return; const b = new THREE.Box3(); for (const n of S.sel) b.union(objBox(n)); if (!b.isEmpty()) zoomToBox(b, 2.2); }
+function isolateSel() { if (!S.sel.length) return; S.isolate = new Set(S.sel); S.xray = false; applyVisibility(); renderTree(true); }
+function xraySel() {
+  if (S.xray) { S.xray = false; S.isolate = null; applyVisibility(); renderTree(true); return; }
+  if (!S.sel.length) return; S.isolate = new Set(S.sel); S.xray = true; applyVisibility(); renderTree(true);
+}
+function hideSel() { if (!S.sel.length) return; const k = S.sel.length; for (const n of S.sel) S.hidden.add(n); select(-1); applyVisibility(); showMsg(k.toLocaleString('de') + ' ausgeblendet', 2000); }
+function showAll() { S.hidden.clear(); S.isolate = null; S.xray = false; S.gewOff.clear(); S.sysOff.clear(); applyVisibility(); renderTree(true); }
+function renderActs() {
+  const box = $('#acts'); if (!S.idx) return;
+  const k = S.sel.length, off = !!(S.hidden.size || S.isolate || S.gewOff.size || S.sysOff.size);
+  box.classList.toggle('on', !!(k || off)); $('#stage').classList.toggle('acts-on', !!(k || off));
+  let h = '';
+  if (k) h += '<span class="cnt">' + k.toLocaleString('de') + ' gewählt</span><button data-a="zoom" title="Auf Auswahl zoomen (F)">Zoom</button>' +
+    '<button data-a="iso" title="Nur Auswahl zeigen (I)" aria-pressed="' + !!(S.isolate && !S.xray) + '">Isolieren</button>' +
+    '<button data-a="xray" title="Auswahl deckend, Rest blass (X)" aria-pressed="' + !!S.xray + '">Röntgen</button>' +
+    '<button data-a="hide" title="Auswahl ausblenden (H)">Ausblenden</button>';
+  if (off) h += '<button data-a="all" title="Ausgeblendetes und Isoliertes wieder zeigen (Umschalt H)">Alles zeigen</button>';
+  if (k) h += '<button class="ib" data-a="clr" title="Auswahl aufheben (Esc)" aria-label="Auswahl aufheben">' + IC.close + '</button>';
+  box.innerHTML = h;
+}
+$('#acts').onclick = e => { const b = e.target.closest('button[data-a]'); if (!b) return; ({zoom: zoomSel, iso: isolateSel, xray: xraySel, hide: hideSel, all: showAll, clr: () => select(-1)})[b.dataset.a](); };
+
+/* ====================================================================================================
+   Filter-UI
+   ==================================================================================================== */
+/* ====================================================================================================
+   Stil A/B ohne Neuladen (Kamera, Filter, Auswahl, Schnitte bleiben), Legende, Schnellschalter
+   ==================================================================================================== */
+function matLabel(p) { const e = (S.legendMap[p.style] || {})[p.mkey]; return e ? e.label : (p.mlabel || p.mkey); }
+function styleText(st) { return st === 'A' ? 'Stil A einfach. Die Fassade bleibt ohne Fenster, weil kein Fensterplan vorliegt.' : 'Stil B realistisch. Fenster, Materialien und Möbelformen sind Darstellung und nicht Teil der Planungsdaten.'; }
+async function setStyle(st, initial = false) {
+  if (!S.styles.includes(st)) { showMsg('Stil ' + st + ' ist in diesem Export nicht enthalten'); return; }
+  if (!initial && st === S.style) return;
+  const t0 = performance.now();
+  if (!initial) {
+    const need = neededFiles(st);
+    if (need.length) { showMsg('Stil ' + st + ' wird geladen, ' + need.length + ' Dateien', 0); await loadMany(need); }
+  }
+  S.style = st;
+  S.stylePaths = new Set(styleFiles(st).map(f => f.path));
+  if (S.dispN >= 0) S.idx.body[S.dispN] = st === 'B' ? 1 : 0;
+  document.querySelectorAll('#styleSeg button').forEach(b => { b.classList.toggle('act', b.dataset.st === st); b.setAttribute('aria-pressed', b.dataset.st === st); b.disabled = !S.styles.includes(b.dataset.st); });
+  try { const u = new URL(location.href); u.searchParams.set('stil', st); history.replaceState(null, '', u.toString()); } catch (e) {}
+  try { localStorage.setItem('ow_style', st); } catch (e) {}
+  syncQualUI(); lookMode = ''; shadowDirty = true;
+  if (initial) return;
+  buildFilterUI(); applyVisibility(); if (S.last >= 0) renderAttr();
+  S.metrics.styleSwitchMs = performance.now() - t0;
+  showMsg('Stil ' + st + ' in ' + Math.round(S.metrics.styleSwitchMs) + ' ms. Kamera, Filter, Auswahl und Schnitte bleiben.', 3000);
+}
+document.querySelectorAll('#styleSeg button').forEach(b => b.onclick = () => setStyle(b.dataset.st));
+
+let legendT = 0;
+function legendSoon() { clearTimeout(legendT); legendT = setTimeout(renderLegend, 120); }
+function renderLegend() {
+  const box = $('#legend'); if (!S.idx) return;
+  const I = S.idx, st = S.style;
+  let h = '<div class="lh"><button type="button" class="lhb" id="lgHead" aria-expanded="' + !S.legendMin + '"><span class="chev' + (S.legendMin ? '' : ' open') + '">' + IC.chev + '</span><span>Legende</span></button><span class="sp"></span>' + infoHtml(styleText(st), 'Legende') + '</div><div class="lb">';
+  const LIM = S.legendAll ? 99 : 5;
+  const more = n => n > LIM ? '<div class="note"><button type="button" class="rel" id="lgMore">Weitere ' + (n - LIM) + '</button></div>' : (S.legendAll && n > 5 ? '<div class="note"><button type="button" class="rel" id="lgMore">Weniger</button></div>' : '');
+  const sw = (c, a = 1) => '<span class="sw" style="background:' + c + ';opacity:' + Math.max(0.35, a) + '"></span>';
+  if (S.colorMode === 'material') {
+    const keys = new Map();  // sichtbare Materialschlüssel der Architektur/Ausstattung
+    let anyT = false;
+    for (const p of S.prims) if (p.meshV.visible && p.nVis) { if (p.tga) anyT = true; else keys.set(p.mkey, (keys.get(p.mkey) || 0) + p.nVis); }
+    const items = (S.man.legend && S.man.legend[st] || []).filter(e => keys.has(e.key)).sort((a, b) => keys.get(b.key) - keys.get(a.key));
+    if (items.length) h += '<h3>Bauwerk und Ausstattung</h3>' + items.slice(0, LIM).map(e => '<div class="li">' + sw(e.color, e.alpha) + '<span class="t">' + esc(e.label) + '</span></div>').join('') + more(items.length);
+    if (anyT) {
+      const cnt = new Map();
+      const tl = new Set(I.layers.map((l, i) => l.key.startsWith('tga_') ? i : -1).filter(i => i >= 0));
+      for (let i = 0; i < S.N; i++) if (S.vis[i] && I.body[i] && tl.has(I.layer[i])) cnt.set(I.system[i], (cnt.get(I.system[i]) || 0) + 1);
+      const top = [...cnt.entries()].sort((a, b) => b[1] - a[1]);
+      h += '<h3>Technik nach Anlage</h3>' + top.slice(0, LIM).map(([si, c]) => { const s = I.systems[si] || {}; return '<div class="li" title="' + esc(s.id || '') + '">' + sw(s.color || '#888888') + '<span class="t">' + esc(s.id ? s.label : 'ohne Anlage') + '</span><span class="n">' + c.toLocaleString('de') + '</span></div>'; }).join('') +
+        (top.length > LIM ? '<div class="note">weitere ' + (top.length - LIM) + ' im Reiter Modell</div>' : '');
+    }
+    const sa = S.man.status_alpha || {candidate: 0.55, held: 0.35};
+    h += '<h3>Status</h3>' + (S.candTransparent
+      ? '<div class="li">' + sw('#9aa4b2', sa.candidate) + '<span class="t">Kandidat halbtransparent</span></div>'
+      : '<div class="li">' + sw('#d9dde3') + '<span class="t">Kandidat heller</span></div>') +
+      '<div class="li">' + sw('#9aa4b2', sa.held) + '<span class="t">zurückgestellt halbtransparent, anfangs aus</span></div>';
+  } else if (S.colorMode === 'brand') {
+    const cnt = new Map(), lc = new Map();
+    if (BS.d) { BS.d.o.n.forEach((n, j) => { if (S.vis[n] && S.idx.body[n]) cnt.set(BS.d.o.k[j], (cnt.get(BS.d.o.k[j]) || 0) + 1); });
+      BS.d.l.forEach(L => { if (groupOn(L.g)) lc.set(L.k, (lc.get(L.k) || 0) + 1); }); }
+    const ks = BS.d ? BS.d.klassen.map((c, k) => k).filter(k => cnt.get(k) || lc.get(k)) : [];
+    h += '<h3>Brandschutz</h3>' + (ks.length ? ks.map(k => '<div class="li">' + sw(BS.d.klassen[k].farbe) + '<span class="t">' + esc(BS.d.klassen[k].label) + '</span><span class="n">' + ((cnt.get(k) || 0) + (lc.get(k) || 0)).toLocaleString('de') + '</span></div>').join('') : '<div class="note">Im gewählten Bereich keine Angaben</div>') +
+      '<div class="li">' + sw('#' + BS.neutral.getHexString(THREE.SRGBColorSpace)) + '<span class="t">ohne Angabe zum Brandschutz</span></div>';
+  } else {
+    const cnt = new Map(); const key = {gewerk: 'gewerk', art: 'art', status: 'status', floor: 'fmask'}[S.colorMode];
+    for (let i = 0; i < S.N; i++) if (S.vis[i] && I.body[i]) { const v = I[key][i]; cnt.set(v, (cnt.get(v) || 0) + 1); }
+    const name = v => S.colorMode === 'gewerk' ? I.gewerke[v] : S.colorMode === 'art' ? I.arts[v] : S.colorMode === 'status' ? I.statuses[v] : floorLabelMask(v);
+    const first = new Map(); for (let i = 0; i < S.N; i++) { const v = I[key][i]; if (!first.has(v)) first.set(v, i); }
+    h += '<h3>Einfärbung nach ' + esc($('#cMode').selectedOptions[0].textContent) + '</h3>' + [...cnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, LIM + 4).map(([v, c]) => {
+      const i = first.get(v), col = catLUT ? new THREE.Color(catLUT[3 * i], catLUT[3 * i + 1], catLUT[3 * i + 2]).getHexString(THREE.SRGBColorSpace) : '888888';
+      return '<div class="li">' + sw('#' + col) + '<span class="t">' + esc(name(v)) + '</span><span class="n">' + c.toLocaleString('de') + '</span></div>';
+    }).join('');
+  }
+  h += '</div>';
+  box.innerHTML = h; box.classList.toggle('min', S.legendMin);
+  if ($('#lgMore')) $('#lgMore').onclick = () => { S.legendAll = !S.legendAll; renderLegend(); };
+  const tg = () => { S.legendMin = !S.legendMin; try { localStorage.setItem('ow_legend_min', S.legendMin ? '1' : '0'); } catch (e) {} renderLegend(); };
+  $('#lgHead').onclick = tg;
+}
+function floorLabelMask(m) { if (!m) return 'Dach, außen oder mehrere'; const out = []; for (let i = 0; i < S.man.floors.length; i++) if (m & (1 << i)) out.push(S.man.floors[i].label); return out.join(', '); }
+
+const QUICK = [
+  ['Wände', ['wand', 'trennwand', 'oeffnung', 'tuer', 'fenster'], 'Wände mit Stürzen, Trennwände, Türen und Darstellungsfenster'],
+  ['Decken', ['decke'], 'Decken'],
+  ['Böden', ['raum', 'boden'], 'Räume (Bodenaufbau) und Schwellen'],
+  ['Ausstattung', ['ausstattung'], 'Möbel, Gastro, Sanitär, Lager'],
+  ['Tragwerk', ['tragwerk'], 'Stützen und Träger'],
+  ['Technik', null, 'alle Technikebenen'],
+  ['Tiefgarage', ['tg_bauwerk', 'tg_markierung', 'tg_zufahrt', 'tg_schacht'], 'Sohle, Rampe, Stellplätze, Fahrgassen, Tor, Schranken, Kassen und Bauwerke der Garage'],
+  ['Brandschutz', ['bs_abschnitt', 'bs_schott', 'bs_klappe', 'bs_rettungsweg', 'bs_feuerwehr'], 'Brandabschnitte, Abschottungen, Klappen, Rettungswege und Feuerwehrflächen. Rauchabschnitte einzeln unter Ebenen']
+];
+function quickLayers(q) { return q[1] || S.idx.layers.map(l => l.key).filter(k => k.startsWith('tga_')); }
+function buildQuick() {
+  const box = $('#quick'); box.innerHTML = '';
+  for (const q of QUICK) {
+    const ks = quickLayers(q).filter(k => S.layerUsed.has(k));
+    if (!ks.length) continue;
+    const on = ks.some(k => S.layerOn[k]);
+    const b = el('button', {className: 'sm', textContent: q[0], title: (on ? 'ausblenden: ' : 'einblenden: ') + q[2]});
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.onclick = () => { const now = !ks.some(k => S.layerOn[k]); ks.forEach(k => S.layerOn[k] = now); buildFilterUI(); syncLoads(); applyVisibility(); };
+    box.append(b);
+  }
+  $('#cCand').checked = S.candTransparent;
+}
+$('#cCand').onchange = e => { S.candTransparent = e.target.checked; for (const p of S.prims) applyLayerMaterial(p); renderLegend(); invalidate(); };
+
+function counts(arr, k) { const c = new Array(k).fill(0); for (let i = 0; i < arr.length; i++) c[arr[i]]++; return c; }
+function buildFilterUI() {
+  const I = S.idx, M = S.man;
+  buildFloors();
+  // Ebenen
+  const ly = $('#fLayers'); ly.innerHTML = '';
+  const lc = counts(I.layer.filter(x => x >= 0), I.layers.length);
+  I.layers.forEach((l, i) => {
+    const used = lc[i] > 0;
+    if (!used) return;
+    const sw = el('span', {className: 'sw'}); sw.style.background = l.color;
+    const cb = el('input', {type: 'checkbox', checked: !!S.layerOn[l.key]});
+    cb.onchange = () => { S.layerOn[l.key] = cb.checked; syncLoads(); applyVisibility(); };
+    const rg = el('input', {type: 'range', min: 5, max: 100, value: Math.round((S.layerOp[l.key] ?? 1) * 100), title: 'Deckkraft'}); rg.setAttribute('aria-label', 'Deckkraft ' + l.label);
+    rg.oninput = () => { S.layerOp[l.key] = rg.value / 100; for (const p of S.prims) if (p.layer === l.key) applyLayerMaterial(p); invalidate(); };
+    ly.append(el('div', {className: 'row'}, el('label', {title: l.label + ', ' + l.gewerk}, cb, sw, el('span', {className: 'lt', textContent: l.label})), rg, el('span', {className: 'n', textContent: lc[i].toLocaleString('de')})));
+  });
+  // Objektart
+  const ar = $('#fArt'); ar.innerHTML = '';
+  const ac = counts(I.art, I.arts.length);
+  I.arts.map((a, i) => [a, i]).sort((x, y) => ac[y[1]] - ac[x[1]]).forEach(([a, i]) => {
+    const cb = el('input', {type: 'checkbox', checked: !S.artOff.has(i)});
+    cb.onchange = () => { cb.checked ? S.artOff.delete(i) : S.artOff.add(i); applyVisibility(); };
+    ar.append(el('div', {className: 'row'}, el('label', {title: a}, cb, el('span', {className: 'lt', textContent: a})), el('span', {className: 'n', textContent: ac[i].toLocaleString('de')})));
+  });
+  // Status
+  const st = $('#fStat'); st.innerHTML = '';
+  const stc = counts(I.status, I.statuses.length);
+  I.statuses.forEach((s, i) => {
+    const cb = el('input', {type: 'checkbox', checked: !S.statOff.has(i)});
+    cb.onchange = () => { cb.checked ? S.statOff.delete(i) : S.statOff.add(i); applyVisibility(); };
+    st.append(el('div', {className: 'row'}, el('label', {}, cb, s), el('span', {className: 'n', textContent: stc[i].toLocaleString('de')})));
+  });
+  buildQuick();
+}
+function fitIfFirst() { if (!S.fitted && S.prims.length) { S.fitted = true; setView('iso'); } }
+/* AP-11: Geschosswahl im Bild. Klick zeigt nur dieses Geschoss, mit Strg, Cmd oder Umschalt kommt es dazu oder geht weg.
+   Dach und Außen sind Schalter. Alle zeigt jedes Geschoss mit Dach. */
+function buildFloors() {
+  const box = $('#floors'); if (!S.man) return;
+  const SF = styleFiles(), have = new Set(SF.map(f => f.group)), M = S.man;
+  const all = M.floors.map((f, i) => i).filter(i => have.has(M.floors[i].group));
+  const allOn = all.every(i => S.floorOn.has(i)) && (!have.has('DACH') || S.extraOn.has('DACH'));
+  const mk = (txt, on, title, fn, dis = false) => { const b = el('button', {type: 'button', textContent: txt, title, disabled: dis}); b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.onclick = fn; return b; };
+  const refresh = () => { buildFloors(); syncLoads(); applyVisibility(); fitIfFirst(); };
+  box.innerHTML = '';
+  box.append(mk('Alle', allOn, 'Alle Geschosse mit Dach', () => { all.forEach(i => S.floorOn.add(i)); if (have.has('DACH')) S.extraOn.add('DACH'); refresh(); }));
+  box.append(el('hr'));
+  if (have.has('DACH')) box.append(mk('Dach', S.extraOn.has('DACH'), 'Dach ein oder aus', () => { S.extraOn.has('DACH') ? S.extraOn.delete('DACH') : S.extraOn.add('DACH'); refresh(); }));
+  for (let i = M.floors.length - 1; i >= 0; i--) {
+    const f = M.floors[i], ok = have.has(f.group);
+    box.append(mk(f.label, S.floorOn.has(i) && !allOn, 'Nur ' + f.label + ' zeigen, Fußboden ' + dez(f.ffl, 2) + ' m. Mit Strg oder Umschalt dazu nehmen', e => {
+      if (e.ctrlKey || e.metaKey || e.shiftKey) { if (S.floorOn.has(i) && S.floorOn.size > 1) S.floorOn.delete(i); else S.floorOn.add(i); }
+      else { S.floorOn = new Set([i]); S.extraOn.delete('DACH'); }
+      refresh();
+    }, !ok));
+  }
+  if (have.has('SONST')) { box.append(el('hr')); box.append(mk('Außen', S.extraOn.has('SONST'), 'Gelände, Erdreich und Teile außerhalb der Geschosse ein oder aus', () => { S.extraOn.has('SONST') ? S.extraOn.delete('SONST') : S.extraOn.add('SONST'); refresh(); })); }
+}
+$('#bShowAll').onclick = () => {  // Filter auf Anfang: alle Objektarten, zurückgestellt aus, Ebenen wie beim Start
+  S.artOff.clear(); S.statOff.clear(); const held = S.idx.status_keys.indexOf('held'); if (held >= 0) S.statOff.add(held);
+  S.idx.layers.forEach(l => { S.layerOn[l.key] = l.visible; S.layerOp[l.key] = 1; }); for (const p of S.prims) applyLayerMaterial(p);
+  buildFilterUI(); syncLoads(); applyVisibility();
+};
+$('#cMode').onchange = e => { setColorMode(e.target.value); renderLegend(); };
+$('#cGhost').onchange = e => { S.ghost = e.target.checked; applyVisibility(); };
+
+/* ====================================================================================================
+   Liste und Suche
+   ==================================================================================================== */
+/* Modellbaum (AP-10): Gewerk, Anlage, Objektart, Objekt oder Geschoss, Raum, Inhalt. Klick auf den Namen wählt und zoomt, das Auge blendet aus.
+   Das Auge an Gewerk und Anlage schaltet denselben Filter wie früher im Reiter Filter, darunter blendet es einzelne Objekte aus. */
+const TR = {mode: 'gew', open: new Set(), lim: new Map(), data: null, mem: new Map()};
+function treeData() {
+  if (TR.data) return TR.data;
+  const I = S.idx, g = new Map(), rooms = new Map(), ra = I.arts.indexOf('Raum');
+  for (let i = 0; i < S.N; i++) {
+    if (i === S.dispN) continue;  // Sammelobjekt der Darstellung (Fenster, Dachrand) ist kein Weltobjekt, Ebenen dafür im Filter
+    let a = g.get(I.gewerk[i]); if (!a) g.set(I.gewerk[i], a = new Map());
+    let b = a.get(I.system[i]); if (!b) a.set(I.system[i], b = new Map());
+    let c = b.get(I.art[i]); if (!c) b.set(I.art[i], c = []);
+    c.push(i);
+    if (I.art[i] === ra) { const m = I.fmask[i], f = m ? 31 - Math.clz32(m & -m) : -1; let l = rooms.get(f); if (!l) rooms.set(f, l = []); l.push(i); }
+  }
+  for (const l of rooms.values()) l.sort(byName);
+  return TR.data = {g, rooms};
+}
+function members(key) {
+  let m = TR.mem.get(key); if (m) return m;
+  const D = treeData(), p = key.split(':'), t = p[0], a = +p[1], b = +p[2], c = +p[3];
+  if (t === 'r') { if (!GR || GR.none) return []; const ct = GR.content.get(a); m = ct ? [...ct.keys()].sort(byName) : []; }
+  else if (t === 'g') m = [...D.g.get(a).values()].flatMap(x => [...x.values()].flat());
+  else if (t === 's') m = [...D.g.get(a).get(b).values()].flat();
+  else if (t === 'a') m = D.g.get(a).get(b).get(c).slice().sort(byName);
+  else if (t === 'f') m = D.rooms.get(a) || [];
+  else m = [+p[1]];
+  TR.mem.set(key, m); return m;
+}
+function eyeState(key) {
+  const p = key.split(':'), t = p[0];
+  if (t === 'g' && S.gewOff.has(+p[1])) return 'off';
+  if (t === 's' && +p[2] && S.sysOff.has(+p[2])) return 'off';
+  if (t === 'f') return S.floorOn.has(+p[1]) ? 'on' : 'off';
+  if (t === 'g') for (const si of treeData().g.get(+p[1]).keys()) if (si && S.sysOff.has(si)) return 'part';
+  if (!S.hidden.size) return 'on';
+  const m = members(key); let h = 0; for (const o of m) if (S.hidden.has(o)) h++;
+  return h === 0 ? 'on' : h === m.length ? 'off' : 'part';
+}
+function toggleEye(key) {
+  const p = key.split(':'), t = p[0], st = eyeState(key);
+  if (t === 'g') { const gi = +p[1]; if (st === 'off') S.gewOff.delete(gi); else S.gewOff.add(gi); }
+  else if (t === 's' && +p[2]) { const si = +p[2]; if (st === 'off') S.sysOff.delete(si); else S.sysOff.add(si); }
+  else if (t === 'f') { const fi = +p[1]; if (S.floorOn.has(fi)) S.floorOn.delete(fi); else S.floorOn.add(fi); buildFilterUI(); syncLoads(); }
+  else { const m = members(key); if (st === 'off') m.forEach(o => S.hidden.delete(o)); else m.forEach(o => S.hidden.add(o)); }
+  applyVisibility(); renderTree(true);
+}
+function trow(depth, key, label, count, kids, o = {}) {
+  const r = el('div', {className: 'tr' + (TR.open.has(key) ? ' open' : '') + (o.sel ? ' sel' : '') + (o.cur ? ' cur' : '') + (o.dim ? ' dim' : '')});
+  r.dataset.k = key; r.style.paddingLeft = (2 + depth * 14) + 'px';
+  const eye = o.eye ? '<button class="ib ' + o.eye + '" data-t="eye" data-e="' + (o.eyeKey || key) + '" title="' + (o.eye === 'off' ? 'einblenden' : 'ausblenden') + '" aria-label="' + (o.eye === 'off' ? 'einblenden' : 'ausblenden') + '">' + (o.eye === 'off' ? IC.eyeOff : o.eye === 'part' ? IC.eyePart : IC.eye) + '</button>' : '';
+  r.innerHTML = (kids ? '<button class="tw" data-t="tw" aria-label="aufklappen" aria-expanded="' + TR.open.has(key) + '">' + IC.chev + '</button>' : '<span class="tw"></span>') + eye +
+    (o.sw ? '<span class="sw" style="background:' + o.sw + '"></span>' : '') + '<button class="t" type="button" title="' + esc(o.title || label) + '">' + esc(label) + '</button>' + (o.tag || '') +
+    (count !== null && count !== undefined ? '<span class="n">' + count.toLocaleString('de') + '</span>' : '');
+  return r;
+}
+function objRow(depth, n) {
+  const I = S.idx, c = I.status[n];
+  return trow(depth, 'o:' + n, I.name[n], null, false, {eye: S.hidden.has(n) ? 'off' : 'on', sel: S.selSet.has(n), cur: n === S.last, dim: !S.vis[n], title: I.name[n] + '\n' + I.id[n] + '\n' + I.arts[I.art[n]] + ', ' + floorLabel(n),
+    tag: (c ? '<span class="tag">' + statShort(c) + '</span>' : '') + (I.body[n] ? '' : '<span class="tag">ohne Körper</span>')});
+}
+function moreRow(depth, key, rest) { const d = el('div', {className: 'tmore'}); d.style.paddingLeft = (22 + depth * 14) + 'px'; d.innerHTML = '<button type="button" class="rel" data-more="' + key + '">Weitere ' + rest.toLocaleString('de') + ' zeigen</button>'; return d; }
+function addObjs(frag, depth, key, m) { const lim = TR.lim.get(key) || 100; for (const n of m.slice(0, lim)) frag.append(objRow(depth, n)); if (m.length > lim) frag.append(moreRow(depth, key, m.length - lim)); }
+function matches() {
+  const q = $('#q').value.trim().toLowerCase(), terms = q ? q.split(/\s+/) : [], out = [];
+  if (!terms.length) return out;
+  for (let i = 0; i < S.N; i++) { const h = S.hay[i]; let ok = true; for (const t of terms) if (!h.includes(t)) { ok = false; break; } if (ok) out.push(i); }
+  return out;
+}
+function renderTree() {
+  if (!S.idx || !$('#t-model').classList.contains('act')) return;
+  const I = S.idx, q = $('#q').value.trim(), frag = document.createDocumentFragment();
+  $('#lActs').hidden = !q;
+  if (q) {
+    const hits = matches(); S.listCache = hits;
+    $('#lInfo').textContent = hits.length.toLocaleString('de') + ' Treffer für „' + q + '“' + (hits.length > 300 ? ', die ersten 300' : '');
+    for (const n of hits.slice(0, 300)) frag.append(objRow(0, n));
+  } else if (TR.mode === 'gew') {
+    $('#lInfo').textContent = '';
+    const D = treeData();
+    for (const gi of [...D.g.keys()].sort((a, b) => I.gewerke[a].localeCompare(I.gewerke[b], 'de'))) {
+      const kg = 'g:' + gi, sm = D.g.get(gi);
+      frag.append(trow(0, kg, I.gewerke[gi], members(kg).length, true, {eye: eyeState(kg)}));
+      if (!TR.open.has(kg)) continue;
+      const ss = [...sm.keys()].sort((a, b) => (a === 0) - (b === 0) || String(I.systems[a].label).localeCompare(String(I.systems[b].label), 'de'));
+      const flat = ss.length === 1 && ss[0] === 0;  // Gewerk ohne Anlagen: gleich die Objektarten
+      for (const si of ss) {
+        const ks = 's:' + gi + ':' + si, d1 = flat ? 1 : 2;
+        if (!flat) {
+          frag.append(trow(1, ks, si ? I.systems[si].label : 'ohne Anlage', members(ks).length, true, {eye: eyeState(ks), sw: si ? I.systems[si].color : '', title: si ? I.systems[si].label + '\n' + I.systems[si].id : ''}));
+          if (!TR.open.has(ks)) continue;
+        }
+        for (const ai of [...sm.get(si).keys()].sort((a, b) => I.arts[a].localeCompare(I.arts[b], 'de'))) {
+          const ka = 'a:' + gi + ':' + si + ':' + ai, m = members(ka);
+          frag.append(trow(d1, ka, I.arts[ai], m.length, true, {eye: eyeState(ka)}));
+          if (TR.open.has(ka)) addObjs(frag, d1 + 1, ka, m);
+        }
+      }
+    }
+  } else {
+    $('#lInfo').textContent = '';
+    const D = treeData();
+    for (const fi of [...D.rooms.keys()].sort((a, b) => a - b)) {
+      const kf = 'f:' + fi, m = D.rooms.get(fi);
+      frag.append(trow(0, kf, fi >= 0 ? S.man.floors[fi].label : 'ohne Geschoss', m.length, true, {eye: fi >= 0 ? eyeState(kf) : null}));
+      if (!TR.open.has(kf)) continue;
+      const lim = TR.lim.get(kf) || 200;
+      for (const n of m.slice(0, lim)) {
+        const kr = 'r:' + n, ct = GR && !GR.none ? GR.content.get(n) : null;
+        frag.append(trow(1, kr, I.name[n], GR && !GR.none ? (ct ? ct.size : 0) : null, true, {eye: S.hidden.has(n) ? 'off' : 'on', eyeKey: 'o:' + n, sel: S.selSet.has(n), cur: n === S.last, dim: !S.vis[n], title: I.name[n] + '\n' + I.id[n]}));
+        if (!TR.open.has(kr)) continue;
+        if (!GR) { const d = el('div', {className: 'tmore note', textContent: 'Inhalt wird geladen'}); d.style.paddingLeft = '50px'; frag.append(d); continue; }
+        addObjs(frag, 2, kr, members(kr));
+      }
+      if (m.length > lim) frag.append(moreRow(1, kf, m.length - lim));
+    }
+  }
+  $('#tree').replaceChildren(frag);
+}
+function selectGroup(key, add) {
+  const m = members(key).filter(o => S.vis[o] && S.idx.body[o]);
+  if (!m.length) { showMsg('Davon ist nichts sichtbar. Geschoss, Ebene oder Filter einschalten.', 3500); return; }
+  const l = m.slice(0, 20000);
+  if (add) { for (const o of l) if (!S.selSet.has(o)) { S.selSet.add(o); S.sel.push(o); } } else { S.sel = l.slice(); S.selSet = new Set(l); }
+  S.last = S.sel[S.sel.length - 1];
+  updateSelectionMeshes(); renderAttr(); renderTree(true); renderActs(); zoomSel(); invalidate();
+}
+$('#tree').onclick = e => {
+  const more = e.target.closest('[data-more]');
+  if (more) { TR.lim.set(more.dataset.more, (TR.lim.get(more.dataset.more) || 100) + 500); renderTree(); return; }
+  const r = e.target.closest('.tr'); if (!r) return;
+  const key = r.dataset.k, t = e.target.closest('[data-t]'), add = e.ctrlKey || e.metaKey || e.shiftKey;
+  if (t && t.dataset.t === 'eye') { toggleEye(t.dataset.e); return; }
+  if (t && t.dataset.t === 'tw') {
+    if (TR.open.has(key)) TR.open.delete(key); else { TR.open.add(key); if (key[0] === 'r' && !GR) loadGraph().then(() => renderTree()); }
+    renderTree(); return;
+  }
+  if (key[0] === 'o' || key[0] === 'r') { goTo(+key.split(':')[1], {add, zoom: !add}); return; }
+  selectGroup(key, add);
+};
+document.querySelectorAll('#treeSeg button').forEach(b => b.onclick = () => {
+  TR.mode = b.dataset.m; document.querySelectorAll('#treeSeg button').forEach(x => { x.classList.toggle('act', x === b); x.setAttribute('aria-pressed', x === b); });
+  if (TR.mode === 'room' && !GR) loadGraph().then(() => renderTree());
+  renderTree();
+});
+$('#q').addEventListener('keydown', e => { if (e.key === 'Enter') { activateTab('t-model'); renderTree(); if (S.listCache.length === 1) goTo(S.listCache[0]); e.stopPropagation(); } });
+$('#q').addEventListener('input', () => { clearTimeout($('#q').t); $('#q').t = setTimeout(() => { const v = $('#q').value.trim(); if (v.length >= 2) activateTab('t-model'); if (v.length >= 2 || !v) renderTree(); }, 220); });
+$('#lSelAll').onclick = () => { const l = S.listCache.filter(n => S.idx.body[n] && S.vis[n]).slice(0, 20000); if (!l.length) { showMsg('Keine sichtbaren Treffer'); return; } S.sel = l; S.selSet = new Set(l); S.last = l[l.length - 1]; updateSelectionMeshes(); renderAttr(); renderTree(); renderActs(); zoomSel(); invalidate(); };
+$('#lIso').onclick = () => { const l = S.listCache.filter(n => S.idx.body[n]); if (!l.length) return; S.isolate = new Set(l); S.xray = false; applyVisibility(); };
+$('#lClear').onclick = () => { $('#q').value = ''; renderTree(); };
+
+/* ====================================================================================================
+   Schnitte
+   ==================================================================================================== */
+function buildClipUI() {
+  const box = $('#clipUI'); box.innerHTML = '';
+  const ranges = {x: [-2, 74], y: [-2, 50], z: [-5, 27]};
+  for (const ax of ['x', 'y', 'z']) {
+    const c = S.clip[ax];
+    const A = ax.toUpperCase();
+    const cb = el('input', {type: 'checkbox', checked: c.on}); cb.onchange = () => { c.on = cb.checked; applyClip(); };
+    const rg = el('input', {type: 'range', min: ranges[ax][0], max: ranges[ax][1], step: 0.05, value: c.pos, style: 'flex:1'});
+    rg.setAttribute('aria-label', 'Schnitt ' + A + ' in m');
+    const num = el('input', {type: 'text', value: dez(c.pos, 2), className: 'numin', inputMode: 'decimal'});
+    num.setAttribute('aria-label', 'Schnitt ' + A + ' in m, Zahl');
+    rg.oninput = () => { c.pos = +rg.value; num.value = dez(c.pos, 2); c.on = true; cb.checked = true; applyClip(); };
+    num.onchange = () => { const v = parseFloat(num.value.replace(',', '.')); if (!isNaN(v)) { c.pos = v; rg.value = v; c.on = true; cb.checked = true; applyClip(); } };
+    const sel = el('select', {}, el('option', {value: 'lo', textContent: ax === 'z' ? 'darunter' : 'kleiner'}), el('option', {value: 'hi', textContent: ax === 'z' ? 'darüber' : 'größer'}));
+    sel.setAttribute('aria-label', 'Schnitt ' + A + ', welche Seite bleibt'); sel.value = c.keep; sel.onchange = () => { c.keep = sel.value; applyClip(); };
+    c.ui = {cb, rg, num, sel};
+    box.append(el('div', {className: 'row'}, el('label', {style: 'flex:none;width:92px'}, cb, ax.toUpperCase() + ' behalten'), sel), el('div', {className: 'row'}, rg, num));
+  }
+}
+function applyClip() {
+  clipPlanes.length = 0;
+  const {x, y, z} = S.clip;
+  if (x.on) clipPlanes.push(x.keep === 'hi' ? new THREE.Plane(new THREE.Vector3(1, 0, 0), -x.pos) : new THREE.Plane(new THREE.Vector3(-1, 0, 0), x.pos));
+  if (y.on) clipPlanes.push(y.keep === 'hi' ? new THREE.Plane(new THREE.Vector3(0, 0, -1), -y.pos) : new THREE.Plane(new THREE.Vector3(0, 0, 1), y.pos));
+  if (z.on) clipPlanes.push(z.keep === 'hi' ? new THREE.Plane(new THREE.Vector3(0, 1, 0), -z.pos) : new THREE.Plane(new THREE.Vector3(0, -1, 0), z.pos));
+  for (const pl of clipPlanes) pl.constant += 0.002;  // 2 mm Zugabe: Flächen genau in der Schnittebene bleiben ganz (kein Flimmern)
+  CUT.value = clipPlanes.length && S.cutFill ? 1 : 0;
+  for (const p of S.prims) updateCutState(p);
+  shadowDirty = true;
+  invalidate();
+}
+document.querySelectorAll('#qualSeg button').forEach(b => b.onclick = () => setQuality(b.dataset.q));
+$('#cCutFill').onchange = e => { S.cutFill = e.target.checked; applyClip(); };
+function syncClipUI() { for (const ax of ['x', 'y', 'z']) { const c = S.clip[ax], u = c.ui; if (!u) continue; u.cb.checked = c.on; u.rg.value = c.pos; u.num.value = dez(c.pos, 2); u.sel.value = c.keep; } }
+$('#bClipOff').onclick = () => { for (const ax of ['x', 'y', 'z']) S.clip[ax].on = false; syncClipUI(); applyClip(); };
+$('#bPlan').onclick = () => {
+  let fi = [...S.floorOn].sort()[0];
+  if (S.last >= 0 && S.idx.fmask[S.last]) fi = 31 - Math.clz32(S.idx.fmask[S.last] & -S.idx.fmask[S.last]);
+  if (fi === undefined) { showMsg('Kein Geschoss gewählt'); return; }
+  const f = S.man.floors[fi];
+  S.clip.z.on = true; S.clip.z.keep = 'lo'; S.clip.z.pos = f.ffl + 1.5; syncClipUI(); applyClip(); setView('top');
+};
+
+/* ====================================================================================================
+   Ansichten
+   ==================================================================================================== */
+function snapshot() {
+  const I = S.idx, ids = s => [...s].map(n => I.id[n]);
+  return {v: 1, style: S.style, candT: S.candTransparent, floors: [...S.floorOn], extra: [...S.extraOn], layerOn: S.layerOn, layerOp: S.layerOp, gewOff: [...S.gewOff], sysOff: [...S.sysOff], artOff: [...S.artOff], statOff: [...S.statOff],
+    colorMode: S.colorMode, ghost: S.ghost, hidden: ids(S.hidden), isolate: S.isolate ? ids(S.isolate) : null,
+    clip: Object.fromEntries(['x', 'y', 'z'].map(a => [a, {on: S.clip[a].on, pos: S.clip[a].pos, keep: S.clip[a].keep}])),
+    cam: {target: S.cam.target.toArray(), yaw: S.cam.yaw, pitch: S.cam.pitch, dist: S.cam.dist}, mode: S.mode};
+}
+function restore(v) {
+  S.floorOn = new Set(v.floors); S.extraOn = new Set(v.extra || []);
+  S.layerOn = Object.assign({}, S.layerOn, v.layerOn); S.layerOp = Object.assign({}, v.layerOp);
+  S.gewOff = new Set(v.gewOff); S.sysOff = new Set(v.sysOff); S.artOff = new Set(v.artOff); S.statOff = new Set(v.statOff);
+  S.ghost = !!v.ghost; $('#cGhost').checked = S.ghost;
+  S.hidden = new Set((v.hidden || []).map(id => S.idToNum.get(id)).filter(x => x !== undefined));
+  S.isolate = v.isolate ? new Set(v.isolate.map(id => S.idToNum.get(id)).filter(x => x !== undefined)) : null;
+  for (const a of ['x', 'y', 'z']) Object.assign(S.clip[a], v.clip[a]);
+  S.cam.target.fromArray(v.cam.target); S.cam.yaw = v.cam.yaw; S.cam.pitch = v.cam.pitch; S.cam.dist = v.cam.dist;
+  if (v.mode && v.mode !== S.mode) setMode(v.mode);
+  const cm = v.colorMode === 'brand' && !BS.d ? 'material' : v.colorMode;
+  $('#cMode').value = cm; setColorMode(cm);
+  buildFilterUI(); syncClipUI(); applyClip(); syncLoads(); applyVisibility();
+  for (const p of S.prims) applyLayerMaterial(p);
+  if (v.style && v.style !== S.style) setStyle(v.style);
+  if (v.candT !== undefined && v.candT !== S.candTransparent) { S.candTransparent = v.candT; for (const p of S.prims) applyLayerMaterial(p); buildQuick(); renderLegend(); }
+}
+function loadViews() { try { return JSON.parse(localStorage.getItem('ow_views_v1') || '{}'); } catch (e) { return {}; } }
+function saveViews(o) { try { localStorage.setItem('ow_views_v1', JSON.stringify(o)); } catch (e) { showMsg('Speichern im Browser nicht möglich'); } }
+function renderViews() {
+  const box = $('#vList'); box.innerHTML = ''; const o = loadViews();
+  const names = Object.keys(o);
+  if (!names.length) box.append(el('div', {className: 'muted', textContent: 'Noch keine gespeicherten Ansichten.'}));
+  names.forEach(nm => {
+    const b1 = el('button', {className: 'sm', textContent: 'laden'}); b1.onclick = () => restore(o[nm]);
+    const b2 = el('button', {className: 'sm', textContent: 'löschen'}); b2.onclick = () => { const x = loadViews(); delete x[nm]; saveViews(x); renderViews(); };
+    box.append(el('div', {className: 'row'}, el('label', {textContent: nm, style: 'cursor:default'}), b1, b2));
+  });
+}
+$('#vSave').onclick = () => { const nm = $('#vName').value.trim() || ('Ansicht ' + new Date().toLocaleTimeString('de')); const o = loadViews(); o[nm] = snapshot(); saveViews(o); $('#vName').value = ''; renderViews(); showMsg('Ansicht „' + nm + '“ gespeichert', 2000); };
+$('#vExport').onclick = () => { const a = el('a', {href: URL.createObjectURL(new Blob([JSON.stringify(loadViews(), null, 1)], {type: 'application/json'})), download: 'objektwelt_ansichten.json'}); a.click(); };
+$('#vImport').onclick = () => $('#fileIn').click();
+$('#fileIn').onchange = async e => { const f = e.target.files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); saveViews(Object.assign(loadViews(), o)); renderViews(); showMsg('Ansichten geladen'); } catch (x) { showMsg('Datei nicht lesbar'); } e.target.value = ''; };
+for (const [k, lab] of [['top', 'Grundriss'], ['south', 'Süd'], ['north', 'Nord'], ['west', 'West'], ['east', 'Ost'], ['iso', 'Isometrie']]) $('#stdViews').append(el('button', {textContent: lab, onclick: () => setView(k)}));
+
+/* ====================================================================================================
+   Eingabe
+   ==================================================================================================== */
+function activateTab(id) {
+  document.querySelectorAll('#tabs button').forEach(b => { const on = b.dataset.tab === id; b.classList.toggle('act', on); b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('act', t.id === id)); if (id === 't-model') renderTree();
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => activateTab(b.dataset.tab));
+$('#tabs').addEventListener('keydown', e => {
+  const bs = [...document.querySelectorAll('#tabs button')], i = bs.indexOf(document.activeElement); if (i < 0) return;
+  const j = e.key === 'ArrowRight' ? (i + 1) % bs.length : e.key === 'ArrowLeft' ? (i + bs.length - 1) % bs.length : e.key === 'Home' ? 0 : e.key === 'End' ? bs.length - 1 : -1;
+  if (j < 0) return; e.preventDefault(); bs[j].focus(); activateTab(bs[j].dataset.tab);
+});
+
+let drag = null;
+cv.addEventListener('contextmenu', e => e.preventDefault());
+const ptrs = new Map(); let pinch = null;  // AP-10b: aktive Zeiger für Touch
+const pinchOf = () => { const [a, b] = [...ptrs.values()]; return {d: Math.hypot(a.x - b.x, a.y - b.y) || 1, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2}; };
+function panBy(dx, dy) {
+  const c = S.cam, k = c.dist * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / cv.clientHeight;
+  const right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0), up = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
+  c.target.addScaledVector(right, -dx * k).addScaledVector(up, dy * k);
+}
+function endPtr(e) {
+  ptrs.delete(e.pointerId);
+  if (ptrs.size < 2) pinch = null;
+  if (ptrs.size === 1 && drag) { const p = [...ptrs.values()][0]; drag.x = p.x; drag.y = p.y; }
+}
+cv.addEventListener('pointercancel', e => { endPtr(e); if (!ptrs.size) drag = null; });
+cv.addEventListener('lostpointercapture', e => { if (ptrs.has(e.pointerId)) { endPtr(e); if (!ptrs.size) drag = null; } });
+cv.addEventListener('pointerdown', e => {
+  cv.focus(); cv.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
+  if (ptrs.size === 2) { pinch = pinchOf(); if (drag) drag.moved = true; return; }
+  if (ptrs.size > 2) return;
+  drag = {x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, btn: e.button, pan: e.button === 1 || e.button === 2 || (e.button === 0 && e.shiftKey && !e.ctrlKey && false), moved: false, add: e.ctrlKey || e.metaKey || e.shiftKey};
+  if (e.button === 0 && e.shiftKey) drag.pan = true;
+  $('#tip').style.display = 'none';
+});
+cv.addEventListener('pointermove', e => {
+  if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
+  if (pinch && ptrs.size >= 2) {
+    const p = pinchOf();
+    S.cam.dist = Math.max(0.5, S.cam.dist * pinch.d / p.d); panBy(p.x - pinch.x, p.y - pinch.y);
+    pinch = p; invalidate(); return;
+  }
+  if (!drag) { if (e.pointerType === 'mouse') hoverSoon(e); return; }
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  drag.x = e.clientX; drag.y = e.clientY;
+  if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) drag.moved = true;
+  if (!drag.moved) return;
+  const c = S.cam;
+  if (drag.pan) {
+    panBy(dx, dy);
+  } else if (S.mode === 'orbit') {
+    c.yaw -= dx * 0.006; c.pitch += dy * 0.006;
+  } else { // Fliegen: Umsehen um die Kameraposition
+    const pos = camera.position.clone();
+    c.yaw += dx * 0.004; c.pitch -= dy * 0.004;
+    c.pitch = Math.max(-1.55, Math.min(1.55, c.pitch));
+    const cp = Math.cos(c.pitch);
+    const dir = new THREE.Vector3(-cp * Math.sin(c.yaw), -Math.sin(c.pitch), -cp * Math.cos(c.yaw));
+    c.target.copy(pos).addScaledVector(dir, c.dist);
+  }
+  invalidate();
+});
+cv.addEventListener('pointerup', e => {
+  const had = ptrs.size; endPtr(e);
+  if (had > 1) return;  // nach zwei Fingern keine Auswahl
+  const d = drag; drag = null;
+  if (!d || d.moved || d.btn !== 0) return;
+  const bl = bsPick(e.clientX, e.clientY);
+  if (bl >= 0 && !d.add) { bsShowLine(bl); return; }
+  const h = pick(e.clientX, e.clientY);
+  if (h) select(h.n, d.add); else if (!d.add) select(-1);
+});
+cv.addEventListener('dblclick', e => { const h = pick(e.clientX, e.clientY); if (h) { select(h.n, false); zoomSel(); } });
+/* AP-11 Zoom: Mausrad, Trackpad und Spreizen (kommt im Browser als Rad mit ctrlKey) mit deltaMode, zum Mauszeiger hin.
+   Nah am Ziel bleibt der Abstand bei 1 m und das Ziel wandert mit, damit man nicht vor dem Ziel hängen bleibt. */
+const ZOOM = {px: 0.0025, pinch: 0.012, max: 0.6, near: 1};
+function zoomAt(f, cx, cy) {
+  const c = S.cam, before = c.dist, want = before * f;
+  updateCamera(); camera.updateMatrixWorld();
+  let P = null;
+  if (cx != null) {
+    const r = cv.getBoundingClientRect();
+    ray.setFromCamera(new THREE.Vector2((cx - r.left) / r.width * 2 - 1, -(cy - r.top) / r.height * 2 + 1), camera);
+    P = ray.ray.intersectPlane(new THREE.Plane().setFromNormalAndCoplanarPoint(viewDir(), c.target), new THREE.Vector3());
+  }
+  const dist = f < 1 ? Math.max(Math.min(ZOOM.near, before), want) : Math.min(600, want);
+  if (P) c.target.addScaledVector(P.sub(c.target), 1 - dist / before);
+  if (want < dist) c.target.addScaledVector(viewDir(), dist - want);
+  c.dist = dist;
+}
+let gScale = 1, gAt = 0;  // Safari meldet das Trackpad-Spreizen als Geste statt als Rad mit ctrlKey
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  if (e.ctrlKey && performance.now() - gAt < 150) return;  // Geste schon verarbeitet
+  let dy = e.deltaY;
+  if (e.deltaMode === 1) dy *= 40; else if (e.deltaMode === 2) dy *= 800;
+  const s = Math.max(-ZOOM.max, Math.min(ZOOM.max, dy * (e.ctrlKey ? ZOOM.pinch : ZOOM.px)));
+  if (s) { zoomAt(Math.exp(s), e.clientX, e.clientY); invalidate(); }
+}, {passive: false});
+cv.addEventListener('gesturestart', e => { e.preventDefault(); gScale = 1; gAt = performance.now(); }, {passive: false});
+cv.addEventListener('gesturechange', e => {
+  e.preventDefault();
+  const sc = e.scale || 1, f = gScale / sc;
+  gScale = sc; gAt = performance.now();
+  if (ptrs.size >= 2) return;  // iPad: zwei Finger zoomen schon über die Zeiger, die Geste käme doppelt
+  if (isFinite(f) && f > 0 && f !== 1) { zoomAt(Math.max(0.5, Math.min(2, f)), e.clientX, e.clientY); invalidate(); }
+}, {passive: false});
+cv.addEventListener('gestureend', e => { e.preventDefault(); gAt = performance.now(); }, {passive: false});
+let hoverT = 0;
+function hoverSoon(e) {
+  clearTimeout(hoverT);
+  const cx = e.clientX, cy = e.clientY;
+  hoverT = setTimeout(() => {
+    if (drag || !S.prims.length) return;
+    const t0 = performance.now();
+    const h = pick(cx, cy);
+    S.metrics.pickMs = performance.now() - t0;
+    const tip = $('#tip');
+    if (!h) { tip.style.display = 'none'; cv.style.cursor = 'default'; return; }
+    cv.style.cursor = 'pointer';
+    const I = S.idx, r = $('#stage').getBoundingClientRect();
+    tip.innerHTML = '<b>' + esc(I.name[h.n]) + '</b><br><span class="muted">' + esc(I.arts[I.art[h.n]]) + ', ' + esc(floorLabel(h.n)) + '</span>';
+    tip.style.display = 'block';
+    tip.style.left = Math.max(4, Math.min(r.width - tip.offsetWidth - 4, cx - r.left + 14)) + 'px'; tip.style.top = Math.max(4, Math.min(r.height - tip.offsetHeight - 4, cy - r.top + 14)) + 'px';
+  }, 70);
+}
+cv.addEventListener('pointerleave', () => { $('#tip').style.display = 'none'; });
+const keys = new Set();
+let shiftHeld = false;
+addEventListener('keydown', e => {
+  shiftHeld = e.shiftKey;
+  if ($('#help').open) return;
+  const ae = document.activeElement;
+  if (ae && ae !== document.body && ae !== cv && e.key !== 'Escape') return;  // AP-10b: Kürzel nur, wenn kein Bedienelement den Fokus hat
+  const k = e.key.toLowerCase();
+  if ('wasdqe'.includes(k) && k.length === 1 && !e.ctrlKey && !e.metaKey) { keys.add(k); e.preventDefault(); return; }
+  if (e.key.startsWith('Arrow')) { keys.add(e.key); e.preventDefault(); return; }
+  if (k === 'v') setStyle(S.style === 'A' ? 'B' : 'A'); else if (k === 'f') zoomSel(); else if (k === 'h' && e.shiftKey) showAll(); else if (k === 'h') hideSel(); else if (k === 'i') isolateSel(); else if (k === 'x') xraySel(); else if (k === 'r') setView('iso'); else if (k === 'm') setMode(S.mode === 'orbit' ? 'fly' : 'orbit');
+  else if (e.key === 'Escape') { select(-1); if ($('#q') === document.activeElement) $('#q').blur(); }
+  else if ('123456'.includes(e.key) && e.key.length === 1) setView(['top', 'south', 'north', 'west', 'east', 'iso'][+e.key - 1]);
+});
+addEventListener('keyup', e => { shiftHeld = e.shiftKey; keys.delete(e.key.toLowerCase()); keys.delete(e.key); });
+addEventListener('blur', () => keys.clear());
+let lastT = performance.now(), frames = 0, fpsT = performance.now();
+function tick(now) {
+  requestAnimationFrame(tick);
+  const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
+  if (keys.size) {
+    const c = S.cam, sp = Math.max(2, c.dist * 0.5) * (shiftHeld ? 3 : 1) * dt;
+    const f = new THREE.Vector3(); camera.getWorldDirection(f);
+    if (S.mode === 'orbit') { f.y = 0; if (f.lengthSq() < 1e-6) f.set(0, 0, -1); f.normalize(); }
+    const r = new THREE.Vector3().crossVectors(f, camera.up).normalize();
+    const mv = new THREE.Vector3();
+    if (keys.has('w')) mv.addScaledVector(f, sp); if (keys.has('s')) mv.addScaledVector(f, -sp);
+    if (keys.has('d')) mv.addScaledVector(r, sp); if (keys.has('a')) mv.addScaledVector(r, -sp);
+    if (keys.has('e')) mv.y += sp; if (keys.has('q')) mv.y -= sp;
+    c.target.add(mv);
+    if (keys.has('ArrowLeft')) c.yaw += 1.4 * dt; if (keys.has('ArrowRight')) c.yaw -= 1.4 * dt;
+    if (keys.has('ArrowUp')) c.pitch -= 1.0 * dt; if (keys.has('ArrowDown')) c.pitch += 1.0 * dt;
+    dirty = true;
+  }
+  if (dirty) {
+    dirty = false; updateCamera();
+    const t0 = performance.now();
+    drawFrame();
+    S.metrics.renderMs = performance.now() - t0;
+    frames++;
+  }
+  if (DEBUG && now - fpsT > 1000) { $('#sFps').textContent = frames ? (frames * 1000 / (now - fpsT)).toFixed(0) + ' Bilder/s' : 'Ruhe'; frames = 0; fpsT = now; }
+}
+
+/* ====================================================================================================
+   Start
+   ==================================================================================================== */
+async function start() {
+  applyTheme(); resize();
+  try {
+    const [man, idx] = await Promise.all([fetch(DATA + 'manifest.json').then(r => r.json()), fetch(DATA + 'index.json').then(r => r.json())]);
+    // Modell3D: Stil A/B mit gleichen Objektnummern; Umschalten ohne Neuladen (beide Stile bleiben geladen). Start per ?stil=A|B
+    S.styles = [...new Set(man.files.map(f => f.style || 'A'))].sort();
+    let st0 = (new URLSearchParams(location.search).get('stil') || '').toUpperCase();
+    if (!st0) { try { st0 = localStorage.getItem('ow_style') || ''; } catch (e) {} }
+    st0 = S.styles.includes(st0) ? st0 : S.styles[0];
+    S.legendMap = {}; for (const k in (man.legend || {})) S.legendMap[k] = Object.fromEntries(man.legend[k].map(e => [e.key, e]));
+    let lgSaved = null; try { lgSaved = localStorage.getItem('ow_legend_min'); } catch (e) {}
+    S.legendMin = lgSaved === '1' || (lgSaved === null && innerWidth <= 1400);  // schmaler Laptop: Legende startet eingeklappt, Wahl wird gemerkt
+    if (innerWidth < 1000 || $('#stage').clientWidth < 800) S.legendMin = true;  // kleines Fenster/3D-Bereich: Legende startet eingeklappt (Wunsch main 16.11.)
+    S.worldN = idx.n;
+    OWU.plinth.value = (man.ground_z ?? -0.17) + 0.47;  // Sockel bis etwa 0,30 m über Gelände (Darstellung)
+    if (man.display_object_n !== undefined && man.display_object_n === idx.n && S.styles.includes('B')) {  // Darstellungsobjekt (Fenster) clientseitig anhaengen, kein Weltobjekt
+      const fl = idx.layers.findIndex(l => l.key === 'fenster');
+      idx.arts.push('Darstellung (kein Planungsobjekt)'); idx.gewerke.push('Darstellung');
+      const add = {id: 'DARSTELLUNG_FENSTER', name: 'Fenster abgeleitet, kein Planungsobjekt (nur Stil B)', art: idx.arts.length - 1, sub: '', layer: fl,
+                   group: 0, fmask: (1 << man.floors.length) - 1, gewerk: idx.gewerke.length - 1, system: 0, status: 0, rawstatus: 0, derived: 1,
+                   body: 0, bbox: [0, 0, 0, 7200, 4800, 2500]};
+      for (const k in add) if (Array.isArray(idx[k])) idx[k].push(add[k]);
+      S.dispN = idx.n;
+      idx.n += 1;
+    }
+    S.man = man; S.idx = idx; S.N = idx.n; S.vis = new Uint8Array(idx.n); S.gv = new Uint8Array(idx.n);
+    S.layerUsed = new Set(); for (const x of idx.layer) if (x >= 0) S.layerUsed.add(idx.layers[x].key);
+    await setStyle(st0, true);
+    idx.id.forEach((id, i) => { if (!S.idToNum.has(id) || idx.body[i] && !idx.body[S.idToNum.get(id)]) S.idToNum.set(id, i); });
+    const nw = idx.name_welt || {};
+    S.hay = idx.id.map((id, i) => (id + ' ' + idx.name[i] + ' ' + (nw[i] || '') + ' ' + idx.sub[i] + ' ' + (SUB_LABEL[idx.sub[i]] || '') + ' ' + idx.arts[idx.art[i]]).toLowerCase());
+    idx.layers.forEach(l => { S.layerOn[l.key] = l.visible; S.layerOp[l.key] = 1; });
+    const haveF = new Set(styleFiles().filter(f => f.group[0] === 'F').map(f => +f.group.slice(1)));
+    const firstFloor = man.pilot_floor ? +man.pilot_floor.slice(1) : (haveF.has(1) ? 1 : [...haveF].sort()[0] ?? 0);
+    S.floorOn.add(firstFloor);
+    buildFilterUI(); buildClipUI(); renderViews();
+    // Status Standard: zurückgestellte (held) zunächst aus
+    const held = idx.status_keys.indexOf('held'); if (held >= 0) S.statOff.add(held); buildFilterUI();
+    $('#srcInfo').textContent = 'Datenstand ' + man.source_seed_sha256.slice(0, 12) + ', exportiert ' + man.created + (man.with_tga ? ' mit Technik' : ' ohne Technik') + '. Stand 18.11. abends, Welt 1157. ' + man.objects_with_body.toLocaleString('de') + ' Körper und ' + man.objects_without_body.toLocaleString('de') + ' Objekte ohne Körper. Materialien, Möbelformen und Fenster in Stil B sind Darstellung und nicht Teil der Planungsdaten.';
+    renderLegend(); loadBS();
+    syncLoads(); applyVisibility();
+    S.cam.target.set(36, 6, -24); updateCamera(); renderTree(); renderActs();
+    // erste Ansicht, sobald etwas geladen ist
+    for (let k = 0; k < 600 && !S.prims.length; k++) await sleep(50);
+    setView('iso'); S.fitted = true;
+  } catch (e) { showMsg('Daten nicht geladen. Läuft der Server und gibt es den Ordner data? ' + e.message, 0); console.error(e); }
+  requestAnimationFrame(tick);
+}
+async function bench(sec = 3) {
+  // Dreht die Kamera sec Sekunden lang (jedes Bild neu gezeichnet) und misst Bilder/s, langsamstes Bild, Zeichenaufrufe
+  let n = 0, worst = 0, last = 0, calls = 0, tri = 0;
+  const t0 = performance.now(), yaw0 = S.cam.yaw;
+  await new Promise(res => { const f = now => { if (last) worst = Math.max(worst, now - last); last = now; S.cam.yaw += 0.01; invalidate(); n++; if (now - t0 < sec * 1000) requestAnimationFrame(f); else res(); }; requestAnimationFrame(f); });
+  await sleep(30); calls = renderer.info.render.calls; tri = renderer.info.render.triangles;
+  S.cam.yaw = yaw0; invalidate();
+  const r = {frames: n, fps: +(n * 1000 / (performance.now() - t0)).toFixed(1), worstFrameMs: +worst.toFixed(1), tris: S.metrics.tris, drawnTris: tri, drawCalls: calls,
+             canvas: renderer.domElement.width + 'x' + renderer.domElement.height, pixelRatio: renderer.getPixelRatio(), style: S.style, hidden: document.hidden};
+  S.metrics.bench = r; return r;
+}
+function benchSync(frames = 60, w = 0, h = 0) {
+  // Synchrone Messung (auch im verdeckten Fenster): je Bild rendern und auf das Ergebnis warten; ergibt die reine Zeichenzeit je Bild (ohne Bildschirmtakt)
+  // readPixels eines Bildpunkts wartet sicher auf das fertige Bild (gl.finish wartet nicht in jedem Browser)
+  const gl = renderer.getContext(), yaw0 = S.cam.yaw, ts = [], px = new Uint8Array(4);
+  if (w && h) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }  // feste Messgröße
+  for (let i = 0; i < 10; i++) { S.cam.yaw += 0.02; updateCamera(); drawFrame(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); }  // Aufwärmen
+  for (let i = 0; i < frames; i++) { S.cam.yaw += 0.02; updateCamera(); const t0 = performance.now(); drawFrame(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); ts.push(performance.now() - t0); }
+  const calls = renderer.info.render.calls, tri = renderer.info.render.triangles, size = renderer.domElement.width + 'x' + renderer.domElement.height;
+  if (w && h) resize();
+  S.cam.yaw = yaw0; invalidate();
+  ts.sort((a, b) => a - b);
+  const avg = ts.reduce((a, b) => a + b, 0) / ts.length;
+  return {frames, avgMs: +avg.toFixed(2), p95Ms: +ts[Math.floor(ts.length * 0.95)].toFixed(2), maxMs: +ts[ts.length - 1].toFixed(2), fpsEquiv: +(1000 / avg).toFixed(0),
+          tris: S.metrics.tris, drawnTris: tri, drawCalls: calls, canvas: size, style: S.style};
+}
+$('#bBench').onclick = async () => {
+  $('#benchOut').textContent = 'misst';
+  const r = document.hidden ? null : await bench(5), q = benchSync(60);
+  $('#benchOut').innerHTML = (r ? '<b>' + dez(r.fps, 1) + ' Bilder/s</b> am Bildschirm in Stil ' + r.style + ', langsamstes Bild ' + dez(r.worstFrameMs, 1) + ' ms. ' : 'Fenster verdeckt, nur Zeichenzeit gemessen. ') +
+    'Zeichenzeit je Bild ' + dez(q.avgMs, 2) + ' ms, 95 % unter ' + dez(q.p95Ms, 2) + ' ms, also etwa ' + q.fpsEquiv + ' Bilder/s möglich. ' + q.tris.toLocaleString('de') + ' Dreiecke sichtbar, ' + q.drawCalls + ' Zeichenaufrufe, Bild ' + q.canvas + ' px.';
+};
+window.__ow = {S, OWU, TR, get GR() { return GR; }, loadGraph, showNet, showSet, xraySel, showAll, renderTree, THREE, renderer, scene, camera, render: () => { updateCamera(); drawFrame(); }, syncLoads, setQuality, QUAL, LOOK, relook: () => { lookMode = ''; invalidate(); }, pick, select, goTo, setView, setColorMode, setStyle, applyVisibility, applyClip, bench, benchSync, renderLegend};
+start();
+</script>

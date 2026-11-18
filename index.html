@@ -1,4 +1,4 @@
-<title>Objektwelt 3D-Modell</title>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Objektwelt 3D-Modell</title>
 <style>
 :root{
   --bg:#f3f4f6; --panel:#ffffff; --panel2:#f1f2f4; --text:#1d2127; --muted:#5f6772; --line:#dde0e5; --accent:#c2410c; --accent-text:#ffffff;
@@ -28,8 +28,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:13px/
 #app.ovl #right{--ow:360px;justify-self:end;border-left:1px solid var(--line)}
 #app.ovl:not(.r-off) #floors{right:calc(min(360px,100%) + 10px)}
 #app.ovl:not(.l-off) #msg,#app.ovl:not(.l-off) #legend{left:calc(min(340px,100%) + 10px)}
-#app.ovl:not(.r-off) #acts{left:calc(50% - min(180px,50%));max-width:calc(100% - min(360px,100%) - 24px)}
-#app.ovl:not(.l-off) #acts{left:calc(50% + min(170px,50%));max-width:calc(100% - min(340px,100%) - 24px)}
+#app.ovl:not(.r-off) #acts,#app.ovl:not(.r-off) #hidPanel{left:calc(50% - min(180px,50%));max-width:calc(100% - min(360px,100%) - 24px)}
+#app.ovl:not(.l-off) #acts,#app.ovl:not(.l-off) #hidPanel{left:calc(50% + min(170px,50%));max-width:calc(100% - min(340px,100%) - 24px)}
 header{grid-column:1/4;grid-row:1;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 8px;background:var(--panel);border-bottom:1px solid var(--line);min-width:0}
 .pt{display:inline-flex;align-items:center;gap:6px;padding:0 10px 0 8px;position:relative}
 .pt svg{display:block;flex:none}
@@ -66,11 +66,36 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 #stage{position:relative;min-width:0;grid-column:2;grid-row:2;background:var(--scene)}
 #left{grid-column:1;grid-row:2} #right{grid-column:3;grid-row:2}
 /* AP-11: Geschosswahl im Bild */
-#floors{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:2px;padding:3px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);z-index:3}
-#floors button{height:26px;min-width:52px;padding:0 8px;border:1px solid transparent;border-radius:4px;background:transparent;color:var(--muted);font-variant-numeric:tabular-nums}
-#floors button:hover{color:var(--text);background:var(--hover)}
-#floors button[aria-pressed="true"]{color:var(--text);background:var(--panel2);border-color:var(--field-line)}
-#floors hr{border:0;border-top:1px solid var(--line);margin:2px 4px}
+#floors{position:absolute;right:10px;top:40px;max-height:calc(100% - 52px);overflow:auto;min-width:150px;padding:4px 8px 6px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);z-index:3}
+#floors .fh{display:flex;align-items:center;gap:4px;font-weight:500;font-size:12px;color:var(--muted);height:28px}
+#floors .fh .sp{flex:1}
+#floors button.sm{height:22px;padding:0 6px;font-size:12px}
+#floors .fr{display:flex;align-items:center;gap:6px;min-height:26px;border-top:1px solid var(--line)}
+#floors .fr label{flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;align-self:stretch;min-width:0;font-variant-numeric:tabular-nums}
+#floors .fr.off label{color:var(--muted)}
+#floors .fr button.only{border-color:transparent;background:transparent;color:var(--muted);height:22px;padding:0 4px;font-size:12px;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:2px}
+#floors .fr button.only:hover{color:var(--text);background:var(--hover)}
+/* BIM-Bedienung: Filterbaum, Gewerk-Rolle, Ausgeblendet */
+.roleBox{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:2px 0 4px}
+.roleBox select{flex:1;min-width:130px}
+.roleBox .seg{flex:none}
+.fchev{width:22px;height:24px;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:none;border:0;background:transparent;padding:0}
+.fchev.open svg{transform:rotate(90deg)}
+.fsp{width:22px;flex:none}
+#fTree .row label.dimL{color:var(--muted)}
+#fTree .row.grp label{font-weight:500}
+.ftools{display:flex;gap:6px;margin:4px 0 2px}
+#hidPanel{position:absolute;left:50%;bottom:54px;transform:translateX(-50%);width:min(460px,calc(100% - 24px));max-height:min(50%,380px);display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);z-index:4}
+#hidPanel .hh2{display:flex;align-items:center;gap:6px;padding:4px 4px 4px 12px;border-bottom:1px solid var(--line);font-weight:500}
+#hidPanel .hh2 .sp{flex:1}
+#hidPanel .hl{overflow:auto;padding:0 8px 6px}
+#hidPanel .hi{display:flex;align-items:center;gap:6px;min-height:30px;border-top:1px solid var(--line)}
+#hidPanel .hi:first-child{border-top:0}
+#hidPanel .hi .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#hidPanel .hi .sub{color:var(--muted);font-size:12px}
+#hidPanel .hg{font-size:12px;color:var(--muted);margin:8px 0 0}
+#cutBar{position:absolute;right:10px;bottom:56px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;z-index:3}
+#app.ovl:not(.r-off) #cutBar{right:calc(min(360px,100%) + 10px)}
 dialog#help{width:min(560px,calc(100% - 32px));max-height:calc(100% - 64px);padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--text)}
 dialog#help::backdrop{background:rgba(0,0,0,.25)}
 #help .hh{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
@@ -158,7 +183,7 @@ kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padd
   :root{--h:40px} button.sm{height:40px} .tr{height:40px} .tr .ib,.tr .tw{width:40px;height:40px}
   #tabs button{height:44px} .row{min-height:40px} details.sec>summary{height:44px}
   #legend .lh,#legend .lhb{height:40px} h2 .ib,.lh .ib{width:40px;height:40px} .idl .ib{width:40px;height:40px}
-  #floors button{height:40px;min-width:56px} .seg{padding:0} .seg button{height:40px} input[type=range]{width:96px;height:40px}
+  #floors button.sm,#floors button.only{height:40px} #floors .fr{min-height:40px} .seg{padding:0} .seg button{height:40px} input[type=range]{width:96px;height:40px}
   input[type=checkbox]{width:20px;height:20px} .row label{align-self:stretch} .rel{min-height:40px;display:inline-flex;align-items:center}
 }
 @media (max-width:1180px){ header h1{display:none} }
@@ -173,7 +198,7 @@ kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padd
   <header>
     <button id="bLeft" class="pt" type="button" aria-controls="left" aria-expanded="true"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 2.5v11" stroke="currentColor" stroke-width="1.3"/><path d="M2.8 5h1.8M2.8 7h1.8M2.8 9h1.8" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg><span class="lbl">Menü</span></button>
     <h1>Objektwelt 3D-Modell</h1>
-    <input id="q" type="text" placeholder="Suche nach ID oder Name" autocomplete="off" aria-label="Suche nach ID oder Name">
+    <input id="q" type="text" placeholder="Suche nach Kennung oder Name (Taste /)" autocomplete="off" aria-label="Suche nach Kennung oder Name">
     <span class="sp"></span>
     <span id="styleSeg" class="seg" role="group" aria-label="Stil" title="Gleiche Objekte, nur das Aussehen ändert sich (Taste V)"><button id="bStyleA" data-st="A" aria-pressed="false">A<span class="lbl"> einfach</span></button><button id="bStyleB" data-st="B" aria-pressed="false">B<span class="lbl"> realistisch</span></button></span>
     <button id="bHome" type="button" title="Ganzes Gebäude zeigen (Taste R)">Gesamt</button>
@@ -190,11 +215,18 @@ kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padd
     </div>
 
     <div id="t-filter" class="tab act" role="tabpanel" aria-labelledby="tb-filter">
-      <h2>Zeigen <button class="ib info" data-i="Geschosse wählen Sie rechts im Bild. Ein Klick zeigt nur dieses Geschoss, mit Strg oder Umschalt kommen weitere dazu. Die Decke über dem obersten gezeigten Geschoss bleibt offen, solange das Dach aus ist."></button></h2>
+      <h2>Ich bin <button class="ib info" data-i="Zeigt nur die Anlagen und Leitungen dieses Gewerks. Der Rest bleibt als blasser Geist stehen oder wird ausgeblendet. Die Zuordnung kommt aus den Planungsdaten: Gewerk des Objekts und Art der Anlage. Sanitär umfasst Trinkwasser und Abwasser. Brandschutz umfasst die Brandschutz-Ebenen, die Löschwasserleitung und die Brandmeldung. Bei Brandschutz werden Abschottungen, Klappen, Rettungswege und Feuerwehrflächen eingeschaltet."></button></h2>
+      <div class="roleBox"><select id="roleSel" aria-label="Ansicht nach Gewerk"></select><span class="seg" id="roleRest" role="group" aria-label="Der Rest"><button data-r="ghost" aria-pressed="true" class="act" title="Der Rest bleibt blass sichtbar">Rest blass</button><button data-r="hide" aria-pressed="false" title="Der Rest wird ausgeblendet">Rest aus</button></span></div>
+      <h2>Zeigen <button class="ib info" data-i="Geschosse wählen Sie rechts im Bild mit Häkchen, beliebig kombiniert. Die Decke über dem obersten gezeigten Geschoss bleibt offen, solange das Dach aus ist."></button></h2>
       <div class="btns qt" id="quick"></div>
       <div class="row"><label for="cMode">Einfärbung</label><select id="cMode"><option value="material">Modell</option><option value="gewerk">Gewerk</option><option value="art">Objektart</option><option value="status">Status</option><option value="floor">Geschoss</option></select></div>
-      <details class="sec" open><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ebenen</span></summary>
-        <div class="note">Haken blendet aus, der Regler stellt die Deckkraft ein. Gewerke und Anlagen stehen im Reiter Modell.</div>
+      <details class="sec" open><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Filterbaum</span></summary>
+        <div class="note">Haken blendet ein oder aus. Ein Oberknoten schaltet alles darunter, ein halber Haken zeigt eine Mischung.</div>
+        <div class="ftools"><button class="sm" id="ftAll" title="Ebenen wie beim Start, Unterteilungen wieder ein">Standard</button><button class="sm" id="ftNone">Alle aus</button></div>
+        <div id="fTree"></div>
+      </details>
+      <details class="sec"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ebenen und Deckkraft</span></summary>
+        <div class="note">Haken blendet aus, der Regler stellt die Deckkraft ein. Gewerke und Anlagen stehen auch im Reiter Modell.</div>
         <div id="fLayers"></div>
       </details>
       <details class="sec"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Objektart</span></summary>
@@ -248,7 +280,9 @@ kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padd
     <div id="prog"></div>
     <canvas id="cv" tabindex="0" aria-label="3D-Modell"></canvas>
     <div id="legend"></div>
-    <div id="floors" role="group" aria-label="Geschoss"></div>
+    <div id="floors" role="group" aria-label="Geschosse"></div>
+    <div id="hidPanel" hidden role="dialog" aria-label="Ausgeblendet"></div>
+    <div id="cutBar"></div>
     <div id="hint">Ziehen dreht, Rad zoomt, Klick wählt</div>
     <div id="tip"></div>
     <div id="msg" role="status"></div>
@@ -270,16 +304,27 @@ kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padd
       <tr><td>Drehen</td><td>mit der Maus ziehen, auf dem Tablet mit einem Finger</td></tr>
       <tr><td>Zoomen</td><td>Mausrad, auf dem Trackpad oder Tablet mit zwei Fingern</td></tr>
       <tr><td>Verschieben</td><td>rechte Maustaste oder Umschalt und Ziehen, auf dem Tablet zwei Finger</td></tr>
-      <tr><td>Geschoss</td><td>rechts im Bild wählen, mit Strg oder Umschalt weitere dazu</td></tr>
+      <tr><td>Geschosse</td><td>rechts im Bild mit Häkchen wählen, beliebig kombiniert, dazu alle, keins und nur</td></tr>
       <tr><td>Objekt</td><td>anklicken oder antippen, die Daten stehen unter Details</td></tr>
       <tr><td>Gesamt</td><td>zeigt wieder das ganze Gebäude</td></tr>
+    </table>
+    <h2>Ausblenden und Filtern</h2>
+    <table class="help">
+      <tr><td>Ausblenden</td><td>Objekt anklicken, dann unten Ausblenden. Alle dieser Art ausblenden nimmt die ganze Objektart weg, bei Technik das Gewerk getrennt nach Leitungen und Anlagen.</td></tr>
+      <tr><td>Zurückholen</td><td>unten Ausgeblendet öffnen und jeden Eintrag einzeln einblenden, oder Alles einblenden</td></tr>
+      <tr><td>Isolieren</td><td>zeigt nur die Auswahl, nochmal klicken hebt auf. Röntgen lässt den Rest blass stehen.</td></tr>
+      <tr><td>Filterbaum</td><td>links im Reiter Filter. Haken je Ebene, ein Oberknoten schaltet alles darunter, ein halber Haken zeigt eine Mischung.</td></tr>
+      <tr><td>Ich bin</td><td>links im Reiter Filter. Zeigt nur Anlagen und Leitungen eines Gewerks, der Rest bleibt blass oder wird ausgeblendet.</td></tr>
+      <tr><td>Schnitt</td><td>unten rechts im Bild: Grundriss 1,5 m, Schnitt einstellen, Schnitt aus</td></tr>
+      <tr><td>Suche</td><td>oben nach Kennung oder Name, Taste <kbd>/</kbd> springt ins Feld, Treffer stehen im Reiter Modell</td></tr>
     </table>
     <h2>Tasten</h2>
     <table class="help">
       <tr><td><kbd>Strg</kbd> oder <kbd>Umschalt</kbd> und Klick</td><td>zur Auswahl hinzufügen</td></tr>
       <tr><td><kbd>Doppelklick</kbd> <kbd>F</kbd></td><td>auf Auswahl zoomen</td></tr>
       <tr><td><kbd>I</kbd> <kbd>X</kbd> <kbd>H</kbd></td><td>isolieren, Röntgen, ausblenden</td></tr>
-      <tr><td><kbd>Umschalt</kbd> <kbd>H</kbd></td><td>alles zeigen</td></tr>
+      <tr><td><kbd>Umschalt</kbd> <kbd>H</kbd></td><td>alles einblenden</td></tr>
+      <tr><td><kbd>/</kbd></td><td>Suchfeld</td></tr>
       <tr><td><kbd>Esc</kbd></td><td>Auswahl aufheben</td></tr>
       <tr><td><kbd>R</kbd></td><td>Gesamtansicht</td></tr>
       <tr><td><kbd>V</kbd></td><td>Stil A oder B</td></tr>
@@ -326,7 +371,7 @@ import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/
 const DATA = 'data/';
 const S = {
   man: null, idx: null, N: 0, vis: null, idToNum: new Map(), hay: null,
-  floorOn: new Set(), extraOn: new Set(), layerOn: {}, layerOp: {}, gewOff: new Set(), sysOff: new Set(), artOff: new Set(), statOff: new Set(),
+  floorOn: new Set(), extraOn: new Set(), layerOn: {}, layerOp: {}, gewOff: new Set(), sysOff: new Set(), artOff: new Set(), statOff: new Set(), leafOff: new Set(), role: 0, roleRest: 'ghost', roleOn: [], hidOpen: false,
   hidden: new Set(), isolate: null, ghost: false, xray: false, gv: null, colorMode: 'material', sel: [], selSet: new Set(), last: -1,
   files: new Map(), prims: [], objPrims: new Map(), mode: 'orbit', theme: 'auto',
   clip: {x: {on: false, pos: 36, keep: 'lo'}, y: {on: false, pos: 24, keep: 'lo'}, z: {on: false, pos: 12, keep: 'lo'}},
@@ -1053,6 +1098,44 @@ function loadMany(need) {
 function syncLoads() { if (S.man) return loadMany(neededFiles()); }
 
 /* ====================================================================================================
+   Filterbaum und Gewerk-Rolle. Beides läuft über computeVis, es entstehen keine neuen Netze.
+   Blatt (leaf): Technik je Gewerk getrennt nach Leitung (Art Trasse ...) und Anlage (alles übrige), dazu Stützen und Träger einzeln.
+   Alle anderen Blätter sind ganze Ebenen und schalten wie bisher über layerOn.
+   ==================================================================================================== */
+const LF = {list: [], of: null, byKey: new Map(), roleOf: null};
+const ROLES = [
+  {key: 'kaelte', label: 'Kälte', gew: ['Kälte (Gebäude)', 'Kälte (Lebensmittel)'], disc: ['cooling', 'food_cooling']},
+  {key: 'heizung', label: 'Heizung', gew: ['Heizung'], disc: ['heating']},
+  {key: 'lueftung', label: 'Lüftung', gew: ['Lüftung'], disc: ['ventilation']},
+  {key: 'sanitaer', label: 'Sanitär', gew: ['Trinkwasser', 'Abwasser/Entwässerung'], disc: ['water', 'drainage']},
+  {key: 'elektro', label: 'Elektro', gew: ['Elektro'], disc: ['electrical']},
+  {key: 'brand', label: 'Brandschutz', gew: ['Brandschutz', 'Sicherheit/Brandmeldung'], disc: ['fire_fighting', 'safety'], layers: ['bs_schott', 'bs_klappe', 'bs_rettungsweg', 'bs_feuerwehr']},
+  {key: 'ga', label: 'Gebäudeautomation', gew: ['Gebäudeautomation'], disc: ['automation']},
+  {key: 'aufzug', label: 'Aufzug', gew: ['Aufzug'], disc: ['lift'], more: true},
+  {key: 'daten', label: 'Daten und IT', gew: ['Daten/IT'], disc: ['data'], more: true}
+];
+const isTechLayer = k => k.startsWith('tga_') || k.startsWith('bs_');
+function buildLeaves() {
+  const I = S.idx, N = S.N, of = new Int32Array(N).fill(-1), roleOf = new Uint8Array(N);
+  LF.list = []; LF.byKey = new Map(); LF.of = of; LF.roleOf = roleOf;
+  const trasse = new Set(I.arts.map((a, i) => a.startsWith('Trasse') ? i : -1).filter(i => i >= 0));
+  const stu = I.arts.indexOf('Stütze'), tra = I.arts.indexOf('Träger'), tw = I.layers.findIndex(l => l.key === 'tragwerk');
+  const leaf = (key, info) => { let id = LF.byKey.get(key); if (id === undefined) { id = LF.list.length; LF.byKey.set(key, id); LF.list.push(Object.assign({key, n: 0}, info)); } return id; };
+  const gRole = new Map(), dRole = new Map();
+  ROLES.forEach((r, k) => { r.gew.forEach(g => gRole.set(g, k + 1)); r.disc.forEach(d => dRole.set(d, k + 1)); });
+  for (let i = 0; i < N; i++) {
+    const l = I.layer[i]; if (l < 0) continue;
+    const lk = I.layers[l].key; let id;
+    if (lk.startsWith('tga_')) { const cls = trasse.has(I.art[i]) ? 'L' : 'A'; id = leaf('T:' + I.gewerke[I.gewerk[i]] + ':' + cls, {kind: 'T', gew: I.gewerke[I.gewerk[i]], cls, gi: I.gewerk[i]}); }
+    else if (l === tw && (I.art[i] === stu || I.art[i] === tra)) id = leaf('S:' + I.arts[I.art[i]], {kind: 'S', art: I.art[i], label: I.arts[I.art[i]] === 'Stütze' ? 'Stützen' : 'Träger'});
+    else id = leaf('L:' + lk, {kind: 'L', layer: l, lk});
+    of[i] = id; if (I.body[i]) LF.list[id].n++;
+    if (isTechLayer(lk)) { const sy = I.systems[I.system[i]]; roleOf[i] = gRole.get(I.gewerke[I.gewerk[i]]) || (sy && sy.discipline && dRole.get(sy.discipline)) || 0; }
+  }
+}
+const roleGhostOn = () => S.role > 0 && S.roleRest === 'ghost';
+
+/* ====================================================================================================
    Sichtbarkeit
    ==================================================================================================== */
 function computeVis() {
@@ -1061,6 +1144,8 @@ function computeVis() {
   const grp = I.groups;
   const layerVis = I.layers.map(l => !!S.layerOn[l.key]);
   const iso = S.isolate, hid = S.hidden, gv = S.gv, ghostAll = S.ghost, xr = S.xray;
+  const lo = new Uint8Array(LF.list.length); for (const id of S.leafOff) lo[id] = 1;
+  const lfOf = LF.of, role = S.role, rof = LF.roleOf, rGhost = roleGhostOn();
   // Decken: die Decke über dem obersten gewählten Geschoss bleibt offen (Blick hinein), außer das Dach ist eingeschaltet
   const deckeL = I.layers.findIndex(l => l.key === 'decke');
   const topSel = S.floorOn.size ? Math.max(...S.floorOn) : -1, roofOn = S.extraOn.has('DACH');
@@ -1074,11 +1159,13 @@ function computeVis() {
       if (l >= 0 && !layerVis[l]) ok = false;
       else if (l === deckeL && fm && !roofOn && 31 - Math.clz32(fm) >= topSel) ok = false;
       else if (S.gewOff.has(I.gewerk[i]) || S.sysOff.has(I.system[i]) || S.artOff.has(I.art[i]) || S.statOff.has(I.status[i])) ok = false;
+      else if (lfOf[i] >= 0 && lo[lfOf[i]]) ok = false;
     }
     const base = ok;  // Filter erfüllt, vor Ausblenden und Isolieren
-    if (ok && (hid.has(i) || (iso && !iso.has(i)))) ok = false;
+    const rm = role > 0 && base && rof[i] !== role;  // Gewerk-Rolle: nicht dieses Gewerk
+    if (ok && (hid.has(i) || (iso && !iso.has(i)) || rm)) ok = false;
     vis[i] = ok ? 1 : 0;
-    gv[i] = !ok && (ghostAll || (xr && base)) ? 1 : 0;  // blass: alles Ausgeblendete (Schalter) oder beim Röntgen der Rest
+    gv[i] = !ok && (ghostAll || (xr && base) || (rm && rGhost && !hid.has(i))) ? 1 : 0;  // blass: alles Ausgeblendete (Schalter), beim Röntgen der Rest, in der Gewerk-Rolle das übrige Gebäude
     if (ok && I.body[i]) cnt++;
   }
   S.visCount = cnt;
@@ -1106,9 +1193,9 @@ function rebuildPrim(p) {
     return 0;
   }
   const vis = S.vis, ia = p.visIdx, src = p.idx, rO = p.rO, rA = p.rA, rB = p.rB;
-  const ghostOn = (S.ghost || S.xray) && S.layerOn[p.layer] && p.groupLoaded !== false, gv = S.gv;
+  const ghostOn = (S.ghost || S.xray || roleGhostOn()) && S.layerOn[p.layer] && p.groupLoaded !== false, gv = S.gv;
   const gh = ghostOn ? ensureGhost(p) : p.ghost;
-  if (gh) gh.mat.opacity = S.xray ? 0.12 : 0.07;
+  if (gh) gh.mat.opacity = S.xray ? 0.12 : roleGhostOn() ? 0.1 : 0.07;
   let wv = 0, wg = 0;
   for (let r = 0; r < p.nR; r++) {
     const a = rA[r] * 3, b = rB[r] * 3;
@@ -1371,6 +1458,8 @@ async function goTo(n, opts = {}) {
     if (l >= 0 && !S.layerOn[I.layers[l].key]) { S.layerOn[I.layers[l].key] = true; changed = true; }
     for (const [set, v] of [[S.gewOff, I.gewerk[n]], [S.sysOff, I.system[n]], [S.artOff, I.art[n]], [S.statOff, I.status[n]]]) if (set.has(v)) { set.delete(v); changed = true; }
     if (S.hidden.has(n)) { S.hidden.delete(n); changed = true; }
+    const lf = LF.of[n]; if (lf >= 0 && S.leafOff.has(lf)) { S.leafOff.delete(lf); changed = true; }
+    if (S.role && LF.roleOf[n] !== S.role) { S.role = 0; syncRoleUI(); showMsg('Gewerksansicht aufgehoben, damit das Objekt sichtbar ist', 3000); changed = true; }
     if (S.isolate && !S.isolate.has(n)) { S.isolate.add(n); changed = true; }
     if (changed) { buildFilterUI(); syncLoads(); applyVisibility(); }
     const f = styleFiles().find(ff => ff.group === g && ff.layer === I.layers[l]?.key);
@@ -1591,6 +1680,8 @@ async function showSet(set, n, what, note = '') {
     const l = I.layer[o]; if (l >= 0 && !S.layerOn[I.layers[l].key]) { S.layerOn[I.layers[l].key] = true; changed = true; }
     for (const [st, v] of [[S.gewOff, I.gewerk[o]], [S.sysOff, I.system[o]], [S.artOff, I.art[o]]]) if (st.has(v)) { st.delete(v); changed = true; }
     if (S.hidden.has(o)) { S.hidden.delete(o); changed = true; }
+    const lf = LF.of[o]; if (lf >= 0 && S.leafOff.has(lf)) { S.leafOff.delete(lf); changed = true; }
+    if (S.role && LF.roleOf[o] !== S.role) { S.role = 0; syncRoleUI(); changed = true; }
   }
   if (changed) { buildFilterUI(); showMsg(what + ' wird geladen', 0); await syncLoads(); }
   S.sel = [...set].filter(o => o !== n); S.sel.push(n); S.selSet = new Set(S.sel); S.last = n;
@@ -1602,27 +1693,81 @@ async function showSet(set, n, what, note = '') {
   showMsg(what + ', ' + set.size.toLocaleString('de') + ' Objekte' + (set.size > shown ? ', davon ' + (set.size - shown).toLocaleString('de') + ' ohne Körper oder ausgefiltert' : '') + '.' + note, 8000);
 }
 function zoomSel() { if (!S.sel.length) return; const b = new THREE.Box3(); for (const n of S.sel) b.union(objBox(n)); if (!b.isEmpty()) zoomToBox(b, 2.2); }
-function isolateSel() { if (!S.sel.length) return; S.isolate = new Set(S.sel); S.xray = false; applyVisibility(); renderTree(true); }
+function isolateSel() {
+  if (S.isolate && !S.xray && (!S.sel.length || (S.sel.length === S.isolate.size && S.sel.every(n => S.isolate.has(n))))) { S.isolate = null; applyVisibility(); renderTree(true); return; }  // zweiter Klick hebt auf
+  if (!S.sel.length) return; S.isolate = new Set(S.sel); S.xray = false; applyVisibility(); renderTree(true);
+}
 function xraySel() {
   if (S.xray) { S.xray = false; S.isolate = null; applyVisibility(); renderTree(true); return; }
   if (!S.sel.length) return; S.isolate = new Set(S.sel); S.xray = true; applyVisibility(); renderTree(true);
 }
-function hideSel() { if (!S.sel.length) return; const k = S.sel.length; for (const n of S.sel) S.hidden.add(n); select(-1); applyVisibility(); showMsg(k.toLocaleString('de') + ' ausgeblendet', 2000); }
-function showAll() { S.hidden.clear(); S.isolate = null; S.xray = false; S.gewOff.clear(); S.sysOff.clear(); applyVisibility(); renderTree(true); }
+function hideSel() { if (!S.sel.length) return; const k = S.sel.length; for (const n of S.sel) S.hidden.add(n); select(-1); applyVisibility(); showMsg(k.toLocaleString('de') + ' ausgeblendet. Zurückholen unter Ausgeblendet.', 2500); }
+/* Art eines Objekts zum Ausblenden: Technik je Gewerk und Leitung oder Anlage, alles andere nach Objektart */
+function groupOf(n) {
+  const id = LF.of[n]; if (id >= 0 && LF.list[id].kind === 'T') return {t: 'leaf', id};
+  return {t: 'art', id: S.idx.art[n]};
+}
+function groupName(g) {
+  if (g.t === 'art') return S.idx.arts[g.id];
+  const L = LF.list[g.id]; return (L.gew === 'Technik ohne System' ? 'ohne System' : L.gew) + ', ' + (L.cls === 'L' ? 'Leitungen' : 'Anlagen');
+}
+function selGroups() { const m = new Map(); for (const n of S.sel) { const g = groupOf(n); m.set(g.t + g.id, g); } return [...m.values()]; }
+function hideKind() {
+  const gs = selGroups(); if (!gs.length) return;
+  for (const g of gs) { if (g.t === 'art') S.artOff.add(g.id); else S.leafOff.add(g.id); }
+  select(-1); applyVisibility(); buildFilterUI();
+  showMsg('Ausgeblendet: ' + gs.map(groupName).join(', ') + '. Zurückholen unter Ausgeblendet.', 4000);
+}
+function offCount() { return S.hidden.size + S.artOff.size + S.leafOff.size + S.gewOff.size + S.sysOff.size; }
+function showAll() { S.hidden.clear(); S.isolate = null; S.xray = false; S.gewOff.clear(); S.sysOff.clear(); S.artOff.clear(); S.leafOff.clear(); buildFilterUI(); applyVisibility(); renderTree(true); }
 function renderActs() {
   const box = $('#acts'); if (!S.idx) return;
-  const k = S.sel.length, off = !!(S.hidden.size || S.isolate || S.gewOff.size || S.sysOff.size);
+  const k = S.sel.length, noff = offCount(), off = !!(noff || S.isolate);
   box.classList.toggle('on', !!(k || off)); $('#stage').classList.toggle('acts-on', !!(k || off));
   let h = '';
+  const gs = k ? selGroups() : [];
   if (k) h += '<span class="cnt">' + k.toLocaleString('de') + ' gewählt</span><button data-a="zoom" title="Auf Auswahl zoomen (F)">Zoom</button>' +
-    '<button data-a="iso" title="Nur Auswahl zeigen (I)" aria-pressed="' + !!(S.isolate && !S.xray) + '">Isolieren</button>' +
-    '<button data-a="xray" title="Auswahl deckend, Rest blass (X)" aria-pressed="' + !!S.xray + '">Röntgen</button>' +
-    '<button data-a="hide" title="Auswahl ausblenden (H)">Ausblenden</button>';
-  if (off) h += '<button data-a="all" title="Ausgeblendetes und Isoliertes wieder zeigen (Umschalt H)">Alles zeigen</button>';
+    '<button data-a="hide" title="Nur die Auswahl ausblenden (H)">Ausblenden</button>' +
+    '<button data-a="kind" title="' + esc('Ausblenden: alle Objekte der Art ' + gs.map(groupName).join(', ')) + '">Alle dieser Art ausblenden</button>' +
+    '<button data-a="iso" title="Nur Auswahl zeigen, nochmal klicken hebt auf (I)" aria-pressed="' + !!(S.isolate && !S.xray) + '">Isolieren</button>' +
+    '<button data-a="xray" title="Auswahl deckend, Rest blass (X)" aria-pressed="' + !!S.xray + '">Röntgen</button>';
+  if (off) h += (noff ? '<button data-a="list" title="Liste der ausgeblendeten Elemente" aria-pressed="' + S.hidOpen + '">Ausgeblendet (' + noff.toLocaleString('de') + ')</button>' : '') +
+    '<button data-a="all" title="Alles Ausgeblendete und Isolierte wieder zeigen (Umschalt H)">Alles einblenden</button>';
   if (k) h += '<button class="ib" data-a="clr" title="Auswahl aufheben (Esc)" aria-label="Auswahl aufheben">' + IC.close + '</button>';
   box.innerHTML = h;
+  if (!noff && S.hidOpen) S.hidOpen = false;
+  renderHid();
 }
-$('#acts').onclick = e => { const b = e.target.closest('button[data-a]'); if (!b) return; ({zoom: zoomSel, iso: isolateSel, xray: xraySel, hide: hideSel, all: showAll, clr: () => select(-1)})[b.dataset.a](); };
+$('#acts').onclick = e => { const b = e.target.closest('button[data-a]'); if (!b) return; ({zoom: zoomSel, iso: isolateSel, xray: xraySel, hide: hideSel, kind: hideKind, all: showAll, list: () => { S.hidOpen = !S.hidOpen; renderActs(); }, clr: () => select(-1)})[b.dataset.a](); };
+
+/* Liste der Ausgeblendeten: Gruppen (Art, Gewerk, Anlage) und einzelne Objekte, jedes einzeln zurückholbar */
+function renderHid() {
+  const box = $('#hidPanel'); if (!box) return;
+  box.hidden = !S.hidOpen; if (!S.hidOpen) return;
+  const I = S.idx, items = [];
+  for (const a of S.artOff) items.push({g: 'Art', t: I.arts[a], sub: 'alle dieser Art', undo: () => S.artOff.delete(a)});
+  for (const id of S.leafOff) items.push({g: 'Art', t: groupName({t: 'leaf', id}), sub: 'alle dieser Art', undo: () => S.leafOff.delete(id)});
+  for (const g of S.gewOff) items.push({g: 'Gewerk', t: I.gewerke[g], sub: 'ganzes Gewerk', undo: () => S.gewOff.delete(g)});
+  for (const y of S.sysOff) items.push({g: 'Anlage', t: I.systems[y].label, sub: 'ganze Anlage', undo: () => S.sysOff.delete(y)});
+  const gAll = items.length;
+  const objs = [...S.hidden];
+  const h = document.createDocumentFragment();
+  const mk = (it) => {
+    const b = el('button', {type: 'button', className: 'sm', textContent: 'einblenden'}); b.setAttribute('aria-label', it.t + ' einblenden');
+    b.onclick = () => { it.undo(); buildFilterUI(); applyVisibility(); renderTree(true); };
+    return el('div', {className: 'hi'}, el('span', {className: 'tx', title: it.t}, it.t, el('span', {className: 'sub', textContent: it.sub ? ', ' + it.sub : ''})), b);
+  };
+  if (gAll) { h.append(el('div', {className: 'hg', textContent: 'Gruppen'})); items.forEach(it => h.append(mk(it))); }
+  if (objs.length) {
+    h.append(el('div', {className: 'hg', textContent: 'Einzelne Objekte, ' + objs.length.toLocaleString('de')}));
+    for (const n of objs.slice(0, 100)) h.append(mk({t: I.name[n], sub: I.arts[I.art[n]] + ', ' + floorLabel(n), undo: () => S.hidden.delete(n)}));
+    if (objs.length > 100) h.append(el('div', {className: 'hg', textContent: 'und ' + (objs.length - 100).toLocaleString('de') + ' weitere, zurückholen mit Alles einblenden'}));
+  }
+  const x = el('button', {type: 'button', className: 'ib', title: 'Liste schließen', innerHTML: IC.close}); x.setAttribute('aria-label', 'Liste schließen'); x.onclick = () => { S.hidOpen = false; renderActs(); };
+  const all = el('button', {type: 'button', className: 'sm', textContent: 'Alles einblenden'}); all.onclick = showAll;
+  const gh = el('label', {style: 'display:flex;align-items:center;gap:4px;font-weight:400;font-size:12px;cursor:pointer', title: 'Ausgeblendetes blass zeigen'}); const gc = el('input', {type: 'checkbox', checked: S.ghost}); gc.onchange = () => { S.ghost = gc.checked; $('#cGhost').checked = S.ghost; applyVisibility(); }; gh.append(gc, 'blass zeigen');
+  box.replaceChildren(el('div', {className: 'hh2'}, el('span', {textContent: 'Ausgeblendet'}), el('span', {className: 'sp'}), gh, all, x), el('div', {className: 'hl'}, h));
+}
 
 /* ====================================================================================================
    Filter-UI
@@ -1767,33 +1912,129 @@ function buildFilterUI() {
     st.append(el('div', {className: 'row'}, el('label', {}, cb, s), el('span', {className: 'n', textContent: stc[i].toLocaleString('de')})));
   });
   buildQuick();
+  buildFTree();
+}
+
+/* Filterbaum im Reiter Filter */
+const FT = {open: new Set(['bau', 'lei', 'anl']), focus: ''};
+const FT_ORDER = ['L:wand', 'L:trennwand', 'L:decke', 'S:Stütze', 'S:Träger', 'L:tuer', 'L:oeffnung', 'L:fenster', 'L:dach', 'L:darstellung', 'L:treppe', 'L:aufzug', 'L:boden', 'L:ausstattung', 'L:durchfuehrung', 'L:tragwerk', 'L:tg_bauwerk', 'L:tg_markierung', 'L:tg_zufahrt', 'L:tg_schacht', 'L:aussen', 'L:zone'];
+const FT_LABEL = {tuer: 'Türen', boden: 'Schwellen', tragwerk: 'Tragwerk, übrige', durchfuehrung: 'Durchführungen', raum: 'Räume'};
+function leafLabel(L) {
+  if (L.kind === 'S') return L.label;
+  if (L.kind === 'L') { const l = S.idx.layers[L.layer]; return FT_LABEL[l.key] || l.label; }
+  return L.gew === 'Technik ohne System' ? 'ohne System' : L.gew;
+}
+function leafColor(L) {
+  const I = S.idx;
+  if (L.kind === 'L') return I.layers[L.layer].color;
+  if (L.kind === 'T') { const l = I.layers.find(x => x.key.startsWith('tga_') && x.gewerk === L.gew && x.color !== '#999999' && x.color !== '#888888'); return l ? l.color : '#888888'; }
+  return I.layers.find(x => x.key === 'tragwerk').color;
+}
+const leafOn = id => { const L = LF.list[id]; return L.kind === 'L' ? !!S.layerOn[L.lk] : !S.leafOff.has(id); };
+function setLeaf(id, on) { const L = LF.list[id]; if (L.kind === 'L') S.layerOn[L.lk] = on; else if (on) S.leafOff.delete(id); else S.leafOff.add(id); }
+function ftTree() {
+  const ids = LF.list.map((L, i) => i).filter(i => LF.list[i].n > 0 || (LF.list[i].kind === 'L' && LF.list[i].lk === 'fenster'));
+  const kind = i => LF.list[i];
+  const ordIdx = i => { const k = FT_ORDER.indexOf(LF.list[i].key); return k < 0 ? 99 : k; };
+  const byLabel = (a, b) => leafLabel(kind(a)).localeCompare(leafLabel(kind(b)), 'de');
+  const isBs = i => kind(i).kind === 'L' && kind(i).lk.startsWith('bs_');
+  const bau = ids.filter(i => kind(i).kind !== 'T' && !isBs(i) && kind(i).lk !== 'raum').sort((a, b) => ordIdx(a) - ordIdx(b));
+  const raum = ids.filter(i => kind(i).kind === 'L' && kind(i).lk === 'raum');
+  const bs = ids.filter(isBs).sort((a, b) => I_layerIdx(a) - I_layerIdx(b));
+  const lei = ids.filter(i => kind(i).kind === 'T' && kind(i).cls === 'L').sort(byLabel);
+  const anl = ids.filter(i => kind(i).kind === 'T' && kind(i).cls === 'A').sort(byLabel);
+  return [
+    {key: 'bau', label: 'Bauteile', kids: bau}, {key: 'raum', label: 'Räume', kids: raum, flat: true},
+    {key: 'lei', label: 'Leitungen nach Gewerk', kids: lei}, {key: 'anl', label: 'Anlagen nach Gewerk', kids: anl}, {key: 'bs', label: 'Brandschutz', kids: bs}
+  ].filter(g => g.kids.length);
+}
+const I_layerIdx = i => LF.list[i].layer;
+function buildFTree() {
+  const box = $('#fTree'); if (!box || !LF.of) return;
+  const act = document.activeElement && box.contains(document.activeElement) ? document.activeElement.dataset.f : '';
+  box.innerHTML = '';
+  const cnt = ids => ids.reduce((a, i) => a + LF.list[i].n, 0);
+  const refresh = () => { buildFilterUI(); syncLoads(); applyVisibility(); };
+  const mkRow = (depth, key, label, on, mixed, count, color, onChange, chev, grp) => {
+    const cb = el('input', {type: 'checkbox', checked: on}); cb.indeterminate = mixed; cb.dataset.f = key; cb.onchange = onChange;
+    const lab = el('label', {title: label}, cb);
+    if (color) { const sw = el('span', {className: 'sw'}); sw.style.background = color; lab.append(sw); }
+    lab.append(el('span', {className: 'lt', textContent: label}));
+    const r = el('div', {className: 'row' + (grp ? ' grp' : '')});
+    r.style.paddingLeft = (depth * 14) + 'px';
+    if (chev) { const b = el('button', {type: 'button', className: 'fchev' + (FT.open.has(key) ? ' open' : ''), innerHTML: IC.chev, title: 'auf- oder zuklappen'}); b.setAttribute('aria-expanded', FT.open.has(key)); b.setAttribute('aria-label', label + ' auf- oder zuklappen'); b.onclick = () => { FT.open.has(key) ? FT.open.delete(key) : FT.open.add(key); buildFTree(); }; r.append(b); }
+    else r.append(el('span', {className: 'fsp'}));
+    r.append(lab, el('span', {className: 'n', textContent: count ? count.toLocaleString('de') : ''}));
+    box.append(r);
+  };
+  for (const g of ftTree()) {
+    const states = g.kids.map(leafOn), nOn = states.filter(Boolean).length;
+    if (g.flat) {  // ein einzelnes Blatt direkt auf oberster Ebene
+      const id = g.kids[0]; mkRow(0, 'f' + id, g.label, leafOn(id), false, LF.list[id].n, leafColor(LF.list[id]), e => { setLeaf(id, e.target.checked); refresh(); }, false, true);
+      continue;
+    }
+    mkRow(0, g.key, g.label, nOn === g.kids.length, nOn > 0 && nOn < g.kids.length, cnt(g.kids), '', e => { const v = nOn !== g.kids.length; g.kids.forEach(i => setLeaf(i, v)); refresh(); }, true, true);
+    if (!FT.open.has(g.key)) continue;
+    for (const id of g.kids) { const L = LF.list[id]; mkRow(1, 'f' + id, leafLabel(L), leafOn(id), false, L.n, leafColor(L), e => { setLeaf(id, e.target.checked); refresh(); }, false, false); }
+  }
+  if (act) { const f = [...box.querySelectorAll('input')].find(x => x.dataset.f === act); if (f) f.focus(); }
+}
+$('#ftAll').onclick = () => { S.leafOff.clear(); S.idx.layers.forEach(l => { S.layerOn[l.key] = l.visible; }); for (const k of S.roleOn) S.layerOn[k] = true; buildFilterUI(); syncLoads(); applyVisibility(); };
+$('#ftNone').onclick = () => { LF.list.forEach((L, i) => { if (L.n > 0) setLeaf(i, false); }); buildFilterUI(); applyVisibility(); };
+
+/* Ansicht nach Gewerk (Rolle). Treffer: Technikobjekte (Ebenen Technik und Brandschutz) mit Gewerk oder Anlagenart dieser Rolle. */
+function buildRoleUI() {
+  const sel = $('#roleSel'); sel.innerHTML = '';
+  sel.append(el('option', {value: 0, textContent: 'Alle Gewerke'}));
+  ROLES.filter(r => !r.more).forEach((r, k) => sel.append(el('option', {value: ROLES.indexOf(r) + 1, textContent: r.label})));
+  const og = el('optgroup', {label: 'Weitere'}); ROLES.filter(r => r.more).forEach(r => og.append(el('option', {value: ROLES.indexOf(r) + 1, textContent: r.label}))); sel.append(og);
+  sel.setAttribute('aria-label', 'Ich bin, Ansicht nach Gewerk');
+  sel.onchange = () => setRole(+sel.value);
+  document.querySelectorAll('#roleRest button').forEach(b => b.onclick = () => { S.roleRest = b.dataset.r; syncRoleUI(); applyVisibility(); });
+  syncRoleUI();
+}
+function syncRoleUI() {
+  $('#roleSel').value = S.role;
+  document.querySelectorAll('#roleRest button').forEach(b => { const on = b.dataset.r === S.roleRest; b.classList.toggle('act', on); b.setAttribute('aria-pressed', on); b.disabled = !S.role; });
+}
+function setRole(r, quiet = false) {
+  // Schaltet für Brandschutz die zugehörigen Ebenen ein und beim Wechsel wieder zurück
+  for (const k of S.roleOn) S.layerOn[k] = false; S.roleOn = [];
+  S.role = r;
+  if (r) for (const k of (ROLES[r - 1].layers || [])) if (S.layerUsed.has(k) && !S.layerOn[k]) { S.layerOn[k] = true; S.roleOn.push(k); }
+  syncRoleUI(); buildFilterUI(); syncLoads(); applyVisibility();
+  if (r && !quiet) showMsg('Ansicht ' + ROLES[r - 1].label + ': nur dieses Gewerk' + (S.roleRest === 'ghost' ? ', der Rest blass' : ', der Rest aus') + (S.floorOn.size + S.extraOn.size < 2 ? '. Weitere Geschosse rechts im Bild wählen.' : '.'), 5000);
 }
 function fitIfFirst() { if (!S.fitted && S.prims.length) { S.fitted = true; setView('iso'); } }
-/* AP-11: Geschosswahl im Bild. Klick zeigt nur dieses Geschoss, mit Strg, Cmd oder Umschalt kommt es dazu oder geht weg.
-   Dach und Außen sind Schalter. Alle zeigt jedes Geschoss mit Dach. */
+/* Geschosswahl im Bild: Häkchenliste, beliebige Kombination aus Geschossen, Dach und Außen. Schnellknöpfe alle und keins, je Zeile nur dieses. */
 function buildFloors() {
   const box = $('#floors'); if (!S.man) return;
   const SF = styleFiles(), have = new Set(SF.map(f => f.group)), M = S.man;
-  const all = M.floors.map((f, i) => i).filter(i => have.has(M.floors[i].group));
-  const allOn = all.every(i => S.floorOn.has(i)) && (!have.has('DACH') || S.extraOn.has('DACH'));
-  const mk = (txt, on, title, fn, dis = false) => { const b = el('button', {type: 'button', textContent: txt, title, disabled: dis}); b.setAttribute('aria-pressed', on ? 'true' : 'false'); b.onclick = fn; return b; };
+  const idxs = M.floors.map((f, i) => i).filter(i => have.has(M.floors[i].group));
+  const extras = ['DACH', 'SONST'].filter(g => have.has(g));
   const refresh = () => { buildFloors(); syncLoads(); applyVisibility(); fitIfFirst(); };
+  const row = (txt, on, title, set, only, dis = false) => {
+    const cb = el('input', {type: 'checkbox', checked: on, disabled: dis}); cb.onchange = () => { set(cb.checked); refresh(); };
+    const ob = el('button', {type: 'button', className: 'only', textContent: 'nur', title: 'Nur ' + txt + ' zeigen', disabled: dis}); ob.onclick = () => { only(); refresh(); };
+    ob.setAttribute('aria-label', 'Nur ' + txt + ' zeigen');
+    return el('div', {className: 'fr' + (on ? '' : ' off')}, el('label', {title}, cb, txt), ob);
+  };
+  const all = () => { idxs.forEach(i => S.floorOn.add(i)); extras.forEach(g => S.extraOn.add(g)); };
+  const none = () => { S.floorOn.clear(); S.extraOn.clear(); };
   box.innerHTML = '';
-  box.append(mk('Alle', allOn, 'Alle Geschosse mit Dach', () => { all.forEach(i => S.floorOn.add(i)); if (have.has('DACH')) S.extraOn.add('DACH'); refresh(); }));
-  box.append(el('hr'));
-  if (have.has('DACH')) box.append(mk('Dach', S.extraOn.has('DACH'), 'Dach ein oder aus', () => { S.extraOn.has('DACH') ? S.extraOn.delete('DACH') : S.extraOn.add('DACH'); refresh(); }));
+  const bAll = el('button', {type: 'button', className: 'sm', textContent: 'alle', title: 'Alle Geschosse mit Dach und Außen'}); bAll.onclick = () => { all(); refresh(); };
+  const bNone = el('button', {type: 'button', className: 'sm', textContent: 'keins', title: 'Alle Geschosse abwählen'}); bNone.onclick = () => { none(); refresh(); };
+  box.append(el('div', {className: 'fh'}, el('span', {textContent: 'Geschosse'}), el('span', {className: 'sp'}), bAll, bNone));
+  const grp = (g, lab, title) => { if (!have.has(g)) return; box.append(row(lab, S.extraOn.has(g), title, on => { on ? S.extraOn.add(g) : S.extraOn.delete(g); }, () => { none(); S.extraOn.add(g); })); };
+  grp('DACH', 'Dach', 'Dach ein oder aus');
   for (let i = M.floors.length - 1; i >= 0; i--) {
-    const f = M.floors[i], ok = have.has(f.group);
-    box.append(mk(f.label, S.floorOn.has(i) && !allOn, 'Nur ' + f.label + ' zeigen, Fußboden ' + dez(f.ffl, 2) + ' m. Mit Strg oder Umschalt dazu nehmen', e => {
-      if (e.ctrlKey || e.metaKey || e.shiftKey) { if (S.floorOn.has(i) && S.floorOn.size > 1) S.floorOn.delete(i); else S.floorOn.add(i); }
-      else { S.floorOn = new Set([i]); S.extraOn.delete('DACH'); }
-      refresh();
-    }, !ok));
+    const f = M.floors[i];
+    box.append(row(f.label, S.floorOn.has(i), f.label + ', Fußboden ' + dez(f.ffl, 2) + ' m', on => { on ? S.floorOn.add(i) : S.floorOn.delete(i); }, () => { none(); S.floorOn.add(i); }, !have.has(f.group)));
   }
-  if (have.has('SONST')) { box.append(el('hr')); box.append(mk('Außen', S.extraOn.has('SONST'), 'Gelände, Erdreich und Teile außerhalb der Geschosse ein oder aus', () => { S.extraOn.has('SONST') ? S.extraOn.delete('SONST') : S.extraOn.add('SONST'); refresh(); })); }
+  grp('SONST', 'Außen', 'Gelände, Erdreich und Teile außerhalb der Geschosse ein oder aus');
 }
 $('#bShowAll').onclick = () => {  // Filter auf Anfang: alle Objektarten, zurückgestellt aus, Ebenen wie beim Start
-  S.artOff.clear(); S.statOff.clear(); const held = S.idx.status_keys.indexOf('held'); if (held >= 0) S.statOff.add(held);
+  S.artOff.clear(); S.leafOff.clear(); S.statOff.clear(); const held = S.idx.status_keys.indexOf('held'); if (held >= 0) S.statOff.add(held);
   S.idx.layers.forEach(l => { S.layerOn[l.key] = l.visible; S.layerOp[l.key] = 1; }); for (const p of S.prims) applyLayerMaterial(p);
   buildFilterUI(); syncLoads(); applyVisibility();
 };
@@ -1983,12 +2224,21 @@ function applyClip() {
   if (z.on) clipPlanes.push(z.keep === 'hi' ? new THREE.Plane(new THREE.Vector3(0, 1, 0), -z.pos) : new THREE.Plane(new THREE.Vector3(0, -1, 0), z.pos));
   for (const pl of clipPlanes) pl.constant += 0.002;  // 2 mm Zugabe: Flächen genau in der Schnittebene bleiben ganz (kein Flimmern)
   CUT.value = clipPlanes.length && S.cutFill ? 1 : 0;
+  renderCutBar();
   for (const p of S.prims) updateCutState(p);
   shadowDirty = true;
   invalidate();
 }
 document.querySelectorAll('#qualSeg button').forEach(b => b.onclick = () => setQuality(b.dataset.q));
 $('#cCutFill').onchange = e => { S.cutFill = e.target.checked; applyClip(); };
+function renderCutBar() {
+  const box = $('#cutBar'); if (!box) return;
+  const on = ['x', 'y', 'z'].some(a => S.clip[a].on);
+  const mk = (t, title, fn) => { const b = el('button', {type: 'button', textContent: t, title}); b.onclick = fn; return b; };
+  box.replaceChildren(mk('Grundriss 1,5 m', 'Schnitt 1,5 m über dem Fußboden, Blick von oben', () => $('#bPlan').onclick()),
+    mk('Schnitt einstellen', 'Schnittebenen im Reiter Schnitt', () => { setPanel('l', true); activateTab('t-clip'); }),
+    ...(on ? [mk('Schnitt aus', 'Alle Schnitte ausschalten', () => $('#bClipOff').onclick())] : []));
+}
 function syncClipUI() { for (const ax of ['x', 'y', 'z']) { const c = S.clip[ax], u = c.ui; if (!u) continue; u.cb.checked = c.on; u.rg.value = c.pos; u.num.value = dez(c.pos, 2); u.sel.value = c.keep; } }
 $('#bClipOff').onclick = () => { for (const ax of ['x', 'y', 'z']) S.clip[ax].on = false; syncClipUI(); applyClip(); };
 $('#bPlan').onclick = () => {
@@ -2004,7 +2254,7 @@ $('#bPlan').onclick = () => {
    ==================================================================================================== */
 function snapshot() {
   const I = S.idx, ids = s => [...s].map(n => I.id[n]);
-  return {v: 1, style: S.style, candT: S.candTransparent, floors: [...S.floorOn], extra: [...S.extraOn], layerOn: S.layerOn, layerOp: S.layerOp, gewOff: [...S.gewOff], sysOff: [...S.sysOff], artOff: [...S.artOff], statOff: [...S.statOff],
+  return {v: 1, style: S.style, candT: S.candTransparent, floors: [...S.floorOn], extra: [...S.extraOn], layerOn: S.layerOn, layerOp: S.layerOp, gewOff: [...S.gewOff], sysOff: [...S.sysOff], artOff: [...S.artOff], statOff: [...S.statOff], leafOff: [...S.leafOff].map(id => LF.list[id].key), role: S.role, roleRest: S.roleRest,
     colorMode: S.colorMode, ghost: S.ghost, hidden: ids(S.hidden), isolate: S.isolate ? ids(S.isolate) : null,
     clip: Object.fromEntries(['x', 'y', 'z'].map(a => [a, {on: S.clip[a].on, pos: S.clip[a].pos, keep: S.clip[a].keep}])),
     cam: {target: S.cam.target.toArray(), yaw: S.cam.yaw, pitch: S.cam.pitch, dist: S.cam.dist}, mode: S.mode};
@@ -2013,6 +2263,8 @@ function restore(v) {
   S.floorOn = new Set(v.floors); S.extraOn = new Set(v.extra || []);
   S.layerOn = Object.assign({}, S.layerOn, v.layerOn); S.layerOp = Object.assign({}, v.layerOp);
   S.gewOff = new Set(v.gewOff); S.sysOff = new Set(v.sysOff); S.artOff = new Set(v.artOff); S.statOff = new Set(v.statOff);
+  S.leafOff = new Set((v.leafOff || []).map(k => LF.byKey.get(k)).filter(x => x !== undefined));
+  S.roleRest = v.roleRest === 'hide' ? 'hide' : 'ghost'; S.role = ROLES[(v.role || 0) - 1] ? v.role : 0; S.roleOn = []; syncRoleUI();
   S.ghost = !!v.ghost; $('#cGhost').checked = S.ghost;
   S.hidden = new Set((v.hidden || []).map(id => S.idToNum.get(id)).filter(x => x !== undefined));
   S.isolate = v.isolate ? new Set(v.isolate.map(id => S.idToNum.get(id)).filter(x => x !== undefined)) : null;
@@ -2179,6 +2431,7 @@ const keys = new Set();
 let shiftHeld = false;
 addEventListener('keydown', e => {
   shiftHeld = e.shiftKey;
+  if (e.key === '/' && !e.ctrlKey && !e.metaKey && !$('#help').open) { const t = document.activeElement; if (!t || !/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) { e.preventDefault(); $('#q').focus(); $('#q').select(); return; } }
   if ($('#help').open) return;
   const ae = document.activeElement;
   if (ae && ae !== document.body && ae !== cv && e.key !== 'Escape') return;  // AP-10b: Kürzel nur, wenn kein Bedienelement den Fokus hat
@@ -2250,6 +2503,7 @@ async function start() {
     S.man = man; S.idx = idx; S.N = idx.n; S.vis = new Uint8Array(idx.n); S.gv = new Uint8Array(idx.n);
     S.layerUsed = new Set(); for (const x of idx.layer) if (x >= 0) S.layerUsed.add(idx.layers[x].key);
     await setStyle(st0, true);
+    buildLeaves(); buildRoleUI();
     idx.id.forEach((id, i) => { if (!S.idToNum.has(id) || idx.body[i] && !idx.body[S.idToNum.get(id)]) S.idToNum.set(id, i); });
     const nw = idx.name_welt || {};
     S.hay = idx.id.map((id, i) => (id + ' ' + idx.name[i] + ' ' + (nw[i] || '') + ' ' + idx.sub[i] + ' ' + (SUB_LABEL[idx.sub[i]] || '') + ' ' + idx.arts[idx.art[i]]).toLowerCase());
@@ -2260,10 +2514,10 @@ async function start() {
     buildFilterUI(); buildClipUI(); renderViews();
     // Status Standard: zurückgestellte (held) zunächst aus
     const held = idx.status_keys.indexOf('held'); if (held >= 0) S.statOff.add(held); buildFilterUI();
-    $('#srcInfo').textContent = 'Datenstand ' + man.source_seed_sha256.slice(0, 12) + ', exportiert ' + man.created + (man.with_tga ? ' mit Technik' : ' ohne Technik') + '. Stand 18.11. abends, Welt 1157. ' + man.objects_with_body.toLocaleString('de') + ' Körper und ' + man.objects_without_body.toLocaleString('de') + ' Objekte ohne Körper. Materialien, Möbelformen und Fenster in Stil B sind Darstellung und nicht Teil der Planungsdaten.';
+    $('#srcInfo').textContent = 'Datenstand ' + man.source_seed_sha256.slice(0, 12) + ', exportiert ' + man.created + (man.with_tga ? ' mit Technik' : ' ohne Technik') + '. Stand 18.11. abends. ' + man.objects_with_body.toLocaleString('de') + ' Körper und ' + man.objects_without_body.toLocaleString('de') + ' Objekte ohne Körper. Materialien, Möbelformen und Fenster in Stil B sind Darstellung und nicht Teil der Planungsdaten.';
     renderLegend(); loadBS();
     syncLoads(); applyVisibility();
-    S.cam.target.set(36, 6, -24); updateCamera(); renderTree(); renderActs();
+    S.cam.target.set(36, 6, -24); updateCamera(); renderTree(); renderActs(); renderCutBar();
     // erste Ansicht, sobald etwas geladen ist
     for (let k = 0; k < 600 && !S.prims.length; k++) await sleep(50);
     setView('iso'); S.fitted = true;
@@ -2305,3 +2559,4 @@ $('#bBench').onclick = async () => {
 window.__ow = {S, OWU, TR, get GR() { return GR; }, loadGraph, showNet, showSet, xraySel, showAll, renderTree, THREE, renderer, scene, camera, render: () => { updateCamera(); drawFrame(); }, syncLoads, setQuality, QUAL, LOOK, relook: () => { lookMode = ''; invalidate(); }, pick, select, goTo, setView, setColorMode, setStyle, applyVisibility, applyClip, bench, benchSync, renderLegend};
 start();
 </script>
+</body></html>

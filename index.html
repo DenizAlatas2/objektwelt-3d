@@ -69,6 +69,10 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 #floors{position:absolute;right:10px;top:40px;max-height:calc(100% - 52px);overflow:auto;min-width:150px;padding:4px 8px 6px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);z-index:3}
 #floors .fh{display:flex;align-items:center;gap:4px;font-weight:500;font-size:12px;color:var(--muted);height:28px}
 #floors .fh .sp{flex:1}
+#floors .ft{border:0;background:transparent;color:var(--muted);font:inherit;font-weight:500;padding:0 2px;height:auto;cursor:pointer}
+#floors .ft:hover{color:var(--text)}
+#floors.zu .fr,#floors.zu .fh button.sm{display:none}
+#floors.zu{min-width:0}
 #floors button.sm{height:22px;padding:0 6px;font-size:12px}
 #floors .fr{display:flex;align-items:center;gap:6px;min-height:26px;border-top:1px solid var(--line)}
 #floors .fr label{flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;align-self:stretch;min-width:0;font-variant-numeric:tabular-nums}
@@ -192,6 +196,7 @@ kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padd
   header{flex-wrap:wrap;padding:6px 8px;row-gap:6px}
   #q{flex:1 1 100%;order:9}
   #sCur{display:none}
+  #hint{top:auto;bottom:10px;left:10px;right:auto;max-width:calc(100% - 170px)}
 }
 </style>
 <div id="app">
@@ -2024,7 +2029,13 @@ function buildFloors() {
   box.innerHTML = '';
   const bAll = el('button', {type: 'button', className: 'sm', textContent: 'alle', title: 'Alle Geschosse mit Dach und Außen'}); bAll.onclick = () => { all(); refresh(); };
   const bNone = el('button', {type: 'button', className: 'sm', textContent: 'keins', title: 'Alle Geschosse abwählen'}); bNone.onclick = () => { none(); refresh(); };
-  box.append(el('div', {className: 'fh'}, el('span', {textContent: 'Geschosse'}), el('span', {className: 'sp'}), bAll, bNone));
+  // Telefon: Liste zugeklappt, Kopf zeigt die Zahl der gewählten Geschosse und öffnet die Liste
+  if (box.dataset.zu === undefined) box.dataset.zu = matchMedia('(max-width:600px)').matches ? '1' : '0';
+  const zu = box.dataset.zu === '1', nOn = idxs.filter(i => S.floorOn.has(i)).length + extras.filter(g => S.extraOn.has(g)).length;
+  box.classList.toggle('zu', zu);
+  const bT = el('button', {type: 'button', className: 'ft', textContent: 'Geschosse ' + nOn + ' von ' + (idxs.length + extras.length) + (zu ? ' \u25B8' : ' \u25BE'), title: zu ? 'Liste öffnen' : 'Liste zuklappen'});
+  bT.setAttribute('aria-expanded', zu ? 'false' : 'true'); bT.onclick = () => { box.dataset.zu = zu ? '0' : '1'; buildFloors(); };
+  box.append(el('div', {className: 'fh'}, bT, el('span', {className: 'sp'}), bAll, bNone));
   const grp = (g, lab, title) => { if (!have.has(g)) return; box.append(row(lab, S.extraOn.has(g), title, on => { on ? S.extraOn.add(g) : S.extraOn.delete(g); }, () => { none(); S.extraOn.add(g); })); };
   grp('DACH', 'Dach', 'Dach ein oder aus');
   for (let i = M.floors.length - 1; i >= 0; i--) {

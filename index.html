@@ -1373,7 +1373,7 @@ async function loadFile(f) {
    Darstellung, kein Weltdatum. Aus bei Bildqualität einfach und in den Einfärbungen (dort Scheitelfarben, USE_COLOR). */
 const PAT_KIND = {boden_nuf: 1, boden_san: 2, boden_vf: 3, boden_tf: 4, decke: 5, wandkern: 5, stuetze: 5, traeger: 5, treppe: 5, podest: 5, band: 5, schwelle: 5,
   wand: 6, sturz: 6, trennwand: 6, fassade: 7, belag_park: 8, belag_logistik: 8, belag_fuss: 9, belag_rad: 9, gruen: 10, dachbelag: 11, hofbelag: 12,
-  dachzone_rlt: 13, dachzone_kaelte: 14, dachzone_zugang: 15, moebel: 16, tuerblatt: 16, polster: 17,
+  dachzone_rlt: 13, dachzone_kaelte: 14, dachzone_zugang: 15, moebel: 16, tuerblatt: 16, wand_beton: 5, polster: 17,
   metall: 18, stahl: 18, blech: 18, gastro: 18, leuchte_gehaeuse: 18, aufzug: 18, huelse: 18, zarge: 18, lager: 18, geraet_hell: 18, tga: 18};
 
 /* Texturen Stil B (CC0, ambientCG und Poly Haven, Liste in tex/LIZENZ.txt). Zwei Felder (512 und 1024 Bildpunkte) mit je Farbe und Normal+Rauheit,
@@ -1389,9 +1389,10 @@ const TF = (e, fl) => (e[8] = fl, e);  // Zusatz: a Laub mit Ausschnitt (Alphate
 const TEXMAP = {
   wand: TF(T5('Wallpaper001A', 0.55, 0.88, 1.6, 1, null, 1.4), 'e'), sturz: TF(T5('Wallpaper001A', 0.55, 0.88, 1.6, 1, null, 1.4), 'e'), trennwand: TF(T5('Plaster003', 1.2, 0.85, 1.4, 1, null, 1.2), 'e'),  // Runde 5: Raufaser und Putz auch aus der Nähe erkennbar
   fassade: T1('Plaster001', 2.6, 0.55, 1.0), wandkern: T5('Sichtbeton', 2.4, 0.3, 1.0), stuetze: T5('Sichtbeton', 2.4, 0.3, 1.0), traeger: T5('Sichtbeton', 2.4, 0.3, 1.0),
-  decke: T5('Concrete046', 2.5, 0.5, 0.7, 1, null, 0.5), band: T5('Concrete046', 2.5, 0.5, 0.7, 1, null, 0.5),  // Runde 5: Rohdecke ruhiger (weniger Flecken) schwelle: T5('Concrete046', 1.5, 0.5, 0.8),
+  decke: T5('Concrete046', 2.5, 0.5, 0.7, 1, null, 0.5), band: T5('Concrete046', 2.5, 0.5, 0.7, 1, null, 0.5),  // Runde 5: Rohdecke ruhiger (weniger Flecken)
+  schwelle: T5('Concrete046', 1.5, 0.5, 0.8), wand_beton: T5('Sichtbeton', 2.4, 0.3, 1.0),
   treppe: T5('Concrete048', 2.0, 0.45, 0.8), podest: T5('Concrete048', 2.0, 0.45, 0.8),
-  boden_nuf: T5('Carpet001', 1.0, 1.0, 0.9, 1, '#7a838e', 0.8), boden_vf: T5('Rubber001', 1.2, 1.0, 0.5, 1, '#a7a399', 0.22), boden_san: T5('Tiles133A', 1.2, 0.55, 1.0, 1, '#e3e6e6'),
+  boden_nuf: T5('Carpet001', 1.0, 1.0, 0.9, 1, '#7a838e', 0.8), boden_vf: T5('Rubber001', 1.2, 1.0, 0.5, 1, '#a7a399', 0.22), boden_san: T5('Tiles133A', 3.0, 0.55, 1.0, 1, '#e3e6e6'),
   boden_tf: T5('Concrete048', 2.0, 0.9, 0.7, 1, '#8e958f'),
   tg_fahrgasse: T5('Concrete047A', 3.0, 0.5), tg_fahrbahn: T5('Concrete047A', 3.0, 0.5), tg_beton: T5('Concrete047A', 3.0, 0.5), tg_sauber: T5('Concrete047A', 3.0, 0.6),
   belag_park: T1('Asphalt031', 3.0, 0.25), belag_logistik: T1('Asphalt031', 3.0, 0.25), belag_fuss: T5('PavingStones099', 2.0, 0.45), belag_rad: T5('PavingStones081', 1.0, 0.45),
@@ -1410,7 +1411,7 @@ for (const g of ['tga_automation', 'tga_safety', 'tga_water', 'tga_drainage', 't
 const FLOOR_SEL = new Set(['boden_nuf', 'boden_vf']);
 const FLOOR_FIN = [null,
   [T5('Wood026', 1.4, 0.78, 0.8, 1, '#a68a68', 0.8), '#a68a68', 0.55],      // 1 Parkett Eiche
-  [T5('Tiles133A', 0.9, 0.5, 1.0, 1, '#d6dad8'), '#d6dad8', 0.32],          // 2 Fliesen hell
+  [T5('Tiles133A', 3.0, 0.5, 1.0, 1, '#d6dad8'), '#d6dad8', 0.32],          // 2 Fliesen hell
   [T5('Rubber001', 1.2, 0.9, 0.45, 1, '#7f8c82', 0.3), '#7f8c82', 0.6],      // 3 Linoleum graugrün
   [T5('Concrete048', 2.0, 0.85, 0.6, 1, '#979b98', 0.55), '#979b98', 0.7],   // 4 Beschichtung grau
   [T5('Concrete046', 1.2, 0.6, 0.6, 1, '#bcb7ad', 0.7), '#bcb7ad', 0.45]];   // 5 Betonwerkstein
@@ -1420,7 +1421,7 @@ const FLOOR_USE = {
   light_workshop: 3, maintenance_workshop: 3, goods_inspection: 3, facility_management: 3,
   storage: 4, archive_storage: 4, operations_storage: 4, spare_parts_storage: 4, furniture_storage: 4, sample_storage: 4, event_storage: 4, logistics_storage: 4,
   tenant_storage: 4, tenant_goods_buffer: 4, returns_storage: 4, built_in_storage: 4, bicycle_storage: 4, garage_parking: 4, logistics: 4, goods_receiving: 4,
-  unfitted_reserve: 4, reserve: 4, service_corridor: 4, service_circulation: 4, vehicle_ramp: 4, food_service_circulation: 2,
+  unfitted_reserve: 4, reserve: 4, escape_corridor: 4, service_corridor: 4, service_circulation: 4, vehicle_ramp: 4, food_service_circulation: 2,
   stair: 5, stair_landing: 5, core_lobby: 5, common_entrance: 5
 };
 /* Technik in Stil B als Werkstoff (Wunsch main 19.11.): Kanäle verzinkt mit Stoßfugen, Geräte lackiert hellgrau, gedämmte Rohre Alu,

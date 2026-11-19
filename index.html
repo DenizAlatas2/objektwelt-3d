@@ -310,6 +310,15 @@ header h1{font-size:14px;letter-spacing:.01em;margin-right:10px}
 @media (pointer:coarse),(max-width:900px){ :root{--tb:44px} #cutBar .mi{min-height:44px} #welcome .wf button{height:44px} #nav .seg{padding:0} #nav .seg button{height:var(--tb)} }
 @media (max-width:700px){ #welcome{width:100%;align-self:stretch} #nav{width:auto;justify-content:center;max-width:100%} #navRow{flex-direction:row;align-items:flex-end} #nav .seg .lbl{display:none} #nav .seg button{padding:0 10px} #cutBar{display:flex} #cutBar[hidden]{display:none} }
 @media (min-width:1900px){ :root{--tb:40px} }
+/* Erstkarte kompakt (19.11.): eine Zeile am unteren Rand, aufklappbar, auf dem Telefon nur ein Satz */
+#welcome{padding:3px 3px 3px 12px;width:auto;max-width:min(760px,100%);align-self:center}
+#welcome .wh{margin:0;min-height:34px;gap:10px;font-size:var(--fs-s)}
+#welcome .wh .wl{flex:1;min-width:0;color:var(--muted);line-height:1.35}
+#welcome .wh button.sm{height:30px}
+#welcome.open{padding:6px 6px 10px 14px;width:min(680px,100%)}
+#welcome.open .wl{visibility:hidden}
+#wcBody{margin:4px 8px 0 0}
+@media (pointer:coarse),(max-width:600px){ #welcome .wt,#welcome .wm{display:none} #welcome{align-self:stretch;max-width:100%} #welcome .wh{min-height:44px} }
 @media (min-width:2500px){ :root{--tb:48px} }
 /* Messen */
 :root{--meas:#0b63f6}
@@ -458,13 +467,15 @@ body:not(.intern) .intern{display:none !important}
     <div id="walkHint" hidden><span></span><button type="button" class="sm" id="walkX">Beenden</button></div>
     <div id="dock">
       <div id="welcome" hidden role="region" aria-label="So bewegst du dich">
-        <div class="wh"><b>So bewegst du dich</b><span class="sp"></span><button type="button" class="ib" id="wcX" aria-label="Schließen" title="Schließen"></button></div>
+        <div class="wh"><b class="wt">So bewegst du dich</b><span class="wl" id="wcLine">Ziehen dreht. Rechte Taste oder zwei Finger verschieben. Rad oder Spreizen zoomt.</span><button type="button" class="sm wm" id="wcMoreB" aria-expanded="false" aria-controls="wcBody">Mehr</button><button type="button" class="ib" id="wcX" aria-label="Schließen" title="Schließen"></button></div>
+        <div id="wcBody" hidden>
         <div class="wg">
           <div class="wfine"><h4>Maus</h4><p>Ziehen dreht.<br> Rechte Taste oder Umschalt und Ziehen verschiebt.<br> Rad zoomt zum Zeiger.</p></div>
           <div class="wfine"><h4>Trackpad</h4><p>Klicken und Ziehen dreht.<br> Zwei Finger wischen verschiebt.<br> Spreizen zoomt.</p></div>
           <div class="wtouch"><h4>Touch</h4><p>Ein Finger dreht.<br> Zwei Finger verschieben, zoomen und drehen.<br> Doppeltippen fliegt hin.</p></div>
         </div>
         <div class="wf"><span class="muted" id="wcMore">Doppelklick fliegt zum Objekt. In der Leiste unten: Begehen, Schnitt und Messen.</span><button type="button" class="pri" id="wcOk">Verstanden</button></div>
+        </div>
       </div>
       <div id="msg" role="status"></div>
       <div id="hidPanel" hidden role="dialog" aria-label="Ausgeblendet"></div>
@@ -972,13 +983,17 @@ try { S.theme = LS.get('theme') || 'auto'; } catch (e) {}
 
 function resize() {
   const r = $('#stage').getBoundingClientRect();
+  if (!(r.width >= 2 && r.height >= 2)) return;  // verdeckt oder noch ohne Größe: alte Größe behalten
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));  // AP-11: volle Bildschirmauflösung, auch nach Monitorwechsel
   renderer.setSize(Math.max(10, r.width), Math.max(10, r.height), false);
-  camera.aspect = r.width / Math.max(1, r.height);
+  camera.aspect = r.width / r.height;
   camera.updateProjectionMatrix();
+  if (typeof autoFrame === 'function') autoFrame();
   invalidate();
 }
-new ResizeObserver(resize).observe($('#stage'));
+new ResizeObserver(() => resize()).observe($('#stage'));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) resize(); });
+addEventListener('pageshow', () => resize());
 (function watchDpr() { try { matchMedia('(resolution: ' + (window.devicePixelRatio || 1) + 'dppx)').addEventListener('change', () => { resize(); watchDpr(); }, {once: true}); } catch (e) {} })();
 const dprOff = () => renderer.getPixelRatio() !== Math.min(window.devicePixelRatio || 1, 2);
 window.addEventListener('resize', () => { if (dprOff()) resize(); });
@@ -1036,25 +1051,42 @@ if (DEBUG) $('#benchBox').hidden = false;
    Flug (Programm: Gesamt, Ansichten, Zoom auf Auswahl, Doppelklick, Begehen): Ein- und Auslaufen in 0,35 bis 0,8 s.
    Jede Eingabe übernimmt zuerst die gerade gezeigte Kamera (camTake), ein laufender Flug bricht damit ohne Sprung ab. */
 const CV = {target: new THREE.Vector3(36, 6, -24), yaw: 0.6, pitch: 0.7, dist: 110, fov: 50};
-const CAM = {t: 0, n: -1, box: new THREE.Box3(), minD: 0.4, maxD: 600, mode: 'idle', anim: null, moveT: 0, sig: ''};
+const CAM = {t: 0, n: -1, box: new THREE.Box3(), minD: 0.4, maxD: 600, mode: 'idle', anim: null, moveT: 0, sig: '', user: false, auto: false, ib: null, ibn: -1};
 const camKick = () => {};  // alte Aufrufe, Dämpfung entfällt
 function camSnap() { CV.target.copy(S.cam.target); CV.yaw = S.cam.yaw; CV.pitch = S.cam.pitch; CV.dist = S.cam.dist; CV.fov = S.cam.fov || 50; CAM.mode = 'idle'; CAM.anim = null; }
 function camTake() {  // Eingabe beginnt: gezeigte Kamera wird Ziel
+  if (!CAM.auto) CAM.user = true;
   if (CAM.mode === 'idle') return;
   S.cam.target.copy(CV.target); S.cam.yaw = CV.yaw; S.cam.pitch = CV.pitch; S.cam.dist = CV.dist; S.cam.fov = CV.fov; CAM.mode = 'idle'; CAM.anim = null;
 }
 function camClamp() {
   const c = S.cam, B = camBounds();
+  camSane(c, B);
   c.pitch = Math.max(-1.55, Math.min(1.55, c.pitch)); c.dist = Math.max(B.minD, Math.min(B.maxD, c.dist)); c.target.clamp(B.box.min, B.box.max);
-  if (!c.fov) c.fov = 50;
+}
+function camSane(c, B) {  // nie 0, NaN oder unendlich in Abstand, Winkeln, Ziel und Brennweite
+  const ok = Number.isFinite;
+  if (!ok(c.dist) || c.dist <= 0) c.dist = Math.max(B.minD, B.maxD * 0.45);
+  if (!ok(c.yaw)) c.yaw = -0.72; if (!ok(c.pitch)) c.pitch = 0.45;
+  if (!ok(c.fov) || c.fov < 5 || c.fov > 120) c.fov = 50;
+  if (!(ok(c.target.x) && ok(c.target.y) && ok(c.target.z))) B.box.getCenter(c.target);
 }
 function camDirect() { camClamp(); camSnap(); invalidate(); }
 function camChase() { if (CAM.mode !== 'chase') { CAM.mode = 'chase'; CAM.anim = null; } invalidate(); }
 const easeIO = k => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+function worldBox() {  // alle Körper laut Index, bekannt bevor ein Netz geladen ist
+  const I = S.idx, b = new THREE.Box3(); if (!I || !I.bbox) return b;
+  for (let i = 0; i < S.N; i++) { const k = I.bbox[i]; if (!k || !I.body[i]) continue;
+    if (![0, 1, 2, 3, 4, 5].every(j => Number.isFinite(k[j]))) continue;
+    b.expandByPoint(w2t(k[0] / 100, k[1] / 100, k[2] / 100)); b.expandByPoint(w2t(k[3] / 100, k[4] / 100, k[5] / 100)); }
+  return b;
+}
 function camBounds() {
-  if (CAM.n !== S.prims.length) {
+  if (CAM.n !== S.prims.length || CAM.ibn !== S.N) {
     CAM.n = S.prims.length;
+    if (CAM.ibn !== S.N) { CAM.ibn = S.N; CAM.ib = worldBox(); }
     const b = new THREE.Box3(); for (const p of S.prims) b.union(p.bbox);
+    if (CAM.ib && !CAM.ib.isEmpty()) b.union(CAM.ib);  // beim Laden: Grenzen des ganzen Gebäudes, nicht nur der ersten Netze
     if (b.isEmpty()) b.set(new THREE.Vector3(0, -4, -48), new THREE.Vector3(72, 24, 0));
     const d = b.getSize(new THREE.Vector3()).length();
     CAM.maxD = Math.max(40, Math.min(900, d * 2.2)); CAM.box = b.clone().expandByScalar(d * 0.25); CAM.minD = 0.4;
@@ -1072,7 +1104,7 @@ function updateCamera(snap = false) {
   const c = S.cam, v = CV, now = performance.now(), dt = Math.max(0.001, Math.min(0.05, (now - CAM.t) / 1000)); CAM.t = now;
   camClamp();
   let dy = c.yaw - v.yaw; dy -= Math.round(dy / (2 * Math.PI)) * 2 * Math.PI; c.yaw = v.yaw + dy;
-  if (snap) camSnap();
+  if (snap || ![v.dist, v.yaw, v.pitch, v.fov, v.target.x, v.target.y, v.target.z].every(Number.isFinite) || v.dist <= 0) camSnap();
   else if (CAM.mode === 'chase') {  // Mausrad: kurze Dämpfung
     const a = 1 - Math.exp(-dt / 0.07);
     v.target.lerp(c.target, a); v.yaw += (c.yaw - v.yaw) * a; v.pitch += (c.pitch - v.pitch) * a; v.dist *= Math.pow(c.dist / v.dist, a); v.fov += ((c.fov || 50) - v.fov) * a;
@@ -1112,6 +1144,7 @@ function idxBounds() {  // Hülle der Gebäudehülle (Wände, Decken, Dach) aus 
   return b;
 }
 function setView(name, bb) {
+  if (!CAM.auto) CAM.user = true;
   leaveWalk(); camTake();
   const c = S.cam, b = bb && !bb.isEmpty() ? bb : sceneBounds();
   const ctr = b.getCenter(new THREE.Vector3()), sz = b.getSize(new THREE.Vector3());
@@ -1119,8 +1152,18 @@ function setView(name, bb) {
   c.target.copy(ctr);
   const presets = {top: [0, 1.5, 1.25], south: [0, 0.15, 1.1], north: [Math.PI, 0.15, 1.1], west: [-Math.PI / 2, 0.15, 1.1], east: [Math.PI / 2, 0.15, 1.1], iso: [-0.72, 0.45, 1.5]};  // Startansicht von Südwest, leicht von oben
   const p = presets[name] || presets.iso;
-  c.yaw = p[0]; c.pitch = p[1]; c.dist = r * p[2] * Math.max(1, 1.15 / Math.max(0.3, camera.aspect));  // Hochformat: weiter weg, damit alles passt
+  const asp = Number.isFinite(camera.aspect) && camera.aspect > 0 ? camera.aspect : 1.5;
+  c.yaw = p[0]; c.pitch = p[1]; c.dist = r * p[2] * Math.max(1, 1.15 / Math.max(0.3, asp));  // Hochformat: weiter weg, damit alles passt
+  if (!Number.isFinite(c.dist) || c.dist <= 0) c.dist = 120;
   invalidate();
+}
+/* Erstansicht: ganzes Gebäude von Südwest. Bis zur ersten Eingabe nach jedem Ladeschritt, nach den Texturen und bei
+   Größenänderung neu gerahmt (Grenzen aus dem Index, nicht aus den bis dahin geladenen Netzen). */
+function autoFrame() {
+  if (CAM.user || !S.idx || !S.fitted || S.mode === 'walk') return;
+  const b = idxBounds(); if (b.isEmpty()) return;
+  CAM.auto = true;
+  try { setView('iso', b); camSnap(); } finally { CAM.auto = false; }
 }
 function sceneBounds() {
   const b = new THREE.Box3();
@@ -1132,6 +1175,7 @@ function sceneBounds() {
   return b;
 }
 function zoomToBox(b, margin = 1.5) {  // Ziel setzen, die Kamera gleitet hin
+  if (!CAM.auto) CAM.user = true;
   leaveWalk(); camTake();
   const ctr = b.getCenter(new THREE.Vector3()), sz = b.getSize(new THREE.Vector3());
   const r = Math.max(sz.length() / 2, 0.15);
@@ -1217,7 +1261,7 @@ async function loadFile(f) {
   } catch (e) { rec.state = 'error'; console.error(e); showMsg('Ladefehler: ' + e.message, 8000); }
   loadsRunning--; loadsDone++; progress();
   S.metrics.lastLoadMs = performance.now() - t0;
-  refreshStatus(); applyVisibility();
+  refreshStatus(); applyVisibility(); autoFrame();
 }
 
 /* Muster in Weltkoordinaten für Stil B (AP-09d): Dielen, Fliesen, Platten, Pflaster, Asphaltkorn, Kies, Rasen, Beton, Putz und
@@ -1280,7 +1324,7 @@ async function texLoad() {
     const [c0, n0, c1, n1] = await Promise.all([one('b512_c', true), one('b512_n', false), one('b1k_c', true), one('b1k_n', false)]);
     TEXU.c0.value = c0; TEXU.n0.value = n0; TEXU.c1.value = c1; TEXU.n1.value = n1;
     TEX.state = 'ready'; TEX.ms = performance.now() - t0; S.metrics.texMs = Math.round(TEX.ms); S.metrics.texKB = Math.round(TEX.bytes / 1024);
-    shadowDirty = true; invalidate();
+    shadowDirty = true; invalidate(); autoFrame();
   } catch (e) { TEX.state = 'error'; TEX.err = String(e && e.message || e); console.warn('Texturen nicht geladen, Muster bleibt', e); }
 }
 function texSync() {  // je Bild: Texturen an, sobald geladen und gewünscht. Laden erst, wenn das Modell steht
@@ -2737,7 +2781,7 @@ function setRole(r, quiet = false) {
   syncRoleUI(); buildFilterUI(); syncLoads(); applyVisibility();
   if (r && !quiet) showMsg('Ansicht ' + ROLES[r - 1].label + ': nur dieses Gewerk' + (S.roleRest === 'ghost' ? ', der Rest blass' : ', der Rest aus') + (S.floorOn.size + S.extraOn.size < 2 ? '. Weitere Geschosse rechts im Bild wählen.' : '.'), 5000);
 }
-function fitIfFirst() { if (!S.fitted && S.prims.length) { S.fitted = true; setView('iso'); camSnap(); } }
+function fitIfFirst() { if (!S.fitted && S.prims.length) { S.fitted = true; CAM.auto = true; setView('iso'); camSnap(); CAM.auto = false; } }
 /* Geschosswahl im Bild: Häkchenliste, beliebige Kombination aus Geschossen, Dach und Außen. Schnellknöpfe alle und keins, je Zeile nur dieses. */
 function buildFloors() {
   const box = $('#floors'); if (!S.man) return;
@@ -2757,11 +2801,12 @@ function buildFloors() {
   const bAll = el('button', {type: 'button', className: 'sm', textContent: 'alle', title: 'Alle Geschosse mit Dach und Außen'}); bAll.onclick = () => { all(); refresh(); };
   const bNone = el('button', {type: 'button', className: 'sm', textContent: 'keins', title: 'Alle Geschosse abwählen'}); bNone.onclick = () => { none(); refresh(); };
   // Telefon: Liste zugeklappt, Kopf zeigt die Zahl der gewählten Geschosse und öffnet die Liste
-  if (box.dataset.zu === undefined) box.dataset.zu = matchMedia('(max-width:600px)').matches ? '1' : '0';
+  // Start zugeklappt (Wunsch main 19.11.), offen nur, wenn der Betrachter die Liste in dieser Version selbst geöffnet hat, auf dem Telefon immer zu
+  if (box.dataset.zu === undefined) { let o = null; try { o = LS.get('floorsOpen'); } catch (e) {} box.dataset.zu = o === '1' && !matchMedia('(max-width:600px)').matches ? '0' : '1'; }
   const zu = box.dataset.zu === '1', nOn = idxs.filter(i => S.floorOn.has(i)).length + extras.filter(g => S.extraOn.has(g)).length;
   box.classList.toggle('zu', zu);
   const bT = el('button', {type: 'button', className: 'ft', textContent: 'Geschosse ' + nOn + ' von ' + (idxs.length + extras.length) + (zu ? ' \u25B8' : ' \u25BE'), title: zu ? 'Liste öffnen' : 'Liste zuklappen'});
-  bT.setAttribute('aria-expanded', zu ? 'false' : 'true'); bT.onclick = () => { box.dataset.zu = zu ? '0' : '1'; buildFloors(); };
+  bT.setAttribute('aria-expanded', zu ? 'false' : 'true'); bT.onclick = () => { box.dataset.zu = zu ? '0' : '1'; try { LS.set('floorsOpen', zu ? '1' : '0'); } catch (e) {} buildFloors(); };
   box.append(el('div', {className: 'fh'}, bT, el('span', {className: 'sp'}), bAll, bNone));
   const grp = (g, lab, title) => { if (!have.has(g)) return; box.append(row(lab, S.extraOn.has(g), title, on => { on ? S.extraOn.add(g) : S.extraOn.delete(g); }, () => { none(); S.extraOn.add(g); })); };
   grp('DACH', 'Dach', 'Dach ein oder aus');
@@ -3134,6 +3179,7 @@ function endPtr(e) {
 }
 cv.addEventListener('pointercancel', e => { endPtr(e); if (!ptrs.size) drag = null; });
 cv.addEventListener('lostpointercapture', e => { if (ptrs.has(e.pointerId)) { endPtr(e); if (!ptrs.size) drag = null; } });
+for (const ev of ['pointerdown', 'wheel', 'gesturestart', 'touchstart']) cv.addEventListener(ev, () => { CAM.user = true; }, {capture: true, passive: true});
 cv.addEventListener('pointerdown', e => {
   e.preventDefault(); cv.focus({preventScroll: true}); try { cv.setPointerCapture(e.pointerId); } catch (x) {}
   camTake();
@@ -3555,6 +3601,9 @@ cv.addEventListener('gestureend', e => { e.preventDefault(); gAt = performance.n
 const WC = {key: 'welcome'};
 function showWelcome(on) { $('#welcome').hidden = !on; if (!on) { try { LS.set(WC.key, '1'); } catch (e) {} } }
 $('#wcX').innerHTML = IC.close; if (COARSE) $('#wcMore').textContent = 'In der Leiste unten: Begehen, Schnitt und Messen.'; $('#wcX').onclick = $('#wcOk').onclick = () => showWelcome(false);
+function wcLine() { $('#wcLine').textContent = COARSE ? 'Ein Finger dreht, zwei Finger verschieben und zoomen.' : innerWidth <= 600 ? 'Ziehen dreht, rechte Taste verschiebt, Rad zoomt.' : 'Ziehen dreht. Rechte Taste oder zwei Finger verschieben. Rad oder Spreizen zoomt.'; }
+wcLine(); addEventListener('resize', wcLine);
+$('#wcMoreB').onclick = () => { const w = $('#welcome'), o = !w.classList.contains('open'); w.classList.toggle('open', o); $('#wcBody').hidden = !o; $('#wcMoreB').textContent = o ? 'Weniger' : 'Mehr'; $('#wcMoreB').setAttribute('aria-expanded', o ? 'true' : 'false'); };
 $('#helpWc').onclick = () => { $('#help').close(); showWelcome(true); };
 { let seen = false; try { seen = LS.get(WC.key) === '1'; } catch (e) {} if (!seen) showWelcome(true); }
 function setNav(m, quiet = true) {
@@ -3604,6 +3653,7 @@ addEventListener('keydown', e => {
   const ae = document.activeElement;
   if (ae && ae !== document.body && ae !== cv && e.key !== 'Escape') return;  // AP-10b: Kürzel nur, wenn kein Bedienelement den Fokus hat
   const k = e.key.toLowerCase();
+  if (('wasdqe+=-_'.includes(k) && k.length === 1 || e.key.startsWith('Arrow') || e.key.startsWith('Page')) && !e.ctrlKey && !e.metaKey) CAM.user = true;
   if ('wasdqe'.includes(k) && k.length === 1 && !e.ctrlKey && !e.metaKey) { keys.add(k); e.preventDefault(); return; }
   if (e.key.startsWith('Arrow')) { keys.add(e.key); e.preventDefault(); return; }
   if ('+=-_'.includes(e.key) && e.key.length === 1 && !e.ctrlKey && !e.metaKey) { keys.add(e.key === '=' ? '+' : e.key === '_' ? '-' : e.key); e.preventDefault(); return; }
@@ -3727,7 +3777,7 @@ async function start() {
     syncLoads(); applyVisibility();
     S.cam.target.set(36, 6, -24); updateCamera(true); renderTree(); renderActs(); renderCutBar();
     // erste Ansicht, sobald etwas geladen ist
-    setView('iso', idxBounds()); S.fitted = true; camSnap(); syncWalkUI();
+    S.fitted = true; autoFrame(); if (!CAM.user && idxBounds().isEmpty()) { CAM.auto = true; setView('iso'); camSnap(); CAM.auto = false; } syncWalkUI();
   } catch (e) { showMsg('Das Modell konnte nicht geladen werden. Bitte lade die Seite neu.', 0); console.error(e); }
   requestAnimationFrame(tick);
 }

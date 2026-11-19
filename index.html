@@ -160,6 +160,8 @@ table.kv td:first-child{color:var(--muted);width:40%}
 #legend .lh{display:flex;align-items:center;gap:4px;user-select:none;height:24px}
 #legend .lhb{display:inline-flex;align-items:center;gap:4px;height:24px;border:0;background:none;padding:0 4px 0 0;font:inherit;font-weight:500;color:var(--text)}
 #legend .lh .sp{flex:1}
+#legend label.tgg{cursor:pointer;margin-top:4px}
+#legend label.tgg input{margin:0 4px 0 1px}
 #legend .chev{display:inline-flex;color:var(--muted);width:16px;justify-content:center}
 #legend.min .lb{display:none}
 #legend .lb{padding-left:4px}
@@ -309,6 +311,7 @@ header h1{font-size:14px;letter-spacing:.01em;margin-right:10px}
 @media (pointer:coarse){ #welcome .wfine{display:none} #welcome .wg{grid-template-columns:1fr} }
 @media (pointer:coarse),(max-width:900px){ :root{--tb:44px} #cutBar .mi{min-height:44px} #welcome .wf button{height:44px} #nav .seg{padding:0} #nav .seg button{height:var(--tb)} }
 @media (max-width:700px){ #welcome{width:100%;align-self:stretch} #nav{width:auto;justify-content:center;max-width:100%} #navRow{flex-direction:row;align-items:flex-end} #nav .seg .lbl{display:none} #nav .seg button{padding:0 10px} #cutBar{display:flex} #cutBar[hidden]{display:none} }
+#nav.nlc .seg .lbl{display:none} #nav.nlc .seg button{padding:0 10px} #nav.nlc2{flex-wrap:wrap;justify-content:center;max-width:100%} #nav.nlc2 .nsep{display:none}
 @media (min-width:1900px){ :root{--tb:40px} }
 /* Erstkarte kompakt (19.11.): eine Zeile am unteren Rand, aufklappbar, auf dem Telefon nur ein Satz */
 #welcome{padding:3px 3px 3px 12px;width:auto;max-width:min(760px,100%);align-self:center}
@@ -396,6 +399,7 @@ body:not(.intern) .intern{display:none !important}
       <h2>Zeigen <button class="ib info" data-i="Geschosse wählen Sie rechts im Bild mit Häkchen, beliebig kombiniert. Die Decke über dem obersten gezeigten Geschoss bleibt offen, solange das Dach aus ist."></button></h2>
       <div class="btns qt" id="quick"></div>
       <div class="row"><label for="cMode">Einfärbung</label><select id="cMode" autocomplete="off"><option value="material">Modell</option><option value="gewerk">Gewerk</option><option value="art">Objektart</option><option value="status">Status</option><option value="floor">Geschoss</option><option value="kg">Kostengruppe (Zuordnung zur Ansicht)</option></select></div>
+      <div class="row" id="rTgaGew" hidden><label title="Technik in Stil B in den Farben der Anlagen statt als Werkstoff"><input type="checkbox" id="cTgaGew" autocomplete="off"> Gewerke einfärben</label></div>
       <details class="sec" id="secTree"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Filterbaum</span></summary>
         <div class="note">Haken blendet ein oder aus. Ein Oberknoten schaltet alles darunter, ein halber Haken zeigt eine Mischung.</div>
         <div class="ftools"><button class="sm" id="ftAll" title="Ebenen wie beim Start, Unterteilungen wieder ein">Standard</button><button class="sm" id="ftNone">Alle aus</button></div>
@@ -564,6 +568,7 @@ body:not(.intern) .intern{display:none !important}
 </dialog>
 <input type="file" id="fileIn" accept=".json" style="display:none" autocomplete="off">
 
+<script type="application/json" id="aussenDaten">{"v":1,"stand":"18.11.2026","quelle":"Außenanlagenliste vom 18.11.2026","kg":{"220":"Öffentliche Erschließung, Kontext außerhalb des Grundstücks","530":"Oberbau und Deckschichten","550":"Technische Anlagen","560":"Einbauten in Außenanlagen und Freiflächen","570":"Vegetationsflächen"},"e":[["W01_PKS_7700","stp","Stellplatz Pkw 7700",530,"Markierung weiß auf Belag","",0.3,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7701","stp","Stellplatz Pkw 7701",530,"Markierung weiß auf Belag","",2.9,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7702","stp","Stellplatz Pkw 7702",530,"Markierung weiß auf Belag","",5.5,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7703","stp","Stellplatz Pkw 7703",530,"Markierung weiß auf Belag","",8.1,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7704","stp","Stellplatz Pkw 7704",530,"Markierung weiß auf Belag","",10.7,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7705","stp","Stellplatz Pkw 7705",530,"Markierung weiß auf Belag","",13.3,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7706","stp","Stellplatz Pkw 7706",530,"Markierung weiß auf Belag","",15.9,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7707","stp","Stellplatz Pkw 7707",530,"Markierung weiß auf Belag","",18.5,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7708","stp","Stellplatz Pkw 7708",530,"Markierung weiß auf Belag","",21.1,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7709","stp","Stellplatz Pkw 7709",530,"Markierung weiß auf Belag","",23.7,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7710","stp","Stellplatz Pkw 7710",530,"Markierung weiß auf Belag","",26.3,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7711","stp","Stellplatz Pkw 7711",530,"Markierung weiß auf Belag","",28.9,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7712","stp","Stellplatz Pkw 7712",530,"Markierung weiß auf Belag","",31.5,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7713","stp","Stellplatz Pkw 7713",530,"Markierung weiß auf Belag","",34.1,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7714","stp","Stellplatz Pkw 7714",530,"Markierung weiß auf Belag","",36.7,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7715","stp","Stellplatz Pkw 7715",530,"Markierung weiß auf Belag","",39.3,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7716","stp","Stellplatz Pkw 7716",530,"Markierung weiß auf Belag","",43.9,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7717","stp","Stellplatz Pkw 7717",530,"Markierung weiß auf Belag","",46.5,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7718","stp","Stellplatz Pkw 7718",530,"Markierung weiß auf Belag","",49.1,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7719","stp","Stellplatz Pkw 7719",530,"Markierung weiß auf Belag","",51.7,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7720","stp","Stellplatz Pkw 7720",530,"Markierung weiß auf Belag","",54.3,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7721","stp","Stellplatz Pkw 7721",530,"Markierung weiß auf Belag","",56.9,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7722","stp","Stellplatz Pkw 7722",530,"Markierung weiß auf Belag","",59.5,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7723","stp","Stellplatz Pkw 7723",530,"Markierung weiß auf Belag","",62.1,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7724","stp","Stellplatz Pkw 7724",530,"Markierung weiß auf Belag","",64.7,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7725","stp","Stellplatz Pkw 7725",530,"Markierung weiß auf Belag","",67.3,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7726","stp","Stellplatz Pkw 7726",530,"Markierung weiß auf Belag","",69.9,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7727","stp","Stellplatz Pkw 7727",530,"Markierung weiß auf Belag","",72.5,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7728","stp","Stellplatz Pkw 7728",530,"Markierung weiß auf Belag","",75.1,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7729","stp","Stellplatz Pkw 7729",530,"Markierung weiß auf Belag","",77.7,62.5,-0.151,2.6,5.0,0.02,0,0],["W01_PKS_7730","stb","Stellplatz barrierefrei 7730",530,"Markierung weiß auf Belag, blau mit Symbol","",80.75,62.5,-0.151,3.5,5.0,0.02,0,0],["W01_PKS_7731","stb","Stellplatz barrierefrei 7731",530,"Markierung weiß auf Belag, blau mit Symbol","",84.25,62.5,-0.151,3.5,5.0,0.02,0,0],["W01_PKS_7732","stp","Stellplatz Pkw 7732",530,"Markierung weiß auf Belag","",0.3,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7733","stp","Stellplatz Pkw 7733",530,"Markierung weiß auf Belag","",2.9,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7734","stp","Stellplatz Pkw 7734",530,"Markierung weiß auf Belag","",5.5,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7735","stp","Stellplatz Pkw 7735",530,"Markierung weiß auf Belag","",8.1,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7736","stp","Stellplatz Pkw 7736",530,"Markierung weiß auf Belag","",10.7,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7737","stp","Stellplatz Pkw 7737",530,"Markierung weiß auf Belag","",13.3,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7738","stp","Stellplatz Pkw 7738",530,"Markierung weiß auf Belag","",15.9,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7739","stp","Stellplatz Pkw 7739",530,"Markierung weiß auf Belag","",18.5,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7740","stp","Stellplatz Pkw 7740",530,"Markierung weiß auf Belag","",21.1,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7741","stp","Stellplatz Pkw 7741",530,"Markierung weiß auf Belag","",23.7,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7742","stp","Stellplatz Pkw 7742",530,"Markierung weiß auf Belag","",26.3,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7743","stp","Stellplatz Pkw 7743",530,"Markierung weiß auf Belag","",28.9,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7744","stp","Stellplatz Pkw 7744",530,"Markierung weiß auf Belag","",31.5,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7745","stp","Stellplatz Pkw 7745",530,"Markierung weiß auf Belag","",34.1,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7746","stp","Stellplatz Pkw 7746",530,"Markierung weiß auf Belag","",36.7,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7747","stp","Stellplatz Pkw 7747",530,"Markierung weiß auf Belag","",39.3,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7748","stp","Stellplatz Pkw 7748",530,"Markierung weiß auf Belag","",43.9,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7749","stp","Stellplatz Pkw 7749",530,"Markierung weiß auf Belag","",46.5,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7750","stp","Stellplatz Pkw 7750",530,"Markierung weiß auf Belag","",49.1,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7751","stp","Stellplatz Pkw 7751",530,"Markierung weiß auf Belag","",51.7,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7752","stp","Stellplatz Pkw 7752",530,"Markierung weiß auf Belag","",54.3,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7753","stp","Stellplatz Pkw 7753",530,"Markierung weiß auf Belag","",56.9,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7754","stp","Stellplatz Pkw 7754",530,"Markierung weiß auf Belag","",59.5,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7755","stp","Stellplatz Pkw 7755",530,"Markierung weiß auf Belag","",62.1,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7756","stp","Stellplatz Pkw 7756",530,"Markierung weiß auf Belag","",64.7,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7757","stp","Stellplatz Pkw 7757",530,"Markierung weiß auf Belag","",67.3,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7758","stp","Stellplatz Pkw 7758",530,"Markierung weiß auf Belag","",69.9,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7759","stp","Stellplatz Pkw 7759",530,"Markierung weiß auf Belag","",72.5,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7760","stp","Stellplatz Pkw 7760",530,"Markierung weiß auf Belag","",75.1,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7761","stp","Stellplatz Pkw 7761",530,"Markierung weiß auf Belag","",77.7,73.5,-0.157,2.6,5.0,0.02,0,0],["W01_PKS_7762","stb","Stellplatz barrierefrei 7762",530,"Markierung weiß auf Belag, blau mit Symbol","",80.75,73.5,-0.157,3.5,5.0,0.02,0,0],["W01_PKS_7763","stb","Stellplatz barrierefrei 7763",530,"Markierung weiß auf Belag, blau mit Symbol","",84.25,73.5,-0.157,3.5,5.0,0.02,0,0],["W01_PKS_7764","stp","Stellplatz Pkw 7764",530,"Markierung weiß auf Belag","",-22.7,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7765","stp","Stellplatz Pkw 7765",530,"Markierung weiß auf Belag","",-20.1,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7766","stp","Stellplatz Pkw 7766",530,"Markierung weiß auf Belag","",-17.5,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7767","stp","Stellplatz Pkw 7767",530,"Markierung weiß auf Belag","",-14.9,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7768","stp","Stellplatz Pkw 7768",530,"Markierung weiß auf Belag","",-12.3,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7769","stp","Stellplatz Pkw 7769",530,"Markierung weiß auf Belag","",-9.7,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7770","stp","Stellplatz Pkw 7770",530,"Markierung weiß auf Belag","",-7.1,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7771","stp","Stellplatz Pkw 7771",530,"Markierung weiß auf Belag","",-4.5,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7772","stp","Stellplatz Pkw 7772",530,"Markierung weiß auf Belag","",-1.9,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7773","stp","Stellplatz Pkw 7773",530,"Markierung weiß auf Belag","",0.7,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7774","stp","Stellplatz Pkw 7774",530,"Markierung weiß auf Belag","",3.3,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7775","stp","Stellplatz Pkw 7775",530,"Markierung weiß auf Belag","",5.9,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7776","stp","Stellplatz Pkw 7776",530,"Markierung weiß auf Belag","",8.5,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7777","stp","Stellplatz Pkw 7777",530,"Markierung weiß auf Belag","",11.1,-17.5,-0.111,2.6,5.0,0.02,0,0],["W01_PKS_7778","stb","Stellplatz barrierefrei 7778",530,"Markierung weiß auf Belag, blau mit Symbol","",14.15,-17.5,-0.111,3.5,5.0,0.02,0,0],["W01_PKS_7779","stp","Stellplatz Pkw 7779",530,"Markierung weiß auf Belag","",-22.7,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7780","stp","Stellplatz Pkw 7780",530,"Markierung weiß auf Belag","",-20.1,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7781","stp","Stellplatz Pkw 7781",530,"Markierung weiß auf Belag","",-17.5,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7782","stp","Stellplatz Pkw 7782",530,"Markierung weiß auf Belag","",-14.9,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7783","stp","Stellplatz Pkw 7783",530,"Markierung weiß auf Belag","",-12.3,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7784","stp","Stellplatz Pkw 7784",530,"Markierung weiß auf Belag","",-9.7,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7785","stp","Stellplatz Pkw 7785",530,"Markierung weiß auf Belag","",-7.1,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7786","stp","Stellplatz Pkw 7786",530,"Markierung weiß auf Belag","",-4.5,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7787","stp","Stellplatz Pkw 7787",530,"Markierung weiß auf Belag","",-1.9,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7788","stp","Stellplatz Pkw 7788",530,"Markierung weiß auf Belag","",0.7,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7789","stp","Stellplatz Pkw 7789",530,"Markierung weiß auf Belag","",3.3,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7790","stp","Stellplatz Pkw 7790",530,"Markierung weiß auf Belag","",5.9,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7791","stp","Stellplatz Pkw 7791",530,"Markierung weiß auf Belag","",8.5,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7792","stp","Stellplatz Pkw 7792",530,"Markierung weiß auf Belag","",11.1,-6.5,-0.117,2.6,5.0,0.02,0,0],["W01_PKS_7793","stb","Stellplatz barrierefrei 7793",530,"Markierung weiß auf Belag, blau mit Symbol","",14.15,-6.5,-0.117,3.5,5.0,0.02,0,0],["AUS_RAD_001","rad","Radbügel 1",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-21.4,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_002","rad","Radbügel 2",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-21.4,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_003","rad","Radbügel 3",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-21.4,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_004","rad","Radbügel 4",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-20.6,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_005","rad","Radbügel 5",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-20.6,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_006","rad","Radbügel 6",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-20.6,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_007","rad","Radbügel 7",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-19.8,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_008","rad","Radbügel 8",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-19.8,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_009","rad","Radbügel 9",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-19.8,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_010","rad","Radbügel 10",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-19.0,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_011","rad","Radbügel 11",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-19.0,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_012","rad","Radbügel 12",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-19.0,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_013","rad","Radbügel 13",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-18.2,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_014","rad","Radbügel 14",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-18.2,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_015","rad","Radbügel 15",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-18.2,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_016","rad","Radbügel 16",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-17.4,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_017","rad","Radbügel 17",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-17.4,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_018","rad","Radbügel 18",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-17.4,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_019","rad","Radbügel 19",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-16.6,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_020","rad","Radbügel 20",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-16.6,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_021","rad","Radbügel 21",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-16.6,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_022","rad","Radbügel 22",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-15.8,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_023","rad","Radbügel 23",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-15.8,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_024","rad","Radbügel 24",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-15.8,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_025","rad","Radbügel 25",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-15.0,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_026","rad","Radbügel 26",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-15.0,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_027","rad","Radbügel 27",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-15.0,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_028","rad","Radbügel 28",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-14.2,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_029","rad","Radbügel 29",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-14.2,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_030","rad","Radbügel 30",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-14.2,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_031","rad","Radbügel 31",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-13.4,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_032","rad","Radbügel 32",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-13.4,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_033","rad","Radbügel 33",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-13.4,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_034","rad","Radbügel 34",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-12.6,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_035","rad","Radbügel 35",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-12.6,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_036","rad","Radbügel 36",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-12.6,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_037","rad","Radbügel 37",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-11.8,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_038","rad","Radbügel 38",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-11.8,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_039","rad","Radbügel 39",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-11.8,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_040","rad","Radbügel 40",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-11.0,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_041","rad","Radbügel 41",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-11.0,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_042","rad","Radbügel 42",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-11.0,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_043","rad","Radbügel 43",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-10.2,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_044","rad","Radbügel 44",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-10.2,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_045","rad","Radbügel 45",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-10.2,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_046","rad","Radbügel 46",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-9.4,21.2,-0.131,0.05,0.9,0.85,0,0],["AUS_RAD_047","rad","Radbügel 47",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-9.4,27.2,-0.134,0.05,0.9,0.85,0,0],["AUS_RAD_048","rad","Radbügel 48",560,"Stahl verzinkt, Rahmenbügel mit Anlehnbalken","Doppelbügel für 2 Räder, Abstand 0,8 m je Platz",-9.4,33.2,-0.137,0.05,0.9,0.85,0,0],["AUS_RAD_L01","rdl","Radbügel Lastenrad 1",560,"Stahl verzinkt","Einzelbügel Lastenrad 2,0 x 2,5 m Stand",-5.0,19.45,-0.13,0.05,1.5,0.85,0,0],["AUS_RAD_L02","rdl","Radbügel Lastenrad 2",560,"Stahl verzinkt","Einzelbügel Lastenrad 2,0 x 2,5 m Stand",-5.0,22.45,-0.131,0.05,1.5,0.85,0,0],["AUS_RAD_L03","rdl","Radbügel Lastenrad 3",560,"Stahl verzinkt","Einzelbügel Lastenrad 2,0 x 2,5 m Stand",-5.0,25.45,-0.133,0.05,1.5,0.85,0,0],["AUS_RAD_L04","rdl","Radbügel Lastenrad 4",560,"Stahl verzinkt","Einzelbügel Lastenrad 2,0 x 2,5 m Stand",-5.0,28.45,-0.134,0.05,1.5,0.85,0,0],["AUS_STR_001","fb","Fahrbahn Bogenfeld 6,50 m",220,"Asphalt","",36.0,-29.75,-0.355,160.0,6.5,0.25,0,0],["AUS_STR_002","gw","Gehweg Grundstücksseite 2,50 m",220,"Betonpflaster grau","",36.0,-23.25,-0.358,160.0,2.5,0.25,0,0],["AUS_STR_003","bs","Baumstreifen 2,00 m",220,"Pflaster mit Baumscheiben","für Straßenbäume 10 bis 14",36.0,-25.5,-0.357,160.0,2.0,0.25,0,0],["AUS_STR_004","gw","Gehweg Gegenseite 2,50 m",220,"Betonpflaster grau","nur Kontext",36.0,-34.25,-0.353,160.0,2.5,0.25,0,0],["AUS_STR_005","bo","Bordstein Fahrbahn Nordseite",220,"Granit Hochbord 15 x 25, 12 cm Ansicht","",36.0,-26.425,-0.107,160.0,0.15,0.12,0,0],["AUS_STR_006","bo","Bordstein Fahrbahn Südseite",220,"Granit Hochbord 15 x 25","",36.0,-33.075,-0.103,160.0,0.15,0.12,0,0],["AUS_STR_007","ml","Mittellinie Fahrbahn",220,"Markierung weiß","",36.0,-29.75,-0.105,160.0,0.12,0.02,0,0],["AUS_STR_008","rs","Gehwegrandstein Grundstücksgrenze 1",530,"Betonrandstein 8 x 20","",-2.0,-21.9,-0.109,44.0,0.2,0.1,0,0],["AUS_STR_009","rs","Gehwegrandstein Grundstücksgrenze 2",530,"Betonrandstein 8 x 20","",53.0,-21.9,-0.109,54.0,0.2,0.1,0,0],["AUS_STR_010","rs","Gehwegrandstein Grundstücksgrenze 3",530,"Betonrandstein 8 x 20","",85.5,-21.9,-0.109,3.0,0.2,0.1,0,0],["AUS_STR_011","rs","Gehwegrandstein Grundstücksgrenze 4",530,"Betonrandstein 8 x 20","",94.5,-21.9,-0.109,3.0,0.2,0.1,0,0],["AUS_ZUF_001","ue","Gehwegüberfahrt Feuerwehrzufahrt",530,"Beton, Bordabsenkung","",82.0,-23.25,-0.358,4.0,2.5,0.25,0,0],["AUS_ZUF_002","ue","Gehwegüberfahrt Lieferzufahrt",530,"Beton, Bordabsenkung","",90.0,-23.25,-0.358,6.0,2.5,0.25,0,0],["AUS_ZUF_003","bi","Bordinsel zwischen den Zufahrten",530,"Hochbord mit Pflaster","",85.5,-23.25,-0.108,3.0,2.5,0.12,0,0],["AUS_ZUF_004","ue","Gehwegüberfahrt Süd",530,"Beton, Bordabsenkung","",23.0,-23.25,-0.358,6.0,2.5,0.25,0,0],["AUS_FW_001","sch","Absperrschranke",560,"Stahl rot weiß, Schließung Feuerwehr","",82.0,-21.0,-0.11,4.4,0.15,1.1,0,0],["AUS_FW_002","pol","Versenkbarer Poller",560,"Stahl, hydraulisch versenkbar","",82.0,-19.5,-0.11,0.2,0.2,0.9,0,0],["AUS_FW_003","sil","Hinweisschild Feuerwehr 1",560,"Schild DIN 4066 mit Mast","",84.6,-21.4,-0.109,0.1,0.5,2.0,0,0],["AUS_FW_004","sil","Hinweisschild Feuerwehr 2",560,"Schild DIN 4066 mit Mast","",84.6,58.4,-0.149,0.1,0.5,2.0,0,0],["AUS_ENT_001","ks","Kontrollschacht Grundstücksentwässerung",550,"Gussdeckel Klasse D400, bündig im Belag","",75.0,-21.0,-0.11,0.6,0.6,0.02,0,0],["AUS_MUE_001","ton","Abfallbehälter 1100 Liter 1",560,"Kunststoff grau, Deckel grau","",-6.5,63.75,-0.152,1.0,1.2,1.35,0,0],["AUS_MUE_002","ton","Abfallbehälter 1100 Liter 2",560,"Kunststoff grau, Deckel grau","",-6.5,65.25,-0.153,1.0,1.2,1.35,0,0],["AUS_MUE_003","ton","Abfallbehälter 1100 Liter 3",560,"Kunststoff grau, Deckel grau","",-6.5,66.75,-0.153,1.0,1.2,1.35,0,0],["AUS_MUE_004","ton","Abfallbehälter 1100 Liter 4",560,"Kunststoff grau, Deckel grau","",-6.5,68.25,-0.154,1.0,1.2,1.35,0,0],["AUS_MUE_005","gi","Einhausung Müllstandplatz Rückwand Stabgitter",560,"Stabgitter Stahl verzinkt, anthrazit beschichtet","",-5.85,66.0,-0.153,0.05,6.4,1.6,0,0],["AUS_MUE_006","gi","Einhausung Müllstandplatz Seitenwand Stabgitter 1",560,"Stabgitter Stahl verzinkt, anthrazit beschichtet","",-6.5,62.8,-0.151,1.4,0.05,1.6,0,0],["AUS_MUE_007","gi","Einhausung Müllstandplatz Seitenwand Stabgitter 2",560,"Stabgitter Stahl verzinkt, anthrazit beschichtet","",-6.5,69.2,-0.155,1.4,0.05,1.6,0,0],["AUS_MUE_008","msf","Stellfläche Müllstandplatz",530,"Betonsteinpflaster grau, Gefälle zur Fahrgasse","",-6.45,66.0,-0.153,1.7,6.8,0.02,0,0],["AUS_LEU_001","mast","Leuchtmast 1",550,"Stahl feuerverzinkt, LED Mastleuchte","",8.0,77.0,-0.159,0.18,0.18,6.0,0,0],["AUS_LEU_002","mast","Leuchtmast 2",550,"Stahl feuerverzinkt, LED Mastleuchte","",24.0,77.0,-0.159,0.18,0.18,6.0,0,0],["AUS_LEU_003","mast","Leuchtmast 3",550,"Stahl feuerverzinkt, LED Mastleuchte","",36.0,77.0,-0.159,0.18,0.18,6.0,0,0],["AUS_LEU_004","mast","Leuchtmast 4",550,"Stahl feuerverzinkt, LED Mastleuchte","",50.0,77.0,-0.159,0.18,0.18,6.0,0,0],["AUS_LEU_005","mast","Leuchtmast 5",550,"Stahl feuerverzinkt, LED Mastleuchte","",64.0,77.0,-0.159,0.18,0.18,6.0,0,0],["AUS_LEU_006","mast","Leuchtmast 6",550,"Stahl feuerverzinkt, LED Mastleuchte","",78.0,77.0,-0.159,0.18,0.18,6.0,0,0],["AUS_LEU_007","mast","Leuchtmast 7",550,"Stahl feuerverzinkt, LED Mastleuchte","",92.0,77.0,-0.159,0.18,0.18,6.0,0,0],["AUS_LEU_008","mast","Leuchtmast 8",550,"Stahl feuerverzinkt, LED Mastleuchte","",-18.0,-21.0,-0.11,0.18,0.18,5.0,0,0],["AUS_LEU_009","mast","Leuchtmast 9",550,"Stahl feuerverzinkt, LED Mastleuchte","",-6.0,-21.0,-0.11,0.18,0.18,5.0,0,0],["AUS_LEU_010","mast","Leuchtmast 10",550,"Stahl feuerverzinkt, LED Mastleuchte","",6.0,-21.0,-0.11,0.18,0.18,5.0,0,0],["AUS_LEU_011","mast","Leuchtmast 11",550,"Stahl feuerverzinkt, LED Mastleuchte","",16.0,-21.0,-0.11,0.18,0.18,5.0,0,0],["AUS_LEU_012","mast","Leuchtmast 12",550,"Stahl feuerverzinkt, LED Mastleuchte","",36.0,-19.5,-0.11,0.18,0.18,5.0,0,0],["AUS_LEU_013","mast","Leuchtmast 13",550,"Stahl feuerverzinkt, LED Mastleuchte","",52.0,-19.5,-0.11,0.18,0.18,5.0,0,0],["AUS_LEU_014","mast","Leuchtmast 14",550,"Stahl feuerverzinkt, LED Mastleuchte","",68.0,-19.5,-0.11,0.18,0.18,5.0,0,0],["AUS_LEU_015","mast","Leuchtmast 15",550,"Stahl feuerverzinkt, LED Mastleuchte","",85.5,-19.5,-0.11,0.18,0.18,5.0,0,0],["AUS_LEU_016","mast","Leuchtmast 16",550,"Stahl feuerverzinkt, LED Mastleuchte","",85.5,10.0,-0.125,0.18,0.18,6.0,0,0],["AUS_LEU_017","mast","Leuchtmast 17",550,"Stahl feuerverzinkt, LED Mastleuchte","",85.5,28.0,-0.134,0.18,0.18,6.0,0,0],["AUS_LEU_018","mast","Leuchtmast 18",550,"Stahl feuerverzinkt, LED Mastleuchte","",85.5,46.0,-0.143,0.18,0.18,6.0,0,0],["AUS_LEU_019","mast","Leuchtmast 19",550,"Stahl feuerverzinkt, LED Mastleuchte","",-22.4,22.0,-0.131,0.18,0.18,5.0,0,0],["AUS_LEU_020","mast","Leuchtmast 20",550,"Stahl feuerverzinkt, LED Mastleuchte","",-22.4,34.0,-0.137,0.18,0.18,5.0,0,0],["AUS_VEG_001","he","Hecke Süd",570,"Hainbuche und Liguster gemischt, Schnitthecke 1,20 m","Höhe wegen Sichtfeld Zufahrt begrenzt",-2.0,-21.0,-0.11,44.0,0.8,1.2,0,0],["AUS_VEG_002","he","Hecke West",570,"Hainbuche Schnitthecke 1,50 m","",-23.4,28.0,-0.134,0.8,20.0,1.5,0,0],["W01_TRE_0015","baum","Baum Bestand E1 Feldahorn",570,"","Kronendurchmesser 5,0 m, Kronenansatz 2,2 m, gepflanzt 11/2017",41.6,62.5,-0.151,0.25,0.25,8.0,5.0,2.2],["W01_TRE_0016","baum","Baum Bestand E2 Feldahorn",570,"","Kronendurchmesser 5,0 m, Kronenansatz 2,2 m, gepflanzt 11/2017",41.6,73.5,-0.157,0.25,0.25,8.0,5.0,2.2],["W01_TRE_0017","baum","Baum Bestand E3 Feldahorn",570,"","Kronendurchmesser 5,0 m, Kronenansatz 2,2 m, gepflanzt 11/2017",90.5,68.0,-0.154,0.25,0.25,8.0,5.0,2.2],["W01_TRE_0018","baum","Baum Bestand E4 Hainbuche",570,"","Kronendurchmesser 5,0 m, Kronenansatz 2,2 m, gepflanzt 11/2017",27.0,24.0,-0.132,0.25,0.25,8.0,5.0,2.2],["W01_TRE_0019","baum","Baum Bestand E5 Hainbuche",570,"","Kronendurchmesser 5,0 m, Kronenansatz 2,2 m, gepflanzt 11/2017",45.0,24.0,-0.132,0.25,0.25,8.0,5.0,2.2],["W01_TRE_0020","baum","Baum Bestand E6 Vogelkirsche",570,"","Kronendurchmesser 5,0 m, Kronenansatz 2,2 m, gepflanzt 11/2017",93.5,30.5,-0.135,0.25,0.25,8.0,5.0,2.2],["W01_TRE_0010","sbaum","Straßenbaum 10 Winterlinde",220,"","Kronendurchmesser 8,0 m, Kronenansatz 3,5 m",2.0,-25.5,-0.107,0.4,0.4,12.0,8.0,3.5],["W01_TRE_0011","sbaum","Straßenbaum 11 Winterlinde",220,"","Kronendurchmesser 8,0 m, Kronenansatz 3,5 m",14.0,-25.5,-0.107,0.4,0.4,12.0,8.0,3.5],["W01_TRE_0012","sbaum","Straßenbaum 12 Winterlinde",220,"","Kronendurchmesser 8,0 m, Kronenansatz 3,5 m",36.0,-25.5,-0.107,0.4,0.4,12.0,8.0,3.5],["W01_TRE_0013","sbaum","Straßenbaum 13 Winterlinde",220,"","Kronendurchmesser 8,0 m, Kronenansatz 3,5 m",50.0,-25.5,-0.107,0.4,0.4,12.0,8.0,3.5],["W01_TRE_0014","sbaum","Straßenbaum 14 Platane",220,"","Kronendurchmesser 8,0 m, Kronenansatz 3,5 m",64.0,-25.5,-0.107,0.4,0.4,12.0,8.0,3.5]]}</script>
 <script>
 /* Gehostete Fassung: Daten liegen gzip-komprimiert als Base64-Text neben der Seite (data/....gz.txt). Ladeanzeige mit Fehlermeldung. */
 (function(){
@@ -980,6 +985,7 @@ function applyTheme() {
 document.querySelectorAll('#themeSeg button').forEach(b => b.onclick = () => { S.theme = b.dataset.t; try { LS.set('theme', S.theme); } catch (e) {} applyTheme(); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => S.theme === 'auto' && applyTheme());
 try { S.theme = LS.get('theme') || 'auto'; } catch (e) {}
+try { S.tgaGew = LS.get('tgaGew') === '1'; } catch (e) {}
 
 function resize() {
   const r = $('#stage').getBoundingClientRect();
@@ -1015,6 +1021,7 @@ function layoutPanels() {
   $('#bLeft').title = st.l ? 'Menü schließen' : 'Menü mit Filter, Modell, Schnitt und Ansicht öffnen';
   $('#bRight').title = st.r ? 'Details schließen' : (S.last >= 0 ? 'Details zum gewählten Objekt öffnen' : 'Details öffnen');
   $('#bRight').classList.toggle('dot', !st.r && S.last >= 0);
+  if (typeof navFit === 'function') navFit();
 }
 function setPanel(side, open) {
   if (isWide()) { PANEL.st[side] = open; try { LS.set('panels', JSON.stringify(PANEL.st)); } catch (e) {} }
@@ -1030,6 +1037,9 @@ function panelsOnSelect() {
 }
 addEventListener('resize', layoutPanels);
 layoutPanels();
+/* Steuerleiste schmaler, wenn der freie Platz neben den Seitenleisten nicht reicht */
+function navFit() { const nv = $('#nav'), dk = $('#dock'); if (!nv || !dk) return; nv.classList.remove('nlc', 'nlc2'); if (nv.offsetWidth > dk.clientWidth) nv.classList.add('nlc'); if (nv.offsetWidth > dk.clientWidth) nv.classList.add('nlc2'); }
+new ResizeObserver(navFit).observe($('#dock')); navFit();
 /* Hilfe als Dialog, Hinweis für den ersten Besuch, Messung nur mit ?debug */
 $('#helpX').innerHTML = IC.close;
 $('#bHelp').onclick = () => { const d = $('#help'); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); };
@@ -1249,11 +1259,15 @@ async function loadFile(f) {
   loadsTotal++; loadsRunning++; progress();
   const t0 = performance.now();
   try {
-    const r = await fetch(DATA + f.path);
-    if (!r.ok) throw new Error(f.path + ': HTTP ' + r.status);
-    const buf = await r.arrayBuffer();
-    const t1 = performance.now();
-    const g = parseGLB(buf);
+    let buf = {byteLength: 0}, g = null, t1 = t0;
+    if (f.virtual) { t1 = performance.now(); g = {prims: ausBuild(f.style || 'A')}; }  // Außenanlagen: im Browser gebaut
+    else {
+      const r = await fetch(DATA + f.path);
+      if (!r.ok) throw new Error(f.path + ': HTTP ' + r.status);
+      buf = await r.arrayBuffer();
+      t1 = performance.now();
+      g = parseGLB(buf);
+    }
     for (const pr of g.prims) addPrim(pr, f, rec);
     const t2 = performance.now();
     rec.state = 'ready'; rec.ms = {fetch: t1 - t0, parse: t2 - t1}; rec.bytes = buf.byteLength;
@@ -1281,6 +1295,7 @@ const TEXK = {Plaster001: 0, Asphalt031: 1, LeafSet024: 2};
 // Material → [Feld (0: 512, 1: 1024), Ebene, Kachel in m, Anteil Materialfarbe 0..1, Stärke Normal, Stärke Rauheit, Farbe (sonst Materialfarbe), Kontrast der Struktur]
 // Helligkeit folgt immer der Materialfarbe. Anteil 0: Farbton der Textur, Anteil 1: Farbton des Materials mit der Struktur der Textur.
 const T5 = (l, s, t, n = 1, r = 1, c = null, k = 1) => [0, TEXL[l], s, t, n, r, c, k], T1 = (l, s, t, n = 1, r = 1, c = null, k = 1) => [1, TEXK[l], s, t, n, r, c, k];
+const TF = (e, fl) => (e[8] = fl, e);  // Zusatz: a Laub mit Ausschnitt (Alphatest), s Stoßfugen der Kanäle
 const TEXMAP = {
   wand: T5('Wallpaper001A', 0.9, 0.85, 0.9), sturz: T5('Wallpaper001A', 0.9, 0.85, 0.9), trennwand: T5('Plaster003', 1.6, 0.85, 0.8),
   fassade: T1('Plaster001', 2.6, 0.55, 1.0), wandkern: T5('Sichtbeton', 2.4, 0.3, 1.0), stuetze: T5('Sichtbeton', 2.4, 0.3, 1.0), traeger: T5('Sichtbeton', 2.4, 0.3, 1.0),
@@ -1289,16 +1304,211 @@ const TEXMAP = {
   boden_nuf: T5('Carpet001', 1.0, 1.0, 0.9, 1, '#7a838e', 0.8), boden_vf: T5('Rubber001', 1.2, 1.0, 0.5, 1, '#a7a399', 0.22), boden_san: T5('Tiles133A', 1.2, 0.55, 1.0, 1, '#e3e6e6'),
   boden_tf: T5('Concrete048', 2.0, 0.9, 0.7, 1, '#8e958f'),
   tg_fahrgasse: T5('Concrete047A', 3.0, 0.5), tg_fahrbahn: T5('Concrete047A', 3.0, 0.5), tg_beton: T5('Concrete047A', 3.0, 0.5), tg_sauber: T5('Concrete047A', 3.0, 0.6),
-  belag_park: T1('Asphalt031', 3.0, 0.35), belag_logistik: T1('Asphalt031', 3.0, 0.35), belag_fuss: T5('PavingStones099', 2.0, 0.45), belag_rad: T5('PavingStones081', 1.0, 0.45),
+  belag_park: T1('Asphalt031', 3.0, 0.25), belag_logistik: T1('Asphalt031', 3.0, 0.25), belag_fuss: T5('PavingStones099', 2.0, 0.45), belag_rad: T5('PavingStones081', 1.0, 0.45),
   hofbelag: T5('PavingStones081', 1.0, 0.45), gruen: T5('Grass004', 2.5, 0.15), dachbelag: T5('Gravel043', 1.5, 0.45),
   tuerblatt: T5('Wood026', 1.2, 0.55, 0.7), moebel: T5('Wood026', 1.2, 0.55, 0.7),
   metall: T5('Metal012', 1.0, 0.85, 0.5), gastro: T5('Metal012', 1.0, 0.85, 0.5), aufzug: T5('Metal012', 1.0, 0.85, 0.5), leuchte_gehaeuse: T5('Metal012', 1.0, 0.9, 0.4),
   huelse: T5('Metal012', 0.8, 0.85, 0.4), blech: T5('Metal012', 1.0, 0.85, 0.5),
   stahl: T5('Metal027', 1.0, 1.0, 0.6, 1, null, 0.6), lager: T5('Metal027', 1.0, 1.0, 0.6, 1, null, 0.6), zarge: T5('Metal027', 1.0, 1.0, 0.6, 1, null, 0.6), rahmen: T5('Metal027', 1.0, 1.0, 0.5, 1, null, 0.6),
   geraet_hell: T5('Metal027', 1.0, 1.0, 0.5, 1, null, 0.6), tg_geraet: T5('Metal027', 1.0, 1.0, 0.5, 1, null, 0.6), tg_tor: T5('Metal012', 1.0, 0.8, 0.6),
-  'tga:tga_ventilation': T5('Metal012', 1.0, 0.7, 0.6), 'tga:tga_heating': T5('Foil003', 1.0, 1.0, 0.5), 'tga:tga_cooling': T5('Foil003', 1.0, 1.0, 0.5),
+  'tga:tga_ventilation': TF(T5('Metal012', 1.2, 0.8, 0.7, 1, null, 0.55), 's'), 'tga:tga_heating': T5('Foil003', 0.8, 0.75, 0.6, 1, null, 0.8), 'tga:tga_cooling': T5('Foil003', 0.8, 0.75, 0.6, 1, null, 0.8),
+  'tga:tga_electrical': T5('Metal012', 1.0, 0.8, 0.6, 1, null, 0.5), 'tga:tga_data': T5('Metal012', 1.0, 0.8, 0.6, 1, null, 0.5), 'tga:dev': T5('Metal027', 1.0, 0.85, 0.5, 1, null, 0.45),
 };
-for (const g of ['tga_electrical', 'tga_automation', 'tga_safety', 'tga_water', 'tga_drainage', 'tga_sonst', 'tga_lift', 'tga_data', 'tga_fire_fighting']) TEXMAP['tga:' + g] = T5('Metal027', 1.0, 1.0, 0.45, 1, null, 0.5);
+for (const g of ['tga_automation', 'tga_safety', 'tga_water', 'tga_drainage', 'tga_sonst', 'tga_lift', 'tga_fire_fighting', 'tga_huelle']) TEXMAP['tga:' + g] = T5('Metal027', 1.0, 0.9, 0.45, 1, null, 0.45);
+/* Technik in Stil B als Werkstoff (Wunsch main 19.11.): Kanäle verzinkt mit Stoßfugen, Geräte lackiert hellgrau, gedämmte Rohre Alu,
+   übrige Rohre und Kabel in Medienfarbe. Der Schalter „Gewerke einfärben“ zeigt wieder die Anlagenfarben. Stil A bleibt bei den Anlagenfarben.
+   Je Ebene: Farbe, Text für die Legende, Metallanteil. Darstellung, kein Weltdatum. */
+const TGA_B = {
+  tga_ventilation: ['#a9afb3', 'Lüftungskanäle verzinkt', 0.5], tga_heating: ['#d2d5d7', 'Heizungsrohre gedämmt, Alu', 0.5], tga_cooling: ['#d2d5d7', 'Kälterohre gedämmt, Alu', 0.5],
+  tga_water: ['#4f9563', 'Trinkwasserrohre grün', 0.1], tga_drainage: ['#87523f', 'Abwasserrohre Guss', 0.15], tga_fire_fighting: ['#b33a2f', 'Löschwasserrohre rot', 0.1],
+  tga_electrical: ['#adb1b4', 'Kabeltrassen verzinkt', 0.45], tga_data: ['#a9adb1', 'Datentrassen verzinkt', 0.45], tga_safety: ['#b0473b', 'Brandmeldeleitungen rot', 0.1],
+  tga_automation: ['#7f858b', 'Steuerleitungen grau', 0.1], tga_lift: ['#8e9398', 'Aufzugstechnik', 0.3], tga_sonst: ['#a2a6aa', 'Technik ohne Anlage', 0.3]
+};
+const TGA_DEV = ['#cdd1d4', 'Geräte lackiert hellgrau', 0.2];
+const TGA_DEVART = new Set(['Endgerät/Auslass', 'Gerätehülle (zentral)', 'Anlagenhülle']);
+function tgaSplit(pr, f) {  // Stil B: je Netz ein Teil Leitungen und ein Teil Geräte (eigene Werkstoffe), Objekte und Reihenfolge bleiben
+  const I = S.idx, nT = pr.idx.length / 3, dev = new Uint8Array(nT); let nd = 0;
+  for (let t = 0; t < nT; t++) { const o = pr.oid[pr.idx[3 * t]]; const d = o < S.worldN && TGA_DEVART.has(I.arts[I.art[o]]) ? 1 : 0; dev[t] = d; nd += d; }
+  const parts = [];
+  for (const d of [0, 1]) {
+    const cnt = d ? nd : nT - nd; if (!cnt) continue;
+    let idx = pr.idx, pos = pr.pos, oid = pr.oid;
+    if (cnt !== nT) {
+      const map = new Int32Array(pr.pos.length / 3).fill(-1); idx = new Uint32Array(cnt * 3); let nv = 0, k = 0;
+      for (let t = 0; t < nT; t++) if (dev[t] === d) for (let j = 0; j < 3; j++) { const v = pr.idx[3 * t + j]; if (map[v] < 0) map[v] = nv++; idx[k++] = map[v]; }
+      pos = new Float32Array(nv * 3); oid = new Uint32Array(nv);
+      for (let v = 0; v < map.length; v++) { const m = map[v]; if (m >= 0) { pos[3 * m] = pr.pos[3 * v]; pos[3 * m + 1] = pr.pos[3 * v + 1]; pos[3 * m + 2] = pr.pos[3 * v + 2]; oid[m] = pr.oid[v]; } }
+    }
+    const B = d ? TGA_DEV : TGA_B[f.layer];
+    parts.push({pos, idx, oid, tgaPart: d ? 'dev' : 'line', tgaB: B, metal0: pr.mat.metal || 0, mat: Object.assign({}, pr.mat, {metal: B[2], rough: d ? 0.55 : 0.4, texKey: d ? 'tga:dev' : 'tga:' + f.layer})});
+  }
+  return parts;
+}
+// Die Technikdateien sind in Stil A und B dieselben (ein Laden). Stil A zeigt immer die Gewerkfarben ohne Metall.
+const tgaGewOn = () => S.tgaGew || S.style !== 'B';
+function tgaColorSync() {
+  const on = tgaGewOn(), b = S.style === 'B';
+  for (const p of S.prims) if (p.gewColor) { p.baseColor = on ? p.gewColor : p.metColor; p.mat.metalness = b ? p.metB : p.met0; applyLayerMaterial(p); }
+}
+function setTgaGew(on) {
+  S.tgaGew = !!on; try { LS.set('tgaGew', S.tgaGew ? '1' : '0'); } catch (e) {}
+  tgaColorSync();
+  const cb = $('#cTgaGew'); if (cb) cb.checked = S.tgaGew;
+  renderLegend(); invalidate();
+}
+
+/* ====================================================================================================
+   Außenanlagen (Runde 4): aus der Außenanlagenliste vom 18.11.2026, als kleines JSON in der Seite (Schritt werkzeug/aussen_daten.py).
+   Eigene Ebene und eigene Objekte nach den Weltobjekten. Die Körper entstehen im Browser aus Lage und Maßen der Liste
+   (Kästen, Zylinder, Baumkronen aus unregelmäßigen Vielflächnern). Stil A schlicht, Stil B mit Texturen. Welt: x Ost, y Nord, z oben, three (x, z, -y).
+   ==================================================================================================== */
+const AUS = (() => { try { const d = JSON.parse(document.getElementById('aussenDaten').textContent); return {d, lo: -1, n: 0}; } catch (e) { return {d: null, lo: -1, n: 0}; } })();
+const AUS_ART = {stp: 'Stellplatz', stb: 'Stellplatz', rad: 'Fahrradbügel', rdl: 'Fahrradbügel', fb: 'Fahrbahn', gw: 'Gehweg', bs: 'Baumstreifen', bo: 'Bordstein', rs: 'Bordstein',
+  ml: 'Fahrbahnmarkierung', ue: 'Gehwegüberfahrt', bi: 'Bordinsel', sch: 'Schranke', pol: 'Poller', sil: 'Hinweisschild', ks: 'Kontrollschacht', mue: 'Müllstandplatz',
+  ton: 'Abfallbehälter', gi: 'Einhausung Stabgitter', msf: 'Stellfläche Müllplatz', mast: 'Leuchtmast', he: 'Hecke', baum: 'Baum', sbaum: 'Baum'};
+const AUS_MAT = {  // Farbe, Rauheit, Metall, Bezeichnung (Darstellung)
+  aus_asphalt: ['#3e4144', 0.9, 0, 'Asphalt'], aus_stellplatz: ['#46494c', 0.9, 0, 'Asphalt'], aus_pflaster: ['#a29e96', 0.85, 0, 'Betonpflaster'],
+  aus_pflaster_dk: ['#8b877f', 0.85, 0, 'Pflaster'], aus_granit: ['#9b9c9d', 0.7, 0, 'Granit'], aus_randstein: ['#b8b5ad', 0.85, 0, 'Betonrandstein'],
+  aus_beton: ['#b3b0a8', 0.85, 0, 'Beton'], aus_markierung: ['#ecebe6', 0.75, 0, 'Markierung weiß'], aus_markierung_blau: ['#2d5aa8', 0.75, 0, 'Markierung blau'],
+  aus_stahl: ['#a6aaad', 0.4, 0.5, 'Stahl verzinkt'], aus_gitter: ['#3b3e41', 0.5, 0.4, 'Stabgitter anthrazit'], aus_rot: ['#c0302a', 0.5, 0, 'Rot'], aus_weiss: ['#eeeeea', 0.5, 0, 'Weiß'],
+  aus_guss: ['#3e3d3b', 0.6, 0.3, 'Guss'], aus_holz: ['#8b6b4c', 0.8, 0, 'Holz'], aus_kunststoff: ['#5f666b', 0.6, 0, 'Kunststoff'], aus_deckel: ['#464c51', 0.6, 0, 'Kunststoff'],
+  aus_mulch: ['#5d4636', 0.95, 0, 'Mulch'], aus_rinde: ['#5b4b3f', 0.9, 0, 'Rinde'], aus_laub: ['#5a7b30', 0.8, 0, 'Laub'], aus_laub2: ['#45632a', 0.8, 0, 'Laub'], aus_laub_kern: ['#26401a', 0.9, 0, 'Laub'],
+  aus_hecke: ['#4f6f2c', 0.85, 0, 'Hecke'], aus_hecke_kern: ['#3c5a24', 0.9, 0, 'Hecke'], aus_leuchte: ['#4d5155', 0.5, 0.4, 'Leuchte'], licht: ['#fff4d6', 0.4, 0, 'Licht']
+};
+Object.assign(TEXMAP, {
+  aus_asphalt: T1('Asphalt031', 4.0, 0.25, 1, 1, null, 1.0), aus_stellplatz: T1('Asphalt031', 3.0, 0.25, 1, 1, null, 1.0),
+  aus_pflaster: T5('PavingStones099', 2.0, 0.45), aus_pflaster_dk: T5('PavingStones081', 1.0, 0.45), aus_granit: T5('Concrete046', 1.0, 0.6, 1, 1, null, 0.7),
+  aus_randstein: T5('Concrete046', 1.0, 0.6), aus_beton: T5('Concrete048', 2.0, 0.5), aus_stahl: T5('Metal012', 1.0, 0.75, 0.6),
+  aus_guss: T5('Metal027', 0.6, 0.8, 1, 1, null, 0.7), aus_holz: T5('Wood026', 1.2, 0.6, 0.7), aus_mulch: T5('WoodChips002', 1.0, 0.35),
+  aus_rinde: T5('Bark012', 1.0, 0.35), aus_laub: TF(T1('LeafSet024', 0.55, 0.3, 0.8, 1, null, 0.9), 'a'), aus_laub2: TF(T1('LeafSet024', 0.41, 0.3, 0.8, 1, null, 0.9), 'a'), aus_laub_kern: T5('Grass004', 1.0, 0.5),
+  aus_hecke: TF(T1('LeafSet024', 0.33, 0.35, 0.8, 1, null, 0.9), 'a'), aus_hecke_kern: T5('Grass004', 0.8, 0.5)
+});
+// Flächen der Welt in Stil B dunkler und farbiger (Asphalt, Pflaster, Rasen statt hellgrau), Darstellung
+const B_COL = {belag_park: '#46494c', belag_logistik: '#4d5053', belag_fuss: '#a29e96', belag_rad: '#9a8e84', hofbelag: '#a39c90', gruen: '#5e7d3b'};
+function ausObjects(idx, man) {
+  if (!AUS.d || !AUS.d.e || !AUS.d.e.length) return;
+  idx.layers.push({key: 'aussen_el', label: 'Außen: Straße, Bäume, Ausstattung', gewerk: 'Außenanlagen', color: '#6f8a4a', alpha: 1, visible: true});
+  const L = idx.layers.length - 1, G = Math.max(0, idx.groups.indexOf('SONST'));
+  let gw = idx.gewerke.indexOf('Außenanlagen'); if (gw < 0) { idx.gewerke.push('Außenanlagen'); gw = idx.gewerke.length - 1; }
+  AUS.lo = idx.n; AUS.n = AUS.d.e.length;
+  for (const e of AUS.d.e) {
+    const an = AUS_ART[e[1]] || 'Außenanlage'; let a = idx.arts.indexOf(an); if (a < 0) { idx.arts.push(an); a = idx.arts.length - 1; }
+    const tr = e[1] === 'baum' || e[1] === 'sbaum', R = tr ? Math.max(e[12] || 5, 1) / 2 : 0;
+    const bx = tr ? [e[6] - R, e[7] - R, e[8], e[6] + R, e[7] + R, e[8] + e[11]] : [e[6] - e[9] / 2, e[7] - e[10] / 2, e[8], e[6] + e[9] / 2, e[7] + e[10] / 2, e[8] + Math.max(e[11], 0.02)];
+    const add = {id: e[0], name: e[2], art: a, sub: '', layer: L, group: G, fmask: 0, gewerk: gw, system: 0, status: 0, rawstatus: 0, derived: 0, body: 1, bbox: bx.map(v => Math.round(v * 100))};
+    for (const k in add) if (Array.isArray(idx[k])) idx[k].push(add[k]);
+    idx.n++;
+  }
+  for (const st of new Set(man.files.map(f => f.style || 'A'))) man.files.push({style: st, path: 'aussen/' + st, group: 'SONST', layer: 'aussen_el', objects: AUS.n, triangles: 0, bytes: 1, display_only: false, virtual: true});
+}
+const ICO = (() => { const g = new THREE.IcosahedronGeometry(1, 1), p = g.getAttribute('position').array.slice(); g.dispose(); return p; })();
+const hashN = (x, y, z, s) => { const v = Math.sin(x * 12.9898 + y * 78.233 + z * 37.719 + s * 4.581) * 43758.5453; return v - Math.floor(v); };
+const hashS = t => { let h = 7; for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) % 9973; return h / 9973; };
+function ausBuild(style) {
+  const d = AUS.d, B = new Map();
+  const bk = k => { let b = B.get(k); if (!b) B.set(k, b = {p: [], i: [], o: []}); return b; };
+  const V = (b, o, x, y, z) => { b.p.push(x, z, -y); b.o.push(o); return b.o.length - 1; };
+  const quad = (b, a, c, e, f) => b.i.push(a, c, e, a, e, f);
+  const rect = (k, o, x0, y0, x1, y1, z) => { const b = bk(k); quad(b, V(b, o, x0, y0, z), V(b, o, x1, y0, z), V(b, o, x1, y1, z), V(b, o, x0, y1, z)); };
+  const box = (k, o, x0, y0, z0, x1, y1, z1, bottom = false) => {  // achsparallel, Unterseite meist weg (liegt auf)
+    const b = bk(k), v = [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0], [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]].map(q => V(b, o, q[0], q[1], q[2]));
+    if (bottom) quad(b, v[0], v[3], v[2], v[1]);
+    quad(b, v[4], v[5], v[6], v[7]); quad(b, v[0], v[1], v[5], v[4]); quad(b, v[2], v[3], v[7], v[6]); quad(b, v[3], v[0], v[4], v[7]); quad(b, v[1], v[2], v[6], v[5]);
+  };
+  const cyl = (k, o, cx, cy, z0, z1, r0, r1 = r0, seg = 10, caps = 2) => {
+    const b = bk(k), lo = [], hi = [];
+    for (let s = 0; s < seg; s++) { const a = s / seg * 2 * Math.PI, c = Math.cos(a), si = Math.sin(a); lo.push(V(b, o, cx + c * r0, cy + si * r0, z0)); hi.push(V(b, o, cx + c * r1, cy + si * r1, z1)); }
+    for (let s = 0; s < seg; s++) { const t = (s + 1) % seg; quad(b, lo[s], lo[t], hi[t], hi[s]); }
+    if (caps & 2) for (let s = 1; s < seg - 1; s++) b.i.push(hi[0], hi[s], hi[s + 1]);
+    if (caps & 1) for (let s = 1; s < seg - 1; s++) b.i.push(lo[0], lo[s + 1], lo[s]);
+  };
+  const blob = (k, o, cx, cy, cz, rx, ry, rz, seed) => {  // Kronenteil: Ikosaeder, Ecken je Lage gleich verschoben (geschlossen, unregelmäßig)
+    const b = bk(k);
+    for (let t = 0; t < ICO.length; t += 9) for (let j = 0; j < 3; j++) {
+      const x = ICO[t + 3 * j], y = ICO[t + 3 * j + 1], z = ICO[t + 3 * j + 2], s = 0.8 + 0.34 * hashN(x, y, z, seed);
+      b.i.push(V(b, o, cx + x * rx * s, cy + z * ry * s, cz + y * rz * s));
+    }
+  };
+  const gz = y => -0.12 - 0.0005 * y;  // Geländeoberkante laut Liste
+  const sb = d.e.filter(e => e[1] === 'sbaum');
+  d.e.forEach((e, k) => {
+    const o = AUS.lo + k, t = e[1], x = e[6], y = e[7], z = e[8], hx = e[9] / 2, hy = e[10] / 2, H = e[11];
+    const x0 = x - hx, x1 = x + hx, y0 = y - hy, y1 = y + hy;
+    if (t === 'stp' || t === 'stb') {  // Markierung: Seitenlinien 12 cm, barrierefrei mit blauer Fläche. Die Fläche des Pkw-Stellplatzes ist der Belag darunter (spart Zeichenzeit)
+      if (t === 'stb') rect('aus_markierung_blau', o, x0, y0, x1, y1, z + 0.008);
+      const w = 0.12, zm = z + 0.014;
+      if (hy >= hx) { rect('aus_markierung', o, x0, y0, x0 + w, y1, zm); rect('aus_markierung', o, x1 - w, y0, x1, y1, zm); }
+      else { rect('aus_markierung', o, x0, y0, x1, y0 + w, zm); rect('aus_markierung', o, x0, y1 - w, x1, y1, zm); }
+    } else if (t === 'rad' || t === 'rdl') {  // Rahmenbügel: zwei Pfosten, Bügel oben, Anlehnbalken
+      const along = hy >= hx, L = Math.max(hx, hy), s = 0.025, Bx = (u0, u1, z0, z1) => along ? box('aus_stahl', o, x - s, y + u0, z + z0, x + s, y + u1, z + z1) : box('aus_stahl', o, x + u0, y - s, z + z0, x + u1, y + s, z + z1);
+      Bx(-L, -L + 2 * s, 0, H); Bx(L - 2 * s, L, 0, H); Bx(-L, L, H - 2 * s, H); Bx(-L + 2 * s, L - 2 * s, 0.32, 0.37);
+    } else if (t === 'fb') box('aus_asphalt', o, x0, y0, z, x1, y1, z + H);
+    else if (t === 'gw') box('aus_pflaster', o, x0, y0, z, x1, y1, z + H);
+    else if (t === 'bs') { box('aus_pflaster_dk', o, x0, y0, z, x1, y1, z + H); for (const s of sb) rect('aus_mulch', o, s[6] - 0.9, Math.max(y0 + 0.1, s[7] - 0.9), s[6] + 0.9, Math.min(y1 - 0.1, s[7] + 0.9), z + H + 0.008); }
+    else if (t === 'bo') box('aus_granit', o, x0, y0, z, x1, y1, z + H);
+    else if (t === 'rs') box('aus_randstein', o, x0, y0, z, x1, y1, z + H);
+    else if (t === 'ml') { for (let u = x0 + 1.5; u + 3 <= x1; u += 9) rect('aus_markierung', o, u, y0, u + 3, y1, z + 0.01); }  // Leitlinie 3 m Strich, 6 m Lücke
+    else if (t === 'ue') box('aus_beton', o, x0, y0, z, x1, y1, z + H + 0.005);
+    else if (t === 'bi') { box('aus_granit', o, x0, y0, z, x1, y1, z + H); rect('aus_pflaster', o, x0 + 0.15, y0 + 0.15, x1 - 0.15, y1 - 0.15, z + H + 0.004); }
+    else if (t === 'sch') {  // Schlagbaum rot weiß mit Pfosten und Auflage
+      box('aus_stahl', o, x0, y - 0.07, z, x0 + 0.14, y + 0.07, z + H); box('aus_stahl', o, x1 - 0.06, y - 0.03, z, x1, y + 0.03, z + 0.85);
+      let u = x0 + 0.14, n = 0; while (u < x1 - 0.01) { const v = Math.min(x1, u + 0.5); box(n++ % 2 ? 'aus_weiss' : 'aus_rot', o, u, y - 0.05, z + 0.85, v, y + 0.05, z + 0.95, true); u = v; }
+    } else if (t === 'pol') { const r = hx; cyl('aus_stahl', o, x, y, z, z + H - 0.15, r, r, 12, 0); cyl('aus_rot', o, x, y, z + H - 0.15, z + H - 0.08, r * 1.01, r * 1.01, 12, 0); cyl('aus_stahl', o, x, y, z + H - 0.08, z + H, r, r, 12, 2); }
+    else if (t === 'sil') {  // Mast mit Schild, Schild quer zur Straße
+      cyl('aus_stahl', o, x, y, z, z + H, 0.03, 0.03, 8, 2);
+      box('aus_rot', o, x - 0.01, y - hy, z + H - 0.45, x + 0.01, y + hy, z + H - 0.05, true); box('aus_weiss', o, x - 0.012, y - hy + 0.04, z + H - 0.41, x + 0.012, y + hy - 0.04, z + H - 0.09, true);
+    } else if (t === 'ks') { const g = gz(y); cyl('aus_guss', o, x, y, g - 0.01, g + 0.006, hx, hx, 16, 2); }
+    else if (t === 'mue') {  // Einhausung: Stellfläche Pflaster, Holzwände an drei Seiten, Stahlpfosten, offen nach Süden
+      rect('aus_pflaster_dk', o, x0, y0, x1, y1, z + 0.008);
+      box('aus_holz', o, x0, y1 - 0.05, z, x1, y1, z + H); box('aus_holz', o, x0, y0, z, x0 + 0.05, y1 - 0.05, z + H); box('aus_holz', o, x1 - 0.05, y0, z, x1, y1 - 0.05, z + H);
+      for (const [px, py] of [[x0, y0], [x1 - 0.08, y0], [x0, y1 - 0.08], [x1 - 0.08, y1 - 0.08]]) box('aus_stahl', o, px, py, z, px + 0.08, py + 0.08, z + H + 0.05);
+    } else if (t === 'gi') {  // Stabgitter: Pfosten, Ober- und Unterholm, senkrechte Stäbe alle 10 cm, waagrechte Doppeldrähte alle 20 cm
+      const al = hy >= hx, L = al ? y1 - y0 : x1 - x0, c = al ? x : y, u0 = al ? y0 : x0, s = 0.003;
+      const G = (a, b, z0, z1, w) => al ? box('aus_gitter', o, c - w, a, z + z0, c + w, b, z + z1, true) : box('aus_gitter', o, a, c - w, z + z0, b, c + w, z + z1, true);
+      const np = Math.max(1, Math.ceil(L / 2.5)); for (let k = 0; k <= np; k++) { const u = u0 + Math.min(L - 0.06, k * L / np); G(u, u + 0.06, 0, H, 0.03); }
+      G(u0, u0 + L, H - 0.04, H, 0.02); G(u0, u0 + L, 0.06, 0.1, 0.02);
+      for (let u = u0 + 0.1; u < u0 + L - 0.05; u += 0.1) G(u - s, u + s, 0.1, H - 0.04, s);
+      for (let h = 0.3; h < H - 0.08; h += 0.2) G(u0, u0 + L, h - s, h + s, s * 2);
+    } else if (t === 'msf') box('aus_pflaster_dk', o, x0, y0, z, x1, y1, z + Math.max(H, 0.02));
+    else if (t === 'ton') {  // Behälter 1100 Liter: Räder, Körper, Deckel
+      box('aus_kunststoff', o, x0 + 0.02, y0 + 0.02, z + 0.12, x1 - 0.02, y1 - 0.02, z + H - 0.1, true); box('aus_deckel', o, x0, y0, z + H - 0.1, x1, y1, z + H, true);
+      for (const [px, py] of [[x0 + 0.08, y0 + 0.08], [x1 - 0.16, y0 + 0.08], [x0 + 0.08, y1 - 0.16], [x1 - 0.16, y1 - 0.16]]) box('aus_deckel', o, px, py, z, px + 0.08, py + 0.08, z + 0.12);
+    } else if (t === 'mast') {  // Mast verjüngt, Aufsatzleuchte mit Lichtaustritt unten
+      cyl('aus_stahl', o, x, y, z, z + H - 0.15, hx, hx * 0.6, 8, 0); cyl('aus_leuchte', o, x, y, z + H - 0.15, z + H, 0.32, 0.3, 12, 2); cyl('licht', o, x, y, z + H - 0.16, z + H - 0.15, 0.27, 0.27, 12, 1);
+    } else if (t === 'he') {  // Schnitthecke: dichter Kern, außen Laub mit Lücken
+      const i = 0.07; box('aus_hecke_kern', o, x0 + i, y0 + i, z, x1 - i, y1 - i, z + H - i); box('aus_hecke', o, x0, y0, z, x1, y1, z + H);
+    } else if (t === 'baum' || t === 'sbaum') {
+      const st = t === 'sbaum', kd = e[12] || (st ? 8 : 5), ka = e[13] || (st ? 3.5 : 2.2), ch = Math.max(1, H - ka), R = kd / 2, r = Math.max(0.1, hx), seed = hashS(e[0]) * 100;
+      const oval = /Hainbuche|Vogelkirsche/.test(e[2]) ? 1.15 : 1;
+      cyl('aus_rinde', o, x, y, z, z + ka + ch * 0.4, r, r * 0.55, 8, 0);
+      const cz = z + ka + ch * 0.5, a0 = hashS(e[0] + 'a') * 6.283, lumps = [[0, 0, 0, 0.72, 0.42 * oval]];
+      lumps.push([0.12 * Math.cos(a0), 0.12 * Math.sin(a0), 0.26, 0.5, 0.26 * oval]);
+      for (let q = 0; q < 3; q++) { const a = a0 + q * 2.094 + 0.4; lumps.push([0.45 * Math.cos(a), 0.45 * Math.sin(a), -0.04 + 0.1 * q, 0.5, 0.3 * oval]); }
+      lumps.forEach(([dx, dy, dz, sr, sz], q) => {
+        const cx = x + dx * R, cy = y + dy * R, zz = cz + dz * ch;
+        blob('aus_laub_kern', o, cx, cy, zz, sr * R * 0.8, sr * R * 0.8, sz * ch * 0.8, seed + q);
+        blob('aus_laub', o, cx, cy, zz, sr * R, sr * R, sz * ch, seed + q + 0.5);
+      });
+    }
+  });
+  const prims = [];
+  for (const [k, b] of B) {
+    const m = AUS_MAT[k] || ['#999999', 0.8, 0, k], c = new THREE.Color(m[0]);
+    prims.push({pos: new Float32Array(b.p), idx: new Uint32Array(b.i), oid: new Uint32Array(b.o), mat: {color: [c.r, c.g, c.b, 1], key: k, name: 'aussen|' + k + '|base', label: m[3], rough: m[1], metal: m[2]}});
+  }
+  return prims;
+}
+function ausAttr(n) {  // Steckbrief Außenanlage: Art, Kostengruppe, Material, Angaben und Maße aus der Liste
+  const I = S.idx, e = AUS.d.e[n - AUS.lo], tr = e[1] === 'baum' || e[1] === 'sbaum', m = v => dez(v, 2) + ' m';
+  const kv = [['Art', I.arts[I.art[n]]], ['Kostengruppe', 'KG ' + e[3] + ' ' + (AUS.d.kg[String(e[3])] || '') + (e[3] >= 500 ? ' (DIN 276)' : '')]];
+  if (e[4]) kv.push(['Material', e[4]]);
+  if (e[5]) kv.push(['Angaben', e[5]]);
+  kv.push(['Maße', tr ? 'Höhe ' + m(e[11]) + (e[12] ? ', Krone ' + m(e[12]) : '') : m(e[9]) + ' x ' + m(e[10]) + (e[11] >= 0.05 ? ', Höhe ' + m(e[11]) : '')]);
+  return '<div class="rhead"><div id="rtitle">' + esc(I.name[n]) + '</div></div>' +
+    '<div class="idl"><span>Anlagennummer ' + esc(I.id[n]) + '</span><button type="button" class="ib" id="aCopy" title="Nummer kopieren" aria-label="Nummer kopieren">' + IC.copy + '</button></div>' +
+    '<table class="kv" style="margin-top:8px">' + kv.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</table>' +
+    '<div class="note" style="margin-top:8px">Außenanlage aus der ' + esc(AUS.d.quelle) + '. Lage und Maße stammen aus der Liste, Oberflächen und Form sind Darstellung.</div>';
+}
 const TEXPH = (() => { const t = new THREE.DataArrayTexture(new Uint8Array([128, 128, 128, 255]), 1, 1, 1); t.needsUpdate = true; return t; })();
 const TEXU = {on: {value: 0}, c0: {value: TEXPH}, n0: {value: TEXPH}, c1: {value: TEXPH}, n1: {value: TEXPH}};
 const TEX = {state: 'none', ms: 0, bytes: 0, err: ''};
@@ -1333,7 +1543,7 @@ function texSync() {  // je Bild: Texturen an, sobald geladen und gewünscht. La
   const on = want && TEX.state === 'ready' ? 1 : 0;
   if (TEXU.on.value !== on) { TEXU.on.value = on; shadowDirty = true; }
 }
-const OWU = {groundOn: {value: 0}, groundY: {value: -0.17}, on: {value: 1}, plinth: {value: 0.30}, gBase: {value: 0.22}, gMax: {value: 0.8}};
+const OWU = {sb: {value: 1}, groundOn: {value: 0}, groundY: {value: -0.17}, on: {value: 1}, plinth: {value: 0.30}, gBase: {value: 0.22}, gMax: {value: 0.8}};
 const PAT_GLSL = `
 uniform float owOn; uniform float owPlinth; varying vec3 vWP;
 float owH(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
@@ -1413,7 +1623,7 @@ const TEX_GLSL = `
 precision highp sampler2DArray;
 uniform sampler2DArray owTC; uniform sampler2DArray owTNR; uniform float owTexOn;
 uniform float owTL; uniform float owTS; uniform float owTT; uniform float owTNs; uniform float owTRs; uniform float owTK; uniform vec3 owTB;
-vec4 owTxC = vec4(1.0); vec4 owTxN = vec4(0.5, 0.5, 0.5, 1.0); vec3 owTxT = vec3(1.0, 0.0, 0.0); vec3 owTxB = vec3(0.0, 1.0, 0.0); vec3 owTxNw = vec3(0.0, 0.0, 1.0); float owTxA = 0.0;
+vec4 owTxC = vec4(1.0); vec4 owTxN = vec4(0.5, 0.5, 0.5, 1.0); vec3 owTxT = vec3(1.0, 0.0, 0.0); vec3 owTxB = vec3(0.0, 1.0, 0.0); vec3 owTxNw = vec3(0.0, 0.0, 1.0); float owTxA = 0.0, owLod = 0.0;
 void owTexSample(vec3 wp) {
   vec3 nw = normalize(cross(dFdx(wp), dFdy(wp))), an = abs(nw); vec2 uv;
   if (an.y >= an.x && an.y >= an.z) { if (nw.y > 0.0) { uv = vec2(wp.x, -wp.z); owTxB = vec3(0.0, 0.0, -1.0); } else { uv = vec2(wp.x, wp.z); owTxB = vec3(0.0, 0.0, 1.0); } owTxT = vec3(1.0, 0.0, 0.0); }
@@ -1421,6 +1631,14 @@ void owTexSample(vec3 wp) {
   else { if (nw.z > 0.0) { uv = vec2(wp.x, wp.y); owTxT = vec3(1.0, 0.0, 0.0); } else { uv = vec2(-wp.x, wp.y); owTxT = vec3(-1.0, 0.0, 0.0); } owTxB = vec3(0.0, 1.0, 0.0); }
   owTxNw = nw;
   vec3 p = vec3(uv * owTS, owTL);
+#ifdef OW_ALPHA
+  // Laub: je Fläche gedreht und versetzt, dazu leicht gewellt, damit das Blattraster nicht als Gitter erscheint. Stufe der Verkleinerung für den Alphatest.
+  float owH = fract(sin(dot(floor(nw * 24.0 + 0.5), vec3(12.9898, 78.233, 37.719))) * 43758.5453), owA = owH * 6.2832;  // Normale gerastert, sonst rauscht der Wert je Pixel
+  vec2 owQ = mat2(cos(owA), sin(owA), -sin(owA), cos(owA)) * p.xy + owH * 3.7;
+  owQ += 0.22 * vec2(sin(owQ.y * 2.1 + owQ.x * 0.6), sin(owQ.x * 1.9 - owQ.y * 0.8));
+  p.xy = owQ;
+  vec2 owDu = dFdx(owQ) * 1024.0, owDv = dFdy(owQ) * 1024.0; owLod = 0.5 * log2(max(max(dot(owDu, owDu), dot(owDv, owDv)), 1e-6));
+#endif
   owTxC = texture(owTC, p); owTxN = texture(owTNR, p); owTxA = 1.0;
 }`;
 // AP-09e: Glas Stil B spiegelt leicht. Anteil nach Fresnel (senkrecht wenig, flach viel), Spiegelbild aus dem Umgebungslicht.
@@ -1452,8 +1670,11 @@ function attachPattern(mat, kind, glass, tex = null) {
     }
     if (!kind && !tu) return;
     sh.uniforms.owOn = OWU.on; sh.uniforms.owPlinth = OWU.plinth;
-    sh.vertexShader = 'varying vec3 vWP;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    const fl = tu && tex[8] || '';
+    sh.vertexShader = 'varying vec3 vWP;\n' + (fl.includes('s') ? 'attribute float owAx; varying float vAx;\n' : '') + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;' + (fl.includes('s') ? ' vAx = owAx;' : ''));
     let fs = '#define OW_KIND ' + (kind || 0) + '\n' + PAT_GLSL + '\n';
+    if (fl.includes('s')) { fs += '#define OW_SEAM 1\nvarying float vAx;\nuniform float owSB;\n'; sh.uniforms.owSB = OWU.sb; }
+    if (fl.includes('a')) fs += '#define OW_ALPHA 1\n';
     if (tu) {
       Object.assign(sh.uniforms, tu); sh.uniforms.owTexOn = TEXU.on;
       sh.uniforms.owTC = tex[0] ? TEXU.c1 : TEXU.c0; sh.uniforms.owTNR = tex[0] ? TEXU.n1 : TEXU.n0;
@@ -1471,12 +1692,22 @@ function attachPattern(mat, kind, glass, tex = null) {
     float owD = clamp(1.0 + (dot(owTxC.rgb, owLw) / owLa - 1.0) * owTK, 0.3, 1.8);
     vec3 owNat = owLa > 0.0 ? mix(owAvg * owLb / owLa, owTxC.rgb * owLb / owLa, owTK) : owTB;
     diffuseColor.rgb = mix(owNat, owTB * owD, owTT);
+#ifdef OW_ALPHA
+    if (owTxC.a * (1.0 + max(owLod - 5.5, 0.0) * 0.35) < 0.5) discard;  // in der Ferne dichter, sonst lösen sich die Kronen auf
+#endif
 #if OW_KIND == 7
     if (vWP.y < owPlinth) diffuseColor.rgb *= 0.5;
 #endif
   }
 #endif
   if (owOn > 0.5 && !owT) diffuseColor.rgb *= owPattern(vWP);
+#ifdef OW_SEAM
+  if (owOn > 0.5 && owSB > 0.5) {  // Stoßfugen mit Flansch alle 1,25 m quer zur Kanalachse, verblassen mit dem Abstand
+    float owSc = vAx < 0.5 ? vWP.x : vAx < 1.5 ? vWP.z : vWP.y, owFw = fwidth(owSc), owDm = abs(fract(owSc / 1.25 + 0.5) - 0.5) * 1.25;
+    float owFade = 1.0 - clamp(owFw * 25.0, 0.0, 1.0), owLn = 1.0 - smoothstep(0.012, 0.012 + owFw, owDm), owFl = 1.0 - smoothstep(0.045, 0.045 + owFw, owDm);
+    diffuseColor.rgb *= (1.0 - 0.38 * owLn * owFade) * (1.0 + 0.1 * (owFl - owLn) * owFade);
+  }
+#endif
 #endif`).replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
 #ifdef OW_TEX
   if (owTxA > 0.5) { float owAr = max(textureLod(owTNR, vec3(0.5, 0.5, owTL), 12.0).b, 0.05); roughnessFactor = clamp(roughnessFactor * mix(1.0, owTxN.b / owAr, owTRs), 0.04, 1.0); }
@@ -1485,7 +1716,7 @@ function attachPattern(mat, kind, glass, tex = null) {
   if (owTxA > 0.5) { vec2 owNxy = (owTxN.rg * 2.0 - 1.0) * owTNs; vec3 owNt = vec3(owNxy, sqrt(max(0.0, 1.0 - dot(owNxy, owNxy)))); normal = normalize((viewMatrix * vec4(normalize(owTxT * owNt.x + owTxB * owNt.y + owTxNw * owNt.z), 0.0)).xyz); }
 #endif`);
   };
-  mat.customProgramCacheKey = () => 'owpat' + kind + (glass ? 'g' : '') + (tu ? 't' + tex[0] : '');
+  mat.customProgramCacheKey = () => 'owpat' + kind + (glass ? 'g' : '') + (tu ? 't' + tex[0] + (tex[8] || '') : '');
 }
 
 /* Erdreich (Darstellung): kein harter Kasten. Oberseite entfällt, wenn der Umgebungsboden die Geländefläche zeigt. Unterseite entfällt (Blick unter den Boden bleibt frei).
@@ -1527,6 +1758,7 @@ function splitDisplay(pr, f) {  // Darstellungsdatei (Fenster, Dach): ein Objekt
   pr.oid = noid;
 }
 function addPrim(pr, f, rec) {
+  if (!pr.tgaPart && pr.oid && TGA_B[f.layer] && (pr.mat.key || String(pr.mat.name).split('|')[1]) === 'tga') { for (const q of tgaSplit(pr, f)) addPrim(q, f, rec); return; }
   splitDisplay(pr, f);
   const nT = pr.idx.length / 3, nV = pr.pos.length / 3;
   const triObj = new Uint32Array(nT);
@@ -1567,10 +1799,21 @@ function addPrim(pr, f, rec) {
   const metal = pr.mat.metal || 0;
   const mat = new THREE.MeshStandardMaterial({flatShading: true, side: THREE.DoubleSide, roughness: c[3] < 0.999 ? Math.max(0.04, pr.mat.rough) : Math.max(0.25, pr.mat.rough), metalness: envTex ? Math.min(metal, 0.6) : 0});
   mat.color.setRGB(c[0], c[1], c[2], THREE.LinearSRGBColorSpace);
+  if ((f.style || 'A') === 'B' && B_COL[pr.mat.key || String(pr.mat.name).split('|')[1]]) mat.color.set(B_COL[pr.mat.key || String(pr.mat.name).split('|')[1]]);
+  let gewColor = null, metColor = null;
+  const metB = mat.metalness, met0 = envTex ? Math.min(pr.metal0 || 0, 0.6) : 0;
+  if (pr.tgaPart) { gewColor = mat.color.clone(); metColor = new THREE.Color(pr.tgaB[0]); if (!tgaGewOn()) mat.color.copy(metColor); if (S.style !== 'B') mat.metalness = met0; }
+  const texE = pr.mat.texKey ? TEXMAP[pr.mat.texKey] : null;
+  if (texE && texE[8] && texE[8].includes('s')) {  // Achse je Objekt (längste waagrechte Seite, sonst senkrecht) für die Stoßfugen
+    const ax = new Float32Array(nV);
+    for (let r = 0; r < nR; r++) { const dx = bb[6 * r + 3] - bb[6 * r], dy = bb[6 * r + 4] - bb[6 * r + 1], dz = bb[6 * r + 5] - bb[6 * r + 2], a = dy > Math.max(dx, dz) * 1.5 ? 2 : dx >= dz ? 0 : 1;
+      for (let k = rA[r] * 3; k < rB[r] * 3; k++) ax[idx[k]] = a; }
+    geo.setAttribute('owAx', new THREE.BufferAttribute(ax, 1));
+  }
   if (envTex && metal > 0) { mat.envMap = envTex; mat.envMapIntensity = 0.8; }
   const mkey = pr.mat.key || pr.mat.name.split('|')[1], styB = (f.style || 'A') === 'B';
   const pkind = styB ? PAT_KIND[mkey] : 0;
-  attachPattern(mat, pkind || 0, styB && mkey === 'glas', styB ? TEXMAP[mkey === 'tga' ? 'tga:' + f.layer : mkey] || null : null);
+  attachPattern(mat, pkind || 0, styB && mkey === 'glas', styB || pr.tgaPart ? texE || TEXMAP[mkey === 'tga' ? 'tga:' + f.layer : mkey] || null : null);  // Technikteile tragen das Metall auch, wenn die gemeinsame Datei in Stil A geladen wurde
   if (mkey === 'erdreich') earthShader(mat);
   // Lichtfläche der Leuchte und Rettungszeichen leuchten (AP-09f, Darstellung)
   if (styB && (mkey === 'licht' || mkey === 'schild_gruen')) { mat.emissive.copy(mat.color); mat.emissiveIntensity = mkey === 'licht' ? 1.6 : 0.6; }
@@ -1583,7 +1826,8 @@ function addPrim(pr, f, rec) {
   worldGroup.add(meshV, meshCut);
   const nm = pr.mat.name.split('|');
   const p = {f, layer: f.layer, group: f.group, style: f.style || 'A', status: nm[2] || 'base', mkey: pr.mat.key || nm[1] || '', mlabel: pr.mat.label || '', tga: (pr.mat.key || nm[1]) === 'tga',
-             metal, pos, idx, nV, nT, triObj, rO, rA, rB, bb, nR, bbox: pb, geo, posAttr, visIdx, ia, mat, meshV, meshCut, baseAlpha: c[3], baseColor: mat.color.clone(), oid: pr.oid, colAttr: null, ghost: null};
+             metal, pos, idx, nV, nT, triObj, rO, rA, rB, bb, nR, bbox: pb, geo, posAttr, visIdx, ia, mat, meshV, meshCut, baseAlpha: c[3], baseColor: mat.color.clone(), oid: pr.oid, colAttr: null, ghost: null,
+             gewColor, metColor, metB, met0, tgaB: pr.tgaB || null};
   rec.prims = rec.prims || []; rec.prims.push(p);
   S.prims.push(p);
   for (let r = 0; r < nR; r++) { let l = S.objPrims.get(rO[r]); if (!l) S.objPrims.set(rO[r], l = []); l.push([p, r]); }
@@ -1673,12 +1917,12 @@ const KG_DEF = {
   410: ['Abwasser, Wasser, Gas', 'Abwasser, Wasser, Gas und Löschanlagen'], 420: ['Wärme', 'Wärmeversorgungsanlagen'], 430: ['Raumlufttechnik und Kälte', 'Raumlufttechnische Anlagen, dazu Kälteanlagen'],
   440: ['Elektrische Anlagen', 'Elektrische Anlagen'], 450: ['Kommunikation und Sicherheit', 'Kommunikations-, sicherheits- und informationstechnische Anlagen'], 460: ['Förderanlagen', 'Förderanlagen, Aufzüge'],
   470: ['Nutzungsspezifische Anlagen', 'Nutzungsspezifische und verfahrenstechnische Anlagen'], 480: ['Gebäudeautomation', 'Gebäude- und Anlagenautomation'], 490: ['Sonstiges Technik', 'Sonstige Maßnahmen für technische Anlagen'],
-  500: ['Außenanlagen', 'Außenanlagen und Freiflächen, nicht Teil von KG 300 und 400'], 600: ['Ausstattung', 'Ausstattung und Kunstwerke, nicht Teil von KG 300 und 400'],
+  200: ['Erschließung (Kontext)', 'Öffentliche Erschließung, Straße vor dem Grundstück als Kontext'], 500: ['Außenanlagen', 'Außenanlagen und Freiflächen, nicht Teil von KG 300 und 400'], 600: ['Ausstattung', 'Ausstattung und Kunstwerke, nicht Teil von KG 300 und 400'],
   0: ['ohne Zuordnung', 'Räume, Zonen, Brandschutzvolumen und Hüllen ohne Leitung, keine Bauteile']
 };
 const KG_DISC = {ventilation: 430, heating: 420, cooling: 430, food_cooling: 470, water: 410, drainage: 410, fire_fighting: 410, electrical: 440, data: 450, safety: 450, security: 450, automation: 480, lift: 460, process: 470};
 const KG_GEW = {'Elektro': 440, 'Heizung': 420, 'Lüftung': 430, 'Kälte (Gebäude)': 430, 'Trinkwasser': 410, 'Abwasser/Entwässerung': 410, 'Daten/IT': 450, 'Sicherheit/Brandmeldung': 450, 'Gebäudeautomation': 480, 'Aufzug': 460, 'Technik ohne System': 0, 'Durchführung': 0, 'Tragwerk': 340, 'Außenanlagen': 500};
-const KG_LAYER = {darstellung: 360, wand: 340, trennwand: 340, tuer: 340, boden: 340, oeffnung: 340, fenster: 330, decke: 350, treppe: 350, tragwerk: 340, dach: 360, aussen: 500, aufzug: 460, durchfuehrung: 0, bs_schott: 0, bs_klappe: 430,
+const KG_LAYER = {darstellung: 360, wand: 340, trennwand: 340, tuer: 340, boden: 340, oeffnung: 340, fenster: 330, decke: 350, treppe: 350, tragwerk: 340, dach: 360, aussen: 500, aussen_el: 500, aufzug: 460, durchfuehrung: 0, bs_schott: 0, bs_klappe: 430,
   bs_abschnitt: 0, bs_rauch: 0, bs_rettungsweg: 0, bs_feuerwehr: 0, raum: 0, zone: 0, ausstattung: 600, tg_markierung: 370, tg_zufahrt: 470, tg_bauwerk: 320, tg_schacht: 0,
   tga_water: 410, tga_drainage: 410, tga_fire_fighting: 410, tga_heating: 420, tga_cooling: 430, tga_ventilation: 430, tga_electrical: 440, tga_data: 450, tga_safety: 450, tga_lift: 460, tga_automation: 480, tga_sonst: 0};
 const KG_SPEC = {  // Ebene|Art, genauer Ebene|Art|Unterart
@@ -1692,6 +1936,7 @@ const KG_SPEC = {  // Ebene|Art, genauer Ebene|Art|Unterart
 };
 const KG = {list: [], of: new Uint8Array(0), codeOf: new Int16Array(0)};
 function kgCode(i) {
+  if (AUS.lo >= 0 && i >= AUS.lo && i < AUS.lo + AUS.n) return AUS.d.e[i - AUS.lo][3] >= 500 ? 500 : 200;
   const I = S.idx, l = I.layer[i], lk = l >= 0 ? I.layers[l].key : '', art = I.arts[I.art[i]], sy = I.systems[I.system[i]];
   if (lk === 'tga_huelle') return (sy && KG_DISC[sy.discipline]) || KG_GEW[I.gewerke[I.gewerk[i]]] || 0;
   const k = KG_SPEC[lk + '|' + art + '|' + I.sub[i]] ?? KG_SPEC[lk + '|' + art];
@@ -2225,6 +2470,175 @@ const KIND_LABEL = {candidate_separate_terminal_to_jacket_core: 'Ader zum Anschl
   authored_individual_cable_conductor: 'Einzelleiter', electrical_insulated_core_in_named_carrier: 'Ader im Träger', internal_cabinet_wire_netlist: 'Verdrahtung im Schrank',
   bounded_equipment_face_mate: 'Geräteanschluss', candidate_individual_conductor_in_shared_physical_bundle: 'Leiter im Bündel', direct_connected_transition: 'Übergang',
   assembly_part_in_body: 'Bauteil im Gerät', Strom: 'Strom'};
+/* ====================================================================================================
+   Anzeigenamen (Runde 4, 19.11.): kurze deutsche Namen nach Regeln aus Gewerk, Bauteilart, Medium und Nennweite.
+   Nur Anzeige. Die Weltdaten bleiben unverändert, die Suche findet weiter Kennung, alten Namen und Weltnamen.
+   ==================================================================================================== */
+const DN_EN = /\b(candidate|selected|reservation|hanger|continuous|bed|intercase|climate|limiter|gate|instrument|damper|ceiling|anchor|rectangular|endstop|starts|delay|timer|opening|outer|crossmember|endseat|electric|glycol|tie|slab|head|reference|discharge|chamber|meter|upper|lower|left|right|separated|series|current|limiting|resistor|trip|pole|northern|southern|connected|archive|row|clean|round|straight|pump|regulator|exhaust|outdoor|clip|outgoing|contactor|complementary|wetting|shunt|phase|project|hull|supply|return|weather|hood|basic|recessed|into|exterior|air|cassette|pipe|tee|valve|sensor|cable|carrier|device|profile|finite|shared|physical|lighting|room|branch|actuator|factory|lead|integral|splice|box|funnel|stainless|relief|sounder|detector|automatic|safety|interface|relay|high|local|direct|pulse|power|through|out|bypass|winter|merge|run|mate|gap|large|catch|jamb|frame|bearing|pad|stationary|leg|source|target|trunk|after|before|south|north|east|master|collector|mid|reducer|env|cold|hot|header|breakout|feedback|reset|float|dry|pre|post|the|and|of|to|for|with|from|on|at|by|or|holder|fuse|wire|wiring|duct|channel|segment|section|pair|receiver|grant|unit|packaged|conditional|equipment|proposed|bounded|flex|heating|cooling|secondary|primary|extension|downstream|upstream|shell|piece|vault|cover|inspection|probe|leak|early|level|transition|individual|independent|store|commercial|controls|held|pilot|author|unconnected|capacity|way|manual|dedicated|actual|short|fixture|tail|stub|path|internal|takeoff|gravity|suction|pressure|approach|isolated|intrinsic|rack|fastener|assembly|clamp|mounting|board|outlet|retained|protected|feeder|stepped|housing|side|mounted|footing|corner|conservative|half|volume|diagonal|serial|guarded|raw|external|surface|temperature|real|data|passive|bridge|main|radiator|overflow|private|dual|fail|closed|integrated|separate|electronics|meter\d*|damper\d*)\b/i;
+const DN_BRAND = /\b(cisco|allengra|vector controls|stego|puls|profipress|sika\w*|sanha|siemens|zacube|geberit|viega|belimo|trox|wago|lista|meta clip|kruse|sauermann|bürkert|ifm|multical\w*|ultraflow\w*|cbw\w*|wt0\w*|fds\w*|fdm\w*|oh7\w*|ert\d\w*|dct\d\w*|aer-\w*|mini\d\w*)\b/i;
+// Begriffe aus Stichworten (Name, Weltname, Unterart). Reihenfolge zählt, der erste Treffer gilt.
+const DN_KW = [
+  [/kabelkanalbogen/, 'Kabelkanalbogen'], [/lichtkanal/, 'Lichtkanal'], [/kabelkanal|divided.?carrier|geteilter kabel/, 'Kabelkanal'], [/kabelrinne|cable.?tray/, 'Kabelrinne'],
+  [/wiring.?duct|signal.?duct|wire.?duct|verdrahtungskanal/, 'Verdrahtungskanal'],
+  [/kabeltrasse/, 'Kabeltrasse'], [/kabelabschottung|cfs/, 'Kabelabschottung'], [/rohrabschottung/, 'Rohrabschottung'], [/brandschutzklappe|fire.?damper/, 'Brandschutzklappe'],
+  [/brandschutzhülse/, 'Brandschutzhülse'], [/wanddurchführung/, 'Wanddurchführung'], [/deckendurchführung/, 'Deckendurchführung'],
+  [/leuchtenträger|room.?light.?carrier/, 'Leuchtenträger'], [/sicherheitsleuchte|emergency.?(light|addition)/, 'Sicherheitsleuchte'], [/rettungszeichen/, 'Rettungszeichenleuchte'],
+  [/revisionsl(icht|euchte)/, 'Revisionsleuchte'], [/schachtlicht/, 'Schachtleuchte'], [/allgemeinleuchte|lfix|luminaire|lighting|\blight\b|leuchte|wt063|lichtband/, 'Leuchte'],
+  [/lichtschalter/, 'Lichtschalter'], [/manual.?reset|taster/, 'Taster'], [/vierfachsteckdose/, 'Vierfachsteckdose'], [/arbeitsplatzsteckdose/, 'Arbeitsplatzsteckdose'], [/steckdose|socket/, 'Steckdose'],
+  [/wartungsanschluss/, 'Wartungsanschluss'],
+  [/doppeldatendose|datendoppeldose|doppeldose/, 'Doppeldatendose'], [/datendose/, 'Datendose'], [/patchfeld/, 'Patchfeld'], [/wlan|access.?point/, 'WLAN-Zugangspunkt'], [/datenprüf/, 'Datenprüfstelle'],
+  [/brandmelder|fire.?detector|smoke.?detector/, 'Brandmelder'], [/wärmemelder|heat.?detector/, 'Wärmemelder'], [/handfeuermelder|call.?point/, 'Handfeuermelder'], [/alarmgeber|sounder/, 'Alarmgeber'],
+  [/ladepunkt|charg/, 'Ladepunkt'], [/abzweigdose|splice.?box|junction.?box/, 'Abzweigdose'], [/anschlussbox/, 'Anschlussbox'], [/relaisbox|relay.?box/, 'Relaisbox'], [/relais|relay/, 'Relais'],
+  [/schütz|contactor/, 'Schütz'], [/schutzschalter|rcd|breaker/, 'Schutzschalter'], [/fuse.?holder|sicherungshalter/, 'Sicherungshalter'], [/netzteil|power.?supply|puls cp/, 'Netzteil'], [/widerstand|resistor/, 'Widerstand'],
+  [/climate.?limiter|limiter|begrenzer/, 'Temperaturbegrenzer'], [/druckmischer|mischarmatur|mischer|mixing/, 'Mischarmatur'], [/thermostat/, 'Thermostat'],
+  [/stellantrieb|actuator/, 'Stellantrieb'], [/membran|membrane/, 'Membran'], [/spule|coil/, 'Spule'], [/klemmbrücke/, 'Klemmbrücke'], [/klemme|terminal.?block/, 'Klemme'],
+  [/elektrohauptverteilung|nshv/, 'Elektrohauptverteilung'], [/unterverteil|etagenverteil|elektroverteil|stromverteiler|nutzerverteiler/, 'Elektroverteiler'], [/elektroschrank|schaltschrank|cabinet/, 'Schaltschrank'],
+  [/raumluftfühler|raumfühler/, 'Raumfühler'], [/gasfühler/, 'Gasfühler'], [/leckage|leak.?(probe|level)/, 'Leckagefühler'], [/qad|surface.?sensor|surface.?temperature|anlegefühler/, 'Anlegefühler'], [/fühler|sensor/, 'Fühler'],
+  [/water.?meter|_wm_|wasserzähler|wärmezähler|zähler|meter\d?\b/, 'Zähler'],
+  [/kabelmantel|cable.?jacket/, 'Kabelmantel'], [/steuerleit|control.?wire|reset|feedback|float|gate\d|signal.?cable|sensor.?cable/, 'Steuerleitung'], [/leiter\b|conductor|\bwire\b/, 'Leiter'],
+  [/heizflächenventil|radiator.?valve/, 'Heizflächenventil'], [/heizfläche|heizkörper|radiator/, 'Heizfläche'], [/heizgerät/, 'Heizgerät'],
+  [/wärme-\/kälteendgerät|kälteendgerät|kühlfeld|cassette|kassette/, 'Kühldecke'],
+  [/kondensathebung|kondensatpumpe|kondensatdruckpumpe/, 'Kondensatpumpe'], [/kondensatwanne|unterwannen|catch/, 'Kondensatwanne'], [/kondensat-auffang|auffangbehälter/, 'Auffangbehälter'],
+  [/geruchsverschluss|siphon|\btrap\b/, 'Geruchsverschluss'], [/sicherheitstasse|ablauftasse/, 'Ablauftasse'], [/trichter|funnel/, 'Trichter'], [/revisionsschacht|inspection.?chamber/, 'Revisionsschacht'], [/sammlerrevision|revision/, 'Revisionsöffnung'],
+  [/randablaufkasten/, 'Dachablauf'], [/notüberlauf|overflow/, 'Notüberlauf'], [/hebeanlage/, 'Hebeanlage'], [/abscheider/, 'Abscheider'],
+  [/speicher|storage.?heater|boiler/, 'Warmwasserspeicher'], [/sicherheitsgruppe|safety.?group/, 'Sicherheitsgruppe'],
+  [/waschbecken|waschtisch|washbasin/, 'Waschtisch'], [/\bwc\b|toilet/, 'WC'], [/dusche|shower/, 'Dusche'], [/armatur|\btap\b/, 'Armatur'],
+  [/abluftgitter|rückluftgitter|gitter|grille/, 'Luftgitter'], [/luftauslass|zuluftauslass|diffuser/, 'Luftauslass'], [/überströmöffnung|überström/, 'Überströmöffnung'],
+  [/nachström/, 'Nachströmöffnung'], [/ventilator|\bfan\b/, 'Ventilator'], [/\brlt\b|lüftungsgerät|\bahu\b|air.?handling/, 'Lüftungsgerät'], [/schalldämpfer|silencer/, 'Schalldämpfer'],
+  [/außenlufthaube|weather.?hood/, 'Wetterschutzhaube'], [/klappe|damper/, 'Klappe'],
+  [/pumpe|pump/, 'Pumpe'], [/wärmetauscher|\bhx\d|heat.?exchanger/, 'Wärmetauscher'], [/verteiler|manifold|collector|sammler/, 'Verteiler'], [/regler|regulator/, 'Regler'], [/absperr|shut.?off/, 'Absperrarmatur'],
+  [/ventil|valve|picv/, 'Ventil'], [/reduzier|reducer/, 'Reduzierstück'], [/t-stück|heiz-t\b|\btee\b|_tee\b|press.?tee|djnc/, 'T-Stück'], [/bogen|elbow|\bbend\b/, 'Bogen'], [/flansch|flange/, 'Flansch'],
+  [/verschraubung/, 'Verschraubung'], [/verbinder|coupling/, 'Verbinder'], [/kappe|\bcap\b/, 'Kappe'], [/endstück|endplatte|endkappe/, 'Endstück'],
+  [/abhänger|hänger|hanger/, 'Abhänger'], [/konsole|bracket/, 'Konsole'], [/vergussbett|grout/, 'Vergussbett'], [/sturzauflager/, 'Sturzauflager'], [/auflager|bearing|\bpad\b/, 'Auflager'],
+  [/anker|anchor|tie-down/, 'Verankerung'], [/halterung|halter|clamp/, 'Halterung'], [/laibung|jamb/, 'Laibung'], [/rahmen|frame/, 'Rahmen'],
+  [/trägerformstück/, 'Trägerformstück'], [/trägerknoten/, 'Trägerknoten'], [/kabelträger|carrier/, 'Kabelträger'],
+  [/fangstange|fangmast/, 'Fangstange'], [/erdring|erdung|earth/, 'Erdung'], [/schutzrohr/, 'Schutzrohr'],
+  [/protection.?component/, 'Armatur'], [/pipe.?segment|\bpipe\b|_pipe|rohrstück/, 'Rohrstück'],
+];
+const DN_ART = {'Wand': 'Wand', 'Träger': 'Träger', 'Schwelle': 'Schwelle', 'Tür': 'Tür', 'Trennwand': 'Trennwand', 'Treppenlauf': 'Treppenlauf', 'Treppenpodest': 'Treppenpodest',
+  'Freihaltezone': 'Freihaltezone', 'Archiv/Lager': 'Archivregal', 'Aufzugskabine': 'Aufzugskabine', 'Dachaufbau': 'Dachaufbau', 'Stütze': 'Stütze', 'Öffnung (Sturz)': 'Türöffnung',
+  'Möbel': 'Möbel', 'Raum': 'Raum', 'Sanitärobjekt': 'Sanitärobjekt', 'Rettungsweg': 'Rettungsweg', 'Stellplatz': 'Stellplatz'};
+const DN_STRUCT = new Set(['Wand', 'Träger', 'Schwelle', 'Tür', 'Trennwand', 'Treppenlauf', 'Treppenpodest', 'Archiv/Lager', 'Aufzugskabine', 'Dachaufbau']);
+// Leitungen bekommen nur Leitungsbegriffe, Geräte keine Leitungsbegriffe
+const DN_LINE = new Set(['Kabelkanal', 'Lichtkanal', 'Kabelrinne', 'Verdrahtungskanal', 'Kabeltrasse', 'Kabelmantel', 'Steuerleitung', 'Leiter']);
+const DN_BOTH = new Set(['Kabelträger', 'Schutzrohr', 'Rohrstück', 'Erdung', 'Fangstange', 'Kabelkanalbogen']);
+const dnOk = (w, route) => DN_BOTH.has(w) || DN_LINE.has(w) === route;
+// Leitungen und Bauteile je Gewerk, wenn kein Stichwort passt
+const DN_GEW = {
+  'Elektro': ['Elektroleitung', 'Elektrogerät'], 'Daten/IT': ['Datenleitung', 'Datengerät'], 'Gebäudeautomation': ['Steuerleitung', 'Automationsgerät'],
+  'Sicherheit/Brandmeldung': ['Meldeleitung', 'Meldegerät'], 'Heizung': ['Heizungsrohr', 'Heizungsarmatur'], 'Kälte (Gebäude)': ['Kälterohr', 'Kältearmatur'],
+  'Trinkwasser': ['Trinkwasserrohr', 'Trinkwasserarmatur'], 'Abwasser/Entwässerung': ['Abwasserleitung', 'Abwasserbauteil'], 'Lüftung': ['Lüftungskanal', 'Lüftungsbauteil'],
+  'Aufzug': ['Leitung Aufzug', 'Aufzugsbauteil'], 'Technik ohne System': ['Leitung', 'Technikbauteil'], 'Brandschutz': ['Brandschutzbauteil', 'Brandschutzbauteil']};
+// Medium für Rohre und Kanäle
+function dnMedium(t, gew) {
+  const has = r => r.test(t);
+  if (gew === 'Heizung' || gew === 'Kälte (Gebäude)') {
+    const vl = has(/vorlauf|\bvl\b|\bsup\b|supply|_sup_|_sup\b/), rl = has(/rücklauf|\brl\b|\bret\b|return|_ret_|_ret\b/);
+    return vl && !rl ? 'Vorlauf' : rl && !vl ? 'Rücklauf' : '';
+  }
+  if (gew === 'Trinkwasser') return has(/zirkulation|circ/) ? 'Zirkulation' : has(/warmwasser|\bww\b|\bhot\b|warm/) ? 'Warmwasser' : has(/kaltwasser|\bcw\b|\bcold\b|kalt/) ? 'Kaltwasser' : '';
+  if (gew === 'Lüftung') return has(/zuluft|supply|\bsup\b|vorlauf/) ? 'Zuluft' : has(/fortluft|exhaust/) ? 'Fortluft' : has(/außenluft|outside.?air|outdoor/) ? 'Außenluft' : has(/abluft|extract|abzug/) ? 'Abluft' : has(/rückluft|return|\bret\b|rücklauf/) ? 'Rückluft' : '';
+  if (gew === 'Abwasser/Entwässerung') return has(/kondensat|condensate/) ? 'Kondensat' : has(/regenwasser|\brain/) ? 'Regenwasser' : has(/schmutzwasser|\bwc\b|waste|soil/) ? 'Schmutzwasser' : '';
+  return '';
+}
+const DN_ROUTE = /^Trasse|^Anlagenleitung/;
+const DN_KEEP = /\b(DN \d+|\d\.(OG|UG)|TG-\d+|NO2|CO2?|RLT|LED|WLAN|NSHV|USV|BMA|RWA|MSR|TGA|WC|UG|EG|OG|TG|IT|GA|PE|PG|SE)\b/g;
+const dnBad = t => !t || t.length < 3 || DN_EN.test(t) || DN_BRAND.test(t) || /[A-Za-z]+\d+[A-Za-z]*\d*|_|#|\b[A-Z]{3,}\b|\b\d{4,}\b/.test(t.replace(DN_KEEP, '').replace(/Ø\d+×\d+/g, ''));
+const DN_PREP = '(?:an|für|zu|zum|zur|bis|von|vom|nach|mit|im|in|am|und|vor|der|die|das|dem|den)';
+function dnClean(s) {
+  let t = ' ' + s + ' ';
+  t = t.replace(/\s*->\s*/g, ' bis ').replace(/\s*→\s*/g, ' bis ');
+  t = t.replace(/\(\s*x\s*-?[\d.]+\s*,\s*y\s*-?[\d.]+\s*\)/gi, ' ');
+  t = t.replace(/\bOG\s?(\d)\b(?!\.)/g, '$1.OG');
+  t = t.replace(/\bDN\s?(\d{2,3})(?=\D)/g, 'DN§$1').replace(/\bSchacht (\d+)/g, 'Schacht§$1').replace(/\bRaum \d+/g, 'Raum#');
+  t = t.replace(/,\s*Profil\s+[A-Z]\d+\b/g, ' ');
+  t = t.replace(/\b\d{3,}(?:\/\d{3,})+(?![\dA-Za-z])/g, ' ').replace(/([a-zäöüß])\d{3,}(?:\/\d{3,})+(?![\dA-Za-z])/g, '$1 ');
+  t = t.replace(/[A-Za-zÄÖÜäöüß0-9.]*_[A-Za-z0-9_.\-]*/g, ' ');                       // Kennungen mit Unterstrich
+  t = t.replace(/\b(P\d{2}\w*|T\d{1,2}|K\d|R\d|HH|Si\d+|CRN\d+|FWN\d+|FWI|FWH|UKH\d+|DD\d+|HX\d+|IN\d+|S\d{3}\w*|E\d)\b/g, ' ').replace(/(^|\s)-(?=[A-Za-zÄÖÜäöüß])/g, '$1');
+  t = t.replace(/\bY\d+([.,]\d+)?\b/g, ' ').replace(/Ø\s?\d+[^\s,]*/g, ' ');
+  t = t.replace(/\b\d+(?:[.,]\d+)?\s?[x×]\s?\d+(?:[.,]\d+)?(?:\s?[x×]\s?\d+(?:[.,]\d+)?)?\s?(?:mm|m)?\b/g, ' ');
+  t = t.replace(/([a-zäöüß])\d+\b/g, '$1');
+  t = t.replace(/\b\d{4}(?:\/\d{4})*-?/g, ' ').replace(/(^|\s)\d+[.,]\d+(?=\s|,|$)/g, ' ');
+  t = t.replace(/\b(Auswahl nach Typ|Vorhaltekörper|ersetzt|gehaltener Planungskandidat|Planungskandidat|Kandidat|kandidat|konstruktiver Vorschlag|Vorschlag|Entwurf|Tatsächlicher|tatsächlicher|tatsächliche|Endlicher|endlicher|endliche|einziger geteilter|Suchhülle|Suchkörper|Prüfhülle|Körperhülle)\b/g, ' ');
+  t = t.replace(/\baussen\b/g, 'außen').replace(/\b[Ww]c\b/g, 'WC').replace(/\bCW\b/g, 'Kaltwasser').replace(/\bWW\b/g, 'Warmwasser').replace(/\bHeiz-T\b/g, 'T-Stück Heizung').replace(/\bTürschwenkabsicht\b/g, 'Türschwenkbereich');
+  t = t.replace(/\(\s*\)/g, ' ').replace(/(^|\s)\d{3,}(?=\s|,|$)/g, ' ').replace(/(^|\s)\d+(?=\s*(,|$))/g, ' ');
+  t = t.replace(/§/g, ' ');
+  t = t.replace(/[ \t]+([,:)])/g, '$1').replace(/\(\s+/g, '(').replace(/[ \t]{2,}/g, ' ').trim();
+  t = t.replace(new RegExp('\\s+' + DN_PREP + '\\s*(?=[,(]|$)', 'gi'), '').replace(new RegExp('^' + DN_PREP + '\\s+', 'i'), '');
+  t = t.replace(/^[A-Z]\s+/, '').replace(/[,:]\s*(?=[,:]|$)/g, '').replace(/^[,:\s]+|[,:\s]+$/g, '');
+  t = t.replace(/\s*\(((?:\d\.)?(?:UG|EG|OG))\)$/, ', $1');
+  return t;
+}
+function dnLoc(I, i, floors) {
+  const m = I.fmask[i]; let c = 0, k = -1;
+  for (let f = 0; f < floors.length; f++) if (m & (1 << f)) { c++; k = f; }
+  if (c === 1) return floors[k].label;
+  if (c > 1) return 'geschossübergreifend';
+  return I.groups[I.group[i]] === 'DACH' ? 'Dach' : '';
+}
+const dnAt = (t, loc) => loc && !/,|\b(UG|EG|\d\.OG|\d\.UG|Dach\w*|Garage|TG|außen|Fassade)\b/.test(t) ? t + ', ' + loc : t;
+function dnTerm(raw, art, gew, route, noKW) {
+  let term = '';
+  if (!DN_STRUCT.has(art) && !noKW) for (const [r, w] of DN_KW) if (r.test(raw) && dnOk(w, route)) { term = w; break; }
+  if (!term) term = DN_ART[art] || (DN_GEW[gew] ? DN_GEW[gew][route ? 0 : 1] : art.replace(/\s*\(.*\)/, ''));
+  if (term === 'WC' && /Abwasser|Trinkwasser/.test(gew)) term = 'WC-Anschluss';
+  const med = dnMedium(raw, gew);
+  if (med && !term.toLowerCase().includes(med.toLowerCase()) && term !== 'WC-Anschluss') {
+    if (DN_GEW[gew] && term === DN_GEW[gew][0]) term = gew === 'Lüftung' ? med + 'kanal' : gew === 'Trinkwasser' ? med + 'rohr' : gew === 'Abwasser/Entwässerung' ? med + 'leitung' : term + ' ' + med;
+    else term += ' ' + med;
+  }
+  return term;
+}
+// Köpfe, die nur die Art nennen. Hier hilft der Weltname oder die Unterart, der Ort bleibt.
+const DN_HEAD = new Set(['Vorlauf', 'Rücklauf', 'Trasse', 'Heizweg', 'Stich', 'Rohr', 'Kanal', 'Endgerät/Auslass', 'Gerätehülle', 'Anlagenhülle', 'Anlagenteil', 'Zone', 'Körper']);
+const DN_MEDWORD = {'Kaltwasser': 'Kaltwasserrohr', 'Warmwasser': 'Warmwasserrohr', 'Schmutzwasser': 'Schmutzwasserleitung', 'Regenwasser': 'Regenwasserleitung', 'Kondensat': 'Kondensatleitung'};
+function deName(I, i, floors) {
+  let s = I.name[i];
+  const hw = s.match(/^((?:\d\.)?(?:UG|EG|OG)) gemeinsamer Heizweg ([sr]) (\S+)$/);
+  if (hw) return 'Heizungsrohr ' + (hw[2] === 's' ? 'Vorlauf ' : 'Rücklauf ') + hw[3] + ', ' + hw[1];
+  s = s.replace(/(^|\s)(?:[Ee]ndliche[rsn]?|[Aa]usgewählte[rsn]?|[Tt]atsächliche[rsn]?)\s+/g, '$1').replace(/^./, c => c.toUpperCase());
+  const art = I.arts[I.art[i]], gew = I.gewerke[I.gewerk[i]], route = DN_ROUTE.test(art);
+  const welt = ((I.name_welt && I.name_welt[i]) || '') + ' ' + I.sub[i];
+  const flagged = /_|→|->|\b\d{4,}\b/.test(s) || dnBad(s);
+  if (!flagged) {
+    const j = s.indexOf(', '), head = j < 0 ? '' : s.slice(0, j);
+    if (!DN_HEAD.has(head)) return s;
+    const lw = welt.toLowerCase();
+    let term;
+    if ((head === 'Vorlauf' || head === 'Rücklauf') && gew !== 'Lüftung') term = (DN_GEW[gew] && /Heizung|Kälte/.test(gew) ? DN_GEW[gew][0] : 'Rohr') + ' ' + head;
+    else if (head === 'Vorlauf' || head === 'Rücklauf') term = head === 'Vorlauf' ? 'Zuluftkanal' : 'Rückluftkanal';
+    else if (head === 'Heizweg') term = 'Heizungsrohr';
+    else if (head === 'Stich' && gew === 'Heizung') term = 'Heizflächenanschluss';
+    else if (head === 'Kanal' && /Elektro|Gebäudeautomation/.test(gew)) term = 'Verdrahtungskanal';
+    else if ((head === 'Rohr' || head === 'Trasse') && route) term = dnTerm(lw, art, gew, true, true);
+    else if (head === 'Zone') term = /wlan|access.?point/.test(lw) ? 'WLAN-Zugangspunkt' : '';
+    else { term = ''; for (const [r, w] of DN_KW) if (r.test(lw) && dnOk(w, route)) { term = w; break; } if (!term && head === 'Endgerät/Auslass' && DN_GEW[gew]) term = DN_GEW[gew][1]; }
+    return term ? term + s.slice(j) : s;
+  }
+  const loc = dnLoc(I, i, floors), raw = (s + ' ' + welt).toLowerCase();
+  const dn = (s.match(/\bDN\s?(\d{2,3})(?=\D|$)/) || [])[1];
+  let t = dnClean(s);
+  let lead = '';
+  const m = t.match(/^((?:\d\.)?(?:UG|EG|OG))\s+(.+)$/); if (m) { lead = m[1]; t = m[2]; }
+  if (DN_MEDWORD[t] && route) t = DN_MEDWORD[t];
+  t = t.replace(/^Wärme (Vorlauf|Rücklauf)$/, 'Heizungsrohr $1');
+  const last = t.split(/[\s,]+/).pop() || '';
+  if (!dnBad(t) && t.length >= 4 && !/^\d/.test(t) && !/^[a-zäöüß]/.test(last) && !DN_STRUCT.has(art) && !/[-\/](?=\s*(,|$))|(^|\s)[-\/]|[a-zäöüß](supply|return|header)/i.test(t)) {
+    t = t.charAt(0).toUpperCase() + t.slice(1);
+    return dnAt(t, lead || loc);
+  }
+  // Neu aus Regeln: Begriff, Medium, Nennweite, Ort
+  let term = dnTerm(raw, art, gew, route);
+  if (dn) term += ' DN ' + dn;
+  return dnAt(term, lead || loc);
+}
+function deNames(I, man, nWorld) {
+  const floors = man.floors || [];
+  I.name0 = I.name.slice(0, nWorld);
+  let ch = 0;
+  for (let i = 0; i < nWorld; i++) { const v = deName(I, i, floors); if (v !== I.name[i]) { I.name[i] = v; ch++; } }
+  return ch;
+}
 function sec(k, title, n, body, head = '') {
   return '<details class="sec" data-k="' + k + '"' + (secOpen[k] ? ' open' : '') + '><summary>' + IC.chev + '<span>' + esc(title) + '</span>' +
     (n !== null && n !== undefined ? '<span class="n">' + n.toLocaleString('de') + '</span>' : '') + '</summary>' + head + body + '</details>';
@@ -2241,10 +2655,11 @@ async function renderAttr() {
   panelsOnSelect();
   if (S.last < 0) { box.innerHTML = '<p class="muted">Nichts gewählt. Ein Objekt im Modell oder im Baum anklicken.</p>'; return; }
   const n = S.last, I = S.idx;
+  if (AUS.lo >= 0 && n >= AUS.lo && n < AUS.lo + AUS.n) { box.innerHTML = ausAttr(n); $('#aCopy').onclick = () => copyText(I.id[n], 'Nummer kopiert'); return; }
   if (S.conFor !== n) { S.conAll = false; S.conFor = n; }
   const sysi = I.systems[I.system[n]];
   let h = '<div class="rhead"><div id="rtitle">' + esc(I.name[n]) + '</div></div>' +
-    '<div class="idl"><span>' + (I.name[n] === I.id[n] ? '' : esc(I.id[n])) + '</span><button type="button" class="ib" id="aCopy" title="ID kopieren" aria-label="ID kopieren">' + IC.copy + '</button></div>';
+    (n < S.worldN ? '<div class="idl"><span>Anlagennummer ' + esc(I.id[n]) + '</span><button type="button" class="ib" id="aCopy" title="Nummer kopieren" aria-label="Nummer kopieren">' + IC.copy + '</button></div>' : '');
   { const gi = groupInfo(n), kd = GP_KIND[I.arts[I.art[n]]];
     if (gi) { const whole = S.selGrp === gi.id;
       h += '<div class="note"><b>' + (whole ? 'Ganze Gruppe gewählt: ' : 'Einzelteil gewählt, gehört zu: ') + esc(gi.name) + '</b><br>' + gi.members.length + ' Teile. ' + (whole ? 'Ein weiterer Klick auf ein Teil oder Alt und Klick wählt nur dieses Teil.' : 'Ein Klick auf dieses Teil wählt wieder die ganze Gruppe.') + '</div><div class="btns"><button class="sm" id="aGrp">' + (whole ? 'Nur dieses Teil wählen' : 'Ganze Gruppe wählen') + '</button></div>'; }
@@ -2262,7 +2677,7 @@ async function renderAttr() {
   if (BS.d && BS.of.has(n)) { const j = BS.of.get(n); secOpen.bs = secOpen.bs ?? true; h += sec('bs', 'Brandschutz', null, bsHtml(BS.d.o.k[j], BS.d.o.t[j])); }
   h += '<div id="aCon"></div><div id="aBody" class="note" style="margin-top:8px">Attribute werden geladen</div>';
   box.innerHTML = h;
-  $('#aCopy').onclick = () => copyText(I.id[n], 'Kennung kopiert');
+  if ($('#aCopy')) $('#aCopy').onclick = () => copyText(I.id[n], 'Nummer kopiert');
   if ($('#aGrp')) $('#aGrp').onclick = () => { const gi = groupInfo(n); if (!gi) return; if (S.selGrp === gi.id) select(n, false); else select(n, false, {group: gi.members.filter(m => S.vis[m] && S.idx.body[m]), gid: gi.id}); };
   if (n < S.worldN) renderCon(n);
   if (n >= S.worldN) { $('#aBody').className = ''; $('#aBody').innerHTML = ''; return; }
@@ -2284,7 +2699,24 @@ async function renderAttr() {
       a.f.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</table>');
     if (a.pc && a.pc.length) b += sec('pc', 'Anlagenteil', null, '<table class="kv">' + a.pc.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</table>');
     $('#aBody').className = ''; $('#aBody').innerHTML = b;
+    attrSize(n, a);
   } catch (e) { $('#aBody').textContent = 'Attribute nicht geladen: ' + e.message; }
+}
+// Runde 4: Querschnitt und Nennweite aus den gespeicherten Werten, nur wenn sie dort stehen
+function attrSize(n, a) {
+  const I = S.idx, f = a.f || [], fv = k => { const r = f.find(x => x[0] === k); const v = r ? parseFloat(String(r[1]).replace(',', '.')) : NaN; return Number.isFinite(v) && v > 0 ? v : NaN; };
+  const mm = v => { const x = v * 1000; return x < 10 ? dez(x, 1) : Math.round(x).toLocaleString('de'); };
+  const dnF = f.find(x => /(^|\.)(DN|DN_mm|nominal_dn|nominal_valve_inlet_DN_mm|nominal_diameter_mm)$/.test(x[0]) || (/(^|\.)size$/.test(x[0]) && /^DN ?\d+$/.test(String(x[1]))));
+  const dn = dnF ? String(dnF[1]).replace(/^DN ?/, '') : '';
+  if (/^\d{1,3}$/.test(dn) && !/\bDN\b/.test(I.name[n])) { const t = $('#rtitle'); if (t) t.textContent = I.name[n] + ' DN\u00a0' + dn; }
+  if (!/^Trasse|^Anlagenleitung/.test(I.arts[I.art[n]])) return;
+  const ow = fv('outer_width_m'), oh = fv('outer_height_m'), iw = fv('inner_width_m'), ih = fv('inner_height_m');
+  if (!ow && !iw) return;
+  const rund = (a.ds || []).some(x => /Querschnitt: rund/.test(x)) || (ow === oh && (!iw || iw === ih) && !/Lüftung|Elektro|Daten|Gebäudeautomation|Sicherheit/.test(I.gewerke[I.gewerk[n]]));
+  const dim = (w, h) => rund ? 'Ø ' + mm(w) + ' mm' : mm(w) + ' × ' + mm(h || w) + ' mm';
+  const parts = []; if (ow && (!iw || ow >= iw)) parts.push(dim(ow, oh) + ' außen'); if (iw) parts.push(dim(iw, ih) + ' innen');
+  const tb = $('#attr table.kv'); if (!tb || !parts.length) return;
+  const tr = document.createElement('tr'); tr.innerHTML = '<td>Querschnitt</td><td title="Gespeicherte Werte der Planung">' + esc(parts.join(', ')) + '</td>'; tb.appendChild(tr);
 }
 $('#attr').addEventListener('toggle', e => { const d = e.target; if (d.dataset && d.dataset.k) secOpen[d.dataset.k] = d.open; }, true);
 $('#attr').addEventListener('click', e => {
@@ -2555,13 +2987,14 @@ async function setStyle(st, initial = false) {
     const need = neededFiles(st);
     if (need.length) { showMsg('Stil ' + st + ' wird geladen, ' + need.length + ' Dateien', 0); await loadMany(need); }
   }
-  S.style = st;
+  S.style = st; OWU.sb.value = st === 'B' ? 1 : 0;
   S.stylePaths = new Set(styleFiles(st).map(f => f.path));
   if (S.dispInfo) for (let i = S.dispLo; i < S.worldN + S.nDisp; i++) S.idx.body[i] = st === 'B' ? 1 : 0;
   document.querySelectorAll('#styleSeg button').forEach(b => { b.classList.toggle('act', b.dataset.st === st); b.setAttribute('aria-pressed', b.dataset.st === st); b.disabled = !S.styles.includes(b.dataset.st); });
   if (!initial) dropUrlStil();  // Adresse schreibt ?stil= nie selbst, ein Link von außen gilt nur für den Start
   syncQualUI(); lookMode = ''; shadowDirty = true;
   if (initial) return;
+  tgaColorSync();
   buildFilterUI(); applyVisibility(); if (S.last >= 0) renderAttr();
   S.metrics.styleSwitchMs = performance.now() - t0;
   showMsg('Stil ' + st + ' in ' + Math.round(S.metrics.styleSwitchMs) + ' ms. Kamera, Filter, Auswahl und Schnitte bleiben.', 3000);
@@ -2583,7 +3016,14 @@ function renderLegend() {
     for (const p of S.prims) if (p.meshV.visible && p.nVis) { if (p.tga) anyT = true; else keys.set(p.mkey, (keys.get(p.mkey) || 0) + p.nVis); }
     const items = (S.man.legend && S.man.legend[st] || []).filter(e => keys.has(e.key)).sort((a, b) => keys.get(b.key) - keys.get(a.key));
     if (items.length) h += '<h3>Bauwerk und Ausstattung</h3>' + items.slice(0, LIM).map(e => '<div class="li">' + sw(e.color, e.alpha) + '<span class="t">' + esc(e.label) + '</span></div>').join('') + more(items.length);
-    if (anyT) {
+    const tgaB = anyT && st === 'B' && !S.tgaGew;
+    if (anyT && st === 'B') h += '<label class="li tgg"><input type="checkbox" id="lgTgaGew"' + (S.tgaGew ? ' checked' : '') + '><span class="t">Gewerke einfärben</span></label>';
+    if (tgaB) {
+      const cnt = new Map();
+      for (const p of S.prims) if (p.tgaB && p.meshV.visible && p.nVis) { const k = p.tgaB[1]; const e = cnt.get(k) || [p.tgaB[0], 0]; e[1] += p.nVis; cnt.set(k, e); }
+      const top = [...cnt.entries()].sort((a, b) => b[1][1] - a[1][1]);
+      h += '<h3>Technik als Werkstoff</h3>' + top.slice(0, LIM).map(([k, e]) => '<div class="li">' + sw(e[0]) + '<span class="t">' + esc(k) + '</span></div>').join('') + more(top.length);
+    } else if (anyT) {
       const cnt = new Map();
       const tl = new Set(I.layers.map((l, i) => l.key.startsWith('tga_') ? i : -1).filter(i => i >= 0));
       for (let i = 0; i < S.N; i++) if (S.vis[i] && I.body[i] && tl.has(I.layer[i])) cnt.set(I.system[i], (cnt.get(I.system[i]) || 0) + 1);
@@ -2616,6 +3056,8 @@ function renderLegend() {
   h += '</div>';
   box.innerHTML = h; box.classList.toggle('min', S.legendMin);
   if ($('#lgMore')) $('#lgMore').onclick = () => { S.legendAll = !S.legendAll; renderLegend(); };
+  if ($('#lgTgaGew')) $('#lgTgaGew').onchange = e => setTgaGew(e.target.checked);
+  if ($('#rTgaGew')) $('#rTgaGew').hidden = S.style !== 'B';
   const tg = () => { S.legendMin = !S.legendMin; try { LS.set('legend_min', S.legendMin ? '1' : '0'); } catch (e) {} renderLegend(); };
   $('#lgHead').onclick = tg;
 }
@@ -3617,6 +4059,7 @@ try { setNav(LS.get('nav') === 'pan' ? 'pan' : 'orbit'); } catch (e) { setNav('o
 const zoomBtn = f => { if (CAM.mode === 'anim') camTake(); zoomAt(f); camChase(); };
 $('#bZoomIn').onclick = () => zoomBtn(Math.exp(-0.3)); $('#bZoomOut').onclick = () => zoomBtn(Math.exp(0.3));
 $('#bNavHome').onclick = () => setView('iso');
+$('#cTgaGew').checked = !!S.tgaGew; $('#cTgaGew').onchange = e => setTgaGew(e.target.checked);
 $('#bWalk').onclick = () => walkArm(); $('#walkX').onclick = () => walkEnd();
 $('#bCut').onclick = e => { e.stopPropagation(); const b = $('#cutBar'); b.hidden = !b.hidden; $('#bCut').setAttribute('aria-expanded', !b.hidden); };
 document.addEventListener('pointerdown', e => { const b = $('#cutBar'); if (!b.hidden && !b.contains(e.target) && !$('#bCut').contains(e.target)) { b.hidden = true; $('#bCut').setAttribute('aria-expanded', 'false'); } });
@@ -3731,6 +4174,7 @@ async function start() {
     S.legendMin = lgSaved === '1' || (lgSaved === null && innerWidth <= 1400);  // schmaler Laptop: Legende startet eingeklappt, Wahl wird gemerkt
     if (innerWidth < 1000 || $('#stage').clientWidth < 800) S.legendMin = true;  // kleines Fenster/3D-Bereich: Legende startet eingeklappt (Wunsch main 16.11.)
     S.worldN = idx.n;
+    try { deNames(idx, man, idx.n); } catch (e) { console.warn('Namen', e); }
     OWU.plinth.value = (man.ground_z ?? -0.17) + 0.47;  // Sockel bis etwa 0,30 m über Gelände (Darstellung)
     if (man.display_object_n !== undefined && man.display_object_n === idx.n && S.styles.includes('B')) {  // Darstellung (Fenster, Dach): je Fenster und je Dachteil ein eigenes Objekt, clientseitig angehängt, kein Planungsobjekt
       const lyr = k => idx.layers.findIndex(l => l.key === k);
@@ -3755,13 +4199,15 @@ async function start() {
       S.dispInfo.set('DACH', {roof});
       S.dispN = S.dispLo; S.nDisp = idx.n - S.dispLo;
     }
+    ausObjects(idx, man);
     S.man = man; S.idx = idx; S.N = idx.n; S.vis = new Uint8Array(idx.n); S.gv = new Uint8Array(idx.n);
     S.layerUsed = new Set(); for (const x of idx.layer) if (x >= 0) S.layerUsed.add(idx.layers[x].key);
     await setStyle(st0, true);
     buildLeaves(); buildKG(); buildRoleUI(); setTimeout(() => refineKG().catch(e => console.warn('KG', e)), 1500);
     idx.id.forEach((id, i) => { if (!S.idToNum.has(id) || idx.body[i] && !idx.body[S.idToNum.get(id)]) S.idToNum.set(id, i); });
     const nw = idx.name_welt || {};
-    S.hay = idx.id.map((id, i) => (id + ' ' + idx.name[i] + ' ' + (nw[i] || '') + ' ' + idx.sub[i] + ' ' + (SUB_LABEL[idx.sub[i]] || '') + ' ' + idx.arts[idx.art[i]]).toLowerCase());
+    const n0 = idx.name0 || [];
+    S.hay = idx.id.map((id, i) => (id + ' ' + idx.name[i] + ' ' + (n0[i] && n0[i] !== idx.name[i] ? n0[i] + ' ' : '') + (nw[i] || '') + ' ' + idx.sub[i] + ' ' + (SUB_LABEL[idx.sub[i]] || '') + ' ' + idx.arts[idx.art[i]]).toLowerCase());
     idx.layers.forEach(l => { S.layerOn[l.key] = l.visible; S.layerOp[l.key] = 1; });
     const haveF = new Set(styleFiles().filter(f => f.group[0] === 'F').map(f => +f.group.slice(1)));
     const firstFloor = man.pilot_floor ? +man.pilot_floor.slice(1) : (haveF.has(1) ? 1 : [...haveF].sort()[0] ?? 0);

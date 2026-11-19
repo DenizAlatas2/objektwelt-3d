@@ -1,0 +1,28 @@
+Texturen im Stil B, Herkunft und Lizenz
+
+Alle Texturen stehen unter CC0 1.0 (gemeinfrei, https://creativecommons.org/publicdomain/zero/1.0/).
+Für den Viewer verkleinert (512 oder 1024 Bildpunkte), als WebP gespeichert und in Atlanten zusammengelegt (b512_c, b512_n, b1k_c, b1k_n).
+
+Quelle | Kennung | Verwendung | Lizenz | Link
+ambientCG | Plaster003 | Innenputz, Trockenbau | CC0 1.0 | https://ambientcg.com/view?id=Plaster003
+ambientCG | Wallpaper001A | Raufaser | CC0 1.0 | https://ambientcg.com/view?id=Wallpaper001A
+ambientCG | Tiles133A | Fliesen Sanitär | CC0 1.0 | https://ambientcg.com/view?id=Tiles133A
+ambientCG | Carpet001 | Teppich Büro | CC0 1.0 | https://ambientcg.com/view?id=Carpet001
+ambientCG | Rubber001 | Kautschuk Flur | CC0 1.0 | https://ambientcg.com/view?id=Rubber001
+ambientCG | Concrete048 | Estrich und Beschichtung | CC0 1.0 | https://ambientcg.com/view?id=Concrete048
+ambientCG | Concrete047A | Tiefgaragenboden | CC0 1.0 | https://ambientcg.com/view?id=Concrete047A
+Poly Haven | concrete | Sichtbeton | CC0 1.0 | https://polyhaven.com/a/concrete
+ambientCG | Concrete046 | Beton glatt, Decken | CC0 1.0 | https://ambientcg.com/view?id=Concrete046
+ambientCG | Wood026 | Holz Türblatt und Möbel | CC0 1.0 | https://ambientcg.com/view?id=Wood026
+ambientCG | Metal012 | Metall gebürstet | CC0 1.0 | https://ambientcg.com/view?id=Metal012
+ambientCG | Metal027 | Metall lackiert | CC0 1.0 | https://ambientcg.com/view?id=Metal027
+ambientCG | Foil003 | Dämmung Alu | CC0 1.0 | https://ambientcg.com/view?id=Foil003
+ambientCG | Grass004 | Rasen | CC0 1.0 | https://ambientcg.com/view?id=Grass004
+ambientCG | PavingStones099 | Verbundpflaster | CC0 1.0 | https://ambientcg.com/view?id=PavingStones099
+ambientCG | PavingStones081 | Rechteckpflaster | CC0 1.0 | https://ambientcg.com/view?id=PavingStones081
+ambientCG | Gravel043 | Kies | CC0 1.0 | https://ambientcg.com/view?id=Gravel043
+ambientCG | WoodChips002 | Mulch | CC0 1.0 | https://ambientcg.com/view?id=WoodChips002
+ambientCG | Bark012 | Baumrinde | CC0 1.0 | https://ambientcg.com/view?id=Bark012
+ambientCG | Plaster001 | Fassadenputz | CC0 1.0 | https://ambientcg.com/view?id=Plaster001
+ambientCG | Asphalt031 | Asphalt | CC0 1.0 | https://ambientcg.com/view?id=Asphalt031
+ambientCG | LeafSet024 | Laub | CC0 1.0 | https://ambientcg.com/view?id=LeafSet024

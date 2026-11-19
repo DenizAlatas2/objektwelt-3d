@@ -1,0 +1,38 @@
+{
+ "b512": {
+  "size": 512,
+  "cols": 5,
+  "rows": 4,
+  "layers": [
+   "Plaster003",
+   "Wallpaper001A",
+   "Tiles133A",
+   "Carpet001",
+   "Rubber001",
+   "Concrete048",
+   "Concrete047A",
+   "concrete_polyhaven",
+   "Concrete046",
+   "Wood026",
+   "Metal012",
+   "Metal027",
+   "Foil003",
+   "Grass004",
+   "PavingStones099",
+   "PavingStones081",
+   "Gravel043",
+   "WoodChips002",
+   "Bark012"
+  ]
+ },
+ "b1k": {
+  "size": 1024,
+  "cols": 3,
+  "rows": 1,
+  "layers": [
+   "Plaster001",
+   "Asphalt031",
+   "LeafSet024"
+  ]
+ }
+}

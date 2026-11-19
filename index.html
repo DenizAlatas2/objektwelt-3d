@@ -332,6 +332,7 @@ header h1{font-size:14px;letter-spacing:.01em;margin-right:10px}
 #measLab .ml small{display:block;font-weight:400;color:var(--muted);font-size:11px}
 #measLab .n,#measPanel .n{display:inline-block;min-width:17px;height:17px;padding:0 4px;margin-right:6px;border-radius:9px;background:var(--meas);color:#fff;font-size:10.5px;font-weight:700;line-height:17px;text-align:center;vertical-align:1px}
 #cv.meas{cursor:crosshair}
+body:not(.intern) .intern{display:none !important}
 #copyBox{display:flex;flex-direction:column;gap:6px;padding:8px 10px;border-top:1px solid var(--line);font-size:var(--fs-s)}
 #dock>#copyBox{width:min(460px,100%);background:var(--glass);border:1px solid var(--line);border-radius:var(--rf);box-shadow:var(--shadow)}
 #copyBox textarea{width:100%;font:12px/1.4 ui-monospace,Menlo,monospace;padding:6px;border:1px solid var(--field-line);border-radius:6px;background:var(--panel2);color:var(--text);resize:vertical}
@@ -398,9 +399,9 @@ header h1{font-size:14px;letter-spacing:.01em;margin-right:10px}
       <details class="sec" id="secArt"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Objektart</span></summary>
         <div id="fArt"></div>
       </details>
-      <details class="sec" id="secStat"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Status</span></summary>
-        <div id="fStat"></div>
-        <div class="row"><label><input type="checkbox" id="cCand" autocomplete="off"> Kandidaten halbtransparent</label></div>
+      <details class="sec" id="secStat"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="secStatT">Status</span></summary>
+        <div id="fStat" class="intern"></div>
+        <div class="row intern"><label><input type="checkbox" id="cCand" autocomplete="off"> Kandidaten halbtransparent</label></div>
         <div class="row"><label><input type="checkbox" id="cGhost" autocomplete="off"> Ausgeblendetes blass zeigen</label></div>
       </details>
       <div class="btns" style="margin-top:12px"><button id="bShowAll">Filter zurücksetzen</button></div>
@@ -546,7 +547,7 @@ header h1{font-size:14px;letter-spacing:.01em;margin-right:10px}
     <h2>Was dieser Viewer zeigt</h2>
     <p>Das Gebäude als Körper aus den gespeicherten Planungsdaten. Kein BIM-Programm und kein IFC. Es werden keine Maße ergänzt. Fehlt eine Höhe, erscheint eine flache Platte. Querschnitte unter 2 cm werden mit 2 cm gezeigt. Beides steht beim Objekt unter Darstellungshinweis. Stöße zwischen Leitungsteilen sind auf Gehrung oder mit kurzem Überstand geschlossen. Das Erdreich um und unter dem Gebäude ist Darstellung. Anlagenteile ohne Körper stehen nur im Modellbaum. Durchführungen durch Wand und Decke sitzen an den gespeicherten Orten, Hülse und Manschette sind Darstellung. Die Einfärbung Brandschutz zeigt die Anforderungen aus den Planungsdaten.</p>
     <h2>Verbindungen</h2>
-    <p>Die Liste Verbindet im Objektfenster kommt aus gespeicherten Verbindungen über Ports, Verbindungen und Trassenknoten. Kandidat und zurückgestellt sind markiert. Netz zeigen folgt den Verbindungen derselben Anlage.</p>
+    <p>Die Liste Verbindet im Objektfenster kommt aus gespeicherten Verbindungen über Ports, Verbindungen und Trassenknoten. Netz zeigen folgt den Verbindungen derselben Anlage.</p>
     <p class="muted" id="srcInfo"></p>
   </div>
 </dialog>
@@ -931,7 +932,7 @@ function fitSun() {
   sun.shadow.normalBias = 0.02 * Math.max(1, r / 40);
 }
 function drawFrame() {
-  applyLook();
+  applyLook(); texSync();
   const q = qual(), rich = q !== 'einfach' && S.style === 'B';
   syncGround(rich);
   if (sun.castShadow && shadowDirty) { fitSun(); renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
@@ -1020,6 +1021,9 @@ $('#bHelp').onclick = () => { const d = $('#help'); if (d.showModal) d.showModal
 $('#helpX').onclick = () => $('#help').close();
 $('#help').addEventListener('click', e => { if (e.target === $('#help')) $('#help').close(); });
 const COARSE = matchMedia('(pointer: coarse)').matches;
+// Besucheransicht: Planungsstatus (Kandidat, zurückgestellt) und Rohwerte nur mit ?intern zeigen (Wunsch main 19.11.)
+const INTERN = new URLSearchParams(location.search).has('intern');
+document.body.classList.toggle('intern', INTERN); if (!INTERN) { const t = document.querySelector('#secStatT'); if (t) t.textContent = 'Anzeige'; }
 const hideHint = () => {};
 if (DEBUG) $('#benchBox').hidden = false;
 
@@ -1223,6 +1227,68 @@ const PAT_KIND = {boden_nuf: 1, boden_san: 2, boden_vf: 3, boden_tf: 4, decke: 5
   wand: 6, sturz: 6, trennwand: 6, fassade: 7, belag_park: 8, belag_logistik: 8, belag_fuss: 9, belag_rad: 9, gruen: 10, dachbelag: 11, hofbelag: 12,
   dachzone_rlt: 13, dachzone_kaelte: 14, dachzone_zugang: 15, moebel: 16, tuerblatt: 16, polster: 17,
   metall: 18, stahl: 18, blech: 18, gastro: 18, leuchte_gehaeuse: 18, aufzug: 18, huelse: 18, zarge: 18, lager: 18, geraet_hell: 18, tga: 18};
+
+/* Texturen Stil B (CC0, ambientCG und Poly Haven, Liste in tex/LIZENZ.txt). Zwei Felder (512 und 1024 Bildpunkte) mit je Farbe und Normal+Rauheit,
+   als WebP-Atlas geladen und in Texturfelder (sampler2DArray) zerlegt. Kachel im Weltmaßstab (m), Projektion nach der Hauptachse der Fläche.
+   Nur Stil B mit Bildqualität hoch, nie bei Touch-Geräten. Ohne Dateien bleibt das gerechnete Muster. Darstellung, kein Weltdatum. */
+const TEXL = {Plaster003: 0, Wallpaper001A: 1, Tiles133A: 2, Carpet001: 3, Rubber001: 4, Concrete048: 5, Concrete047A: 6, Sichtbeton: 7, Concrete046: 8, Wood026: 9,
+  Metal012: 10, Metal027: 11, Foil003: 12, Grass004: 13, PavingStones099: 14, PavingStones081: 15, Gravel043: 16, WoodChips002: 17, Bark012: 18};
+const TEXK = {Plaster001: 0, Asphalt031: 1, LeafSet024: 2};
+// Material → [Feld (0: 512, 1: 1024), Ebene, Kachel in m, Anteil Materialfarbe 0..1, Stärke Normal, Stärke Rauheit, Farbe (sonst Materialfarbe), Kontrast der Struktur]
+// Helligkeit folgt immer der Materialfarbe. Anteil 0: Farbton der Textur, Anteil 1: Farbton des Materials mit der Struktur der Textur.
+const T5 = (l, s, t, n = 1, r = 1, c = null, k = 1) => [0, TEXL[l], s, t, n, r, c, k], T1 = (l, s, t, n = 1, r = 1, c = null, k = 1) => [1, TEXK[l], s, t, n, r, c, k];
+const TEXMAP = {
+  wand: T5('Wallpaper001A', 0.9, 0.85, 0.9), sturz: T5('Wallpaper001A', 0.9, 0.85, 0.9), trennwand: T5('Plaster003', 1.6, 0.85, 0.8),
+  fassade: T1('Plaster001', 2.6, 0.55, 1.0), wandkern: T5('Sichtbeton', 2.4, 0.3, 1.0), stuetze: T5('Sichtbeton', 2.4, 0.3, 1.0), traeger: T5('Sichtbeton', 2.4, 0.3, 1.0),
+  decke: T5('Concrete046', 2.5, 0.4, 0.8), band: T5('Concrete046', 2.5, 0.4, 0.8), schwelle: T5('Concrete046', 1.5, 0.5, 0.8),
+  treppe: T5('Concrete048', 2.0, 0.45, 0.8), podest: T5('Concrete048', 2.0, 0.45, 0.8),
+  boden_nuf: T5('Carpet001', 1.0, 1.0, 0.9, 1, '#7a838e', 0.8), boden_vf: T5('Rubber001', 1.2, 1.0, 0.5, 1, '#a7a399', 0.22), boden_san: T5('Tiles133A', 1.2, 0.55, 1.0, 1, '#e3e6e6'),
+  boden_tf: T5('Concrete048', 2.0, 0.9, 0.7, 1, '#8e958f'),
+  tg_fahrgasse: T5('Concrete047A', 3.0, 0.5), tg_fahrbahn: T5('Concrete047A', 3.0, 0.5), tg_beton: T5('Concrete047A', 3.0, 0.5), tg_sauber: T5('Concrete047A', 3.0, 0.6),
+  belag_park: T1('Asphalt031', 3.0, 0.35), belag_logistik: T1('Asphalt031', 3.0, 0.35), belag_fuss: T5('PavingStones099', 2.0, 0.45), belag_rad: T5('PavingStones081', 1.0, 0.45),
+  hofbelag: T5('PavingStones081', 1.0, 0.45), gruen: T5('Grass004', 2.5, 0.15), dachbelag: T5('Gravel043', 1.5, 0.45),
+  tuerblatt: T5('Wood026', 1.2, 0.55, 0.7), moebel: T5('Wood026', 1.2, 0.55, 0.7),
+  metall: T5('Metal012', 1.0, 0.85, 0.5), gastro: T5('Metal012', 1.0, 0.85, 0.5), aufzug: T5('Metal012', 1.0, 0.85, 0.5), leuchte_gehaeuse: T5('Metal012', 1.0, 0.9, 0.4),
+  huelse: T5('Metal012', 0.8, 0.85, 0.4), blech: T5('Metal012', 1.0, 0.85, 0.5),
+  stahl: T5('Metal027', 1.0, 1.0, 0.6, 1, null, 0.6), lager: T5('Metal027', 1.0, 1.0, 0.6, 1, null, 0.6), zarge: T5('Metal027', 1.0, 1.0, 0.6, 1, null, 0.6), rahmen: T5('Metal027', 1.0, 1.0, 0.5, 1, null, 0.6),
+  geraet_hell: T5('Metal027', 1.0, 1.0, 0.5, 1, null, 0.6), tg_geraet: T5('Metal027', 1.0, 1.0, 0.5, 1, null, 0.6), tg_tor: T5('Metal012', 1.0, 0.8, 0.6),
+  'tga:tga_ventilation': T5('Metal012', 1.0, 0.7, 0.6), 'tga:tga_heating': T5('Foil003', 1.0, 1.0, 0.5), 'tga:tga_cooling': T5('Foil003', 1.0, 1.0, 0.5),
+};
+for (const g of ['tga_electrical', 'tga_automation', 'tga_safety', 'tga_water', 'tga_drainage', 'tga_sonst', 'tga_lift', 'tga_data', 'tga_fire_fighting']) TEXMAP['tga:' + g] = T5('Metal027', 1.0, 1.0, 0.45, 1, null, 0.5);
+const TEXPH = (() => { const t = new THREE.DataArrayTexture(new Uint8Array([128, 128, 128, 255]), 1, 1, 1); t.needsUpdate = true; return t; })();
+const TEXU = {on: {value: 0}, c0: {value: TEXPH}, n0: {value: TEXPH}, c1: {value: TEXPH}, n1: {value: TEXPH}};
+const TEX = {state: 'none', ms: 0, bytes: 0, err: ''};
+const texWanted = () => !COARSE && S.style === 'B' && qual() === 'hoch';
+async function texLoad() {
+  if (TEX.state !== 'none') return; TEX.state = 'loading'; const t0 = performance.now();
+  try {
+    const meta = await fetch('tex/atlas.json').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+    const one = async (name, srgb) => {
+      const r = await fetch('tex/' + name + '.webp'); if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + name);
+      const blob = await r.blob(); TEX.bytes += blob.size;
+      const bmp = await createImageBitmap(blob);
+      const base = name.split('_')[0], m = meta[base], S2 = m.size, n = m.layers.length;
+      const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
+      const g = c.getContext('2d', {willReadFrequently: true}); g.drawImage(bmp, 0, 0); bmp.close && bmp.close();
+      const src = g.getImageData(0, 0, c.width, c.height).data, data = new Uint8Array(S2 * S2 * 4 * n), W = c.width * 4;
+      for (let k = 0; k < n; k++) { const x0 = (k % m.cols) * S2 * 4, y0 = Math.floor(k / m.cols) * S2; for (let y = 0; y < S2; y++) data.set(src.subarray((y0 + y) * W + x0, (y0 + y) * W + x0 + S2 * 4), (k * S2 + y) * S2 * 4); }
+      const t = new THREE.DataArrayTexture(data, S2, S2, n);
+      t.wrapS = t.wrapT = THREE.RepeatWrapping; t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true;
+      t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.needsUpdate = true;
+      return t;
+    };
+    const [c0, n0, c1, n1] = await Promise.all([one('b512_c', true), one('b512_n', false), one('b1k_c', true), one('b1k_n', false)]);
+    TEXU.c0.value = c0; TEXU.n0.value = n0; TEXU.c1.value = c1; TEXU.n1.value = n1;
+    TEX.state = 'ready'; TEX.ms = performance.now() - t0; S.metrics.texMs = Math.round(TEX.ms); S.metrics.texKB = Math.round(TEX.bytes / 1024);
+    shadowDirty = true; invalidate();
+  } catch (e) { TEX.state = 'error'; TEX.err = String(e && e.message || e); console.warn('Texturen nicht geladen, Muster bleibt', e); }
+}
+function texSync() {  // je Bild: Texturen an, sobald geladen und gewünscht. Laden erst, wenn das Modell steht
+  const want = texWanted();
+  if (want && TEX.state === 'none' && S.fitted && loadsRunning === 0) texLoad();
+  const on = want && TEX.state === 'ready' ? 1 : 0;
+  if (TEXU.on.value !== on) { TEXU.on.value = on; shadowDirty = true; }
+}
 const OWU = {groundOn: {value: 0}, groundY: {value: -0.17}, on: {value: 1}, plinth: {value: 0.30}, gBase: {value: 0.22}, gMax: {value: 0.8}};
 const PAT_GLSL = `
 uniform float owOn; uniform float owPlinth; varying vec3 vWP;
@@ -1298,6 +1364,21 @@ float owPattern(vec3 wp){
 #endif
   return m;
 }`;
+
+const TEX_GLSL = `
+precision highp sampler2DArray;
+uniform sampler2DArray owTC; uniform sampler2DArray owTNR; uniform float owTexOn;
+uniform float owTL; uniform float owTS; uniform float owTT; uniform float owTNs; uniform float owTRs; uniform float owTK; uniform vec3 owTB;
+vec4 owTxC = vec4(1.0); vec4 owTxN = vec4(0.5, 0.5, 0.5, 1.0); vec3 owTxT = vec3(1.0, 0.0, 0.0); vec3 owTxB = vec3(0.0, 1.0, 0.0); vec3 owTxNw = vec3(0.0, 0.0, 1.0); float owTxA = 0.0;
+void owTexSample(vec3 wp) {
+  vec3 nw = normalize(cross(dFdx(wp), dFdy(wp))), an = abs(nw); vec2 uv;
+  if (an.y >= an.x && an.y >= an.z) { if (nw.y > 0.0) { uv = vec2(wp.x, -wp.z); owTxB = vec3(0.0, 0.0, -1.0); } else { uv = vec2(wp.x, wp.z); owTxB = vec3(0.0, 0.0, 1.0); } owTxT = vec3(1.0, 0.0, 0.0); }
+  else if (an.x >= an.z) { if (nw.x > 0.0) { uv = vec2(-wp.z, wp.y); owTxT = vec3(0.0, 0.0, -1.0); } else { uv = vec2(wp.z, wp.y); owTxT = vec3(0.0, 0.0, 1.0); } owTxB = vec3(0.0, 1.0, 0.0); }
+  else { if (nw.z > 0.0) { uv = vec2(wp.x, wp.y); owTxT = vec3(1.0, 0.0, 0.0); } else { uv = vec2(-wp.x, wp.y); owTxT = vec3(-1.0, 0.0, 0.0); } owTxB = vec3(0.0, 1.0, 0.0); }
+  owTxNw = nw;
+  vec3 p = vec3(uv * owTS, owTL);
+  owTxC = texture(owTC, p); owTxN = texture(owTNR, p); owTxA = 1.0;
+}`;
 // AP-09e: Glas Stil B spiegelt leicht. Anteil nach Fresnel (senkrecht wenig, flach viel), Spiegelbild aus dem Umgebungslicht.
 // Ein durchsichtiges Material dämpft sonst auch die Spiegelung mit seiner Deckkraft.
 const GLASS_GLSL = `
@@ -1312,22 +1393,55 @@ const GLASS_GLSL = `
   }
 #endif
 #include <opaque_fragment>`;
-function attachPattern(mat, kind, glass) {
+function attachPattern(mat, kind, glass, tex = null) {
   // Die Netze haben keine Normalen (flatShading rechnet sie im Pixel). three nimmt die Normale aber für den Schattenversatz
   // (normalBias): ohne Attribut wird daraus NaN und kein Pixel liegt im Schatten. Deshalb feste Normale nach oben (AP-09d).
+  // tex: Textur Stil B nach TEXMAP (Feld, Ebene, Kachel, Farbanteil, Normal, Rauheit, Farbe), Werte als Uniforms je Material
+  const tu = tex ? {owTL: {value: tex[1]}, owTS: {value: 1 / tex[2]}, owTT: {value: tex[3]}, owTNs: {value: tex[4]}, owTRs: {value: tex[5]},
+    owTB: {value: tex[6] ? new THREE.Color(tex[6]) : mat.color}, owTK: {value: tex[7] ?? 1}} : null;
+  if (tu) mat.userData.owTex = tu;
   mat.onBeforeCompile = sh => {
     sh.vertexShader = sh.vertexShader.replace('#include <beginnormal_vertex>', 'vec3 objectNormal = vec3(0.0, 1.0, 0.0);');
     if (glass) {
       sh.uniforms.owOn = OWU.on; sh.uniforms.owGBase = OWU.gBase; sh.uniforms.owGMax = OWU.gMax;
       sh.fragmentShader = 'uniform float owOn; uniform float owGBase; uniform float owGMax;\n' + sh.fragmentShader.replace('#include <opaque_fragment>', GLASS_GLSL);
     }
-    if (!kind) return;
+    if (!kind && !tu) return;
     sh.uniforms.owOn = OWU.on; sh.uniforms.owPlinth = OWU.plinth;
     sh.vertexShader = 'varying vec3 vWP;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
-    sh.fragmentShader = '#define OW_KIND ' + kind + '\n' + PAT_GLSL + '\n' + sh.fragmentShader.replace('#include <color_fragment>',
-      '#include <color_fragment>\n#ifndef USE_COLOR\n  if (owOn > 0.5) diffuseColor.rgb *= owPattern(vWP);\n#endif');
+    let fs = '#define OW_KIND ' + (kind || 0) + '\n' + PAT_GLSL + '\n';
+    if (tu) {
+      Object.assign(sh.uniforms, tu); sh.uniforms.owTexOn = TEXU.on;
+      sh.uniforms.owTC = tex[0] ? TEXU.c1 : TEXU.c0; sh.uniforms.owTNR = tex[0] ? TEXU.n1 : TEXU.n0;
+      fs += '#define OW_TEX 1\n' + TEX_GLSL + '\n';
+    }
+    sh.fragmentShader = fs + sh.fragmentShader.replace('#include <color_fragment>', `#include <color_fragment>
+#ifndef USE_COLOR
+  bool owT = false;
+#ifdef OW_TEX
+  if (owTexOn > 0.5 && owOn > 0.5) {
+    owT = true; owTexSample(vWP);
+    const vec3 owLw = vec3(0.2126, 0.7152, 0.0722);
+    vec3 owAvg = textureLod(owTC, vec3(0.5, 0.5, owTL), 12.0).rgb;
+    float owLa = max(dot(owAvg, owLw), 0.02), owLb = dot(owTB, owLw);
+    float owD = clamp(1.0 + (dot(owTxC.rgb, owLw) / owLa - 1.0) * owTK, 0.3, 1.8);
+    vec3 owNat = owLa > 0.0 ? mix(owAvg * owLb / owLa, owTxC.rgb * owLb / owLa, owTK) : owTB;
+    diffuseColor.rgb = mix(owNat, owTB * owD, owTT);
+#if OW_KIND == 7
+    if (vWP.y < owPlinth) diffuseColor.rgb *= 0.5;
+#endif
+  }
+#endif
+  if (owOn > 0.5 && !owT) diffuseColor.rgb *= owPattern(vWP);
+#endif`).replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+#ifdef OW_TEX
+  if (owTxA > 0.5) { float owAr = max(textureLod(owTNR, vec3(0.5, 0.5, owTL), 12.0).b, 0.05); roughnessFactor = clamp(roughnessFactor * mix(1.0, owTxN.b / owAr, owTRs), 0.04, 1.0); }
+#endif`).replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+#ifdef OW_TEX
+  if (owTxA > 0.5) { vec2 owNxy = (owTxN.rg * 2.0 - 1.0) * owTNs; vec3 owNt = vec3(owNxy, sqrt(max(0.0, 1.0 - dot(owNxy, owNxy)))); normal = normalize((viewMatrix * vec4(normalize(owTxT * owNt.x + owTxB * owNt.y + owTxNw * owNt.z), 0.0)).xyz); }
+#endif`);
   };
-  mat.customProgramCacheKey = () => 'owpat' + kind + (glass ? 'g' : '');
+  mat.customProgramCacheKey = () => 'owpat' + kind + (glass ? 'g' : '') + (tu ? 't' + tex[0] : '');
 }
 
 /* Erdreich (Darstellung): kein harter Kasten. Oberseite entfällt, wenn der Umgebungsboden die Geländefläche zeigt. Unterseite entfällt (Blick unter den Boden bleibt frei).
@@ -1412,7 +1526,7 @@ function addPrim(pr, f, rec) {
   if (envTex && metal > 0) { mat.envMap = envTex; mat.envMapIntensity = 0.8; }
   const mkey = pr.mat.key || pr.mat.name.split('|')[1], styB = (f.style || 'A') === 'B';
   const pkind = styB ? PAT_KIND[mkey] : 0;
-  attachPattern(mat, pkind || 0, styB && mkey === 'glas');
+  attachPattern(mat, pkind || 0, styB && mkey === 'glas', styB ? TEXMAP[mkey === 'tga' ? 'tga:' + f.layer : mkey] || null : null);
   if (mkey === 'erdreich') earthShader(mat);
   // Lichtfläche der Leuchte und Rettungszeichen leuchten (AP-09f, Darstellung)
   if (styB && (mkey === 'licht' || mkey === 'schild_gruen')) { mat.emissive.copy(mat.color); mat.emissiveIntensity = mkey === 'licht' ? 1.6 : 0.6; }
@@ -2027,7 +2141,7 @@ function floorLabel(n) {
   if (!out.length) { const g = I.groups[I.group[n]]; return g === 'DACH' ? 'Dach' : g === 'SONST' ? 'Außen/sonstiges' : g; }
   return out.join(', ');
 }
-const statShort = c => ['Basis', 'Kandidat', 'zurückgestellt'][c] || '';
+const statShort = c => INTERN ? ['Basis', 'Kandidat', 'zurückgestellt'][c] || '' : '';
 const byName = (x, y) => S.idx.name[x].localeCompare(S.idx.name[y], 'de', {numeric: true});
 const secOpen = {con: true, inr: true, srv: true, cnt: true, sby: true, ds: true, geo: false, rel: true, att: false, pc: true};
 // Kurze deutsche Namen für Bezugsfelder der Welt (Wunsch main nach AP-10). Der Feldname steht im Tooltip.
@@ -2096,7 +2210,7 @@ async function renderAttr() {
   const kv = [['Art', I.arts[I.art[n]] + (SUB_LABEL[I.sub[n]] ? ', ' + SUB_LABEL[I.sub[n]] : ''), I.sub[n] ? 'Unterart in den Planungsdaten: ' + I.sub[n] : ''], ['Geschoss', floorLabel(n)], ['Gewerk', I.gewerke[I.gewerk[n]]]];
   if (sysi && sysi.id) kv.push(['Anlage', sysi.label]);
   kv.push(['Kostengruppe', kgName(n), 'Zuordnung zur Ansicht, abgeleitet aus Ebene, Gewerk, Art und Anlage. Keine Angabe aus den Planungsdaten.']);
-  kv.push(['Status', I.statuses[I.status[n]]]);
+  if (INTERN) kv.push(['Status', I.statuses[I.status[n]]]);
   if (!I.body[n]) kv.push(['Körper', 'keiner, nur im Baum']);
   const mats = [...new Set(activePrims(n).map(([p]) => p.tga ? 'Systemfarbe' : String(matLabel(p)).replace(/\s*\(Darstellung\)/, '')))];
   if (mats.length) kv.push(['Darstellung ' + S.style, mats.join(', ') + (S.style === 'B' && !mats.every(m => m === 'Systemfarbe') ? ' (Darstellung, nicht in den Planungsdaten)' : '')]);
@@ -2122,7 +2236,7 @@ async function renderAttr() {
       const tn = S.idToNum.get(r[1]);
       return '<div class="ci"><span class="lab" title="' + esc(r[0]) + '">' + esc(relLabel(r[0])) + '</span>' + (tn === undefined ? esc(r[1]) : '<button type="button" class="rel" data-n="' + tn + '" title="' + esc(r[1]) + '">' + esc(I.name[tn]) + '</button>') + '</div>';
     }).join(''));
-    b += sec('att', 'Attribute' + (TAB_LABEL[a.tab] ? ', ' + TAB_LABEL[a.tab] : ''), a.f.length, '<p class="note" title="Tabelle in den Planungsdaten: ' + esc(a.tab) + '">Planungsstatus: ' + esc(I.raw_status[I.rawstatus[n]] || 'ohne Angabe') + '. Gespeicherte Werte der Planung. Leere Felder fehlen hier, leer ist nicht 0.</p><table class="kv">' +
+    b += sec('att', 'Attribute' + (TAB_LABEL[a.tab] ? ', ' + TAB_LABEL[a.tab] : ''), a.f.length, '<p class="note" title="Tabelle in den Planungsdaten: ' + esc(a.tab) + '">' + (INTERN ? 'Planungsstatus: ' + esc(I.raw_status[I.rawstatus[n]] || 'ohne Angabe') + '. ' : '') + 'Gespeicherte Werte der Planung. Leere Felder fehlen hier, leer ist nicht 0.</p><table class="kv">' +
       a.f.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</table>');
     if (a.pc && a.pc.length) b += sec('pc', 'Anlagenteil', null, '<table class="kv">' + a.pc.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</table>');
     $('#aBody').className = ''; $('#aBody').innerHTML = b;
@@ -2171,7 +2285,7 @@ async function renderCon(n) {
   const I = S.idx, E = GR.E, g = GR.g;
   const via = e => { const r = g.refs[E.r[e]], t = g.tables[r[0]], k = g.kinds[r[2]] || ''; return 'über ' + (TAB_LABEL[t] || 'gespeicherte Verbindung') + (KIND_LABEL[k] ? ', ' + KIND_LABEL[k] : ''); };
   const viaRaw = e => { const r = g.refs[E.r[e]], kt = (g.kinds_text || g.kinds)[r[2]]; return g.tables[r[0]] + ' ' + r[1] + (kt ? ', ' + kt : ''); };
-  const tagOf = x => (x.c ? '<span class="tag">' + statShort(x.c) + '</span>' : '') + (x.k ? '<span class="tag">getragen</span>' : '');
+  const tagOf = x => (x.c && INTERN ? '<span class="tag">' + statShort(x.c) + '</span>' : '') + (x.k ? '<span class="tag">getragen</span>' : '');
   const ed = edgesOf(n).sort((x, y) => (x.side || 9) - (y.side || 9) || x.c - y.c || byName(x.o, y.o));
   let h = '';
   if (ed.length) {
@@ -2215,7 +2329,7 @@ function netOf(n, maxc, cap = 5000) {
 async function showNet(n) {
   const held = S.idx.status_keys.indexOf('held'), heldOn = held >= 0 && !S.statOff.has(held);
   const net = netOf(n, heldOn ? 2 : 1), all = heldOn ? net : netOf(n, 2);
-  const note = all.size > net.size ? ' Mit zurückgestellten Verbindungen wären es ' + all.size.toLocaleString('de') + '. Dafür im Filter den Status zurückgestellt einschalten.' : '';
+  const note = INTERN && all.size > net.size ? ' Mit zurückgestellten Verbindungen wären es ' + all.size.toLocaleString('de') + '. Dafür im Filter den Status zurückgestellt einschalten.' : '';
   await showSet(net, n, 'Netz', note);
 }
 async function showSet(set, n, what, note = '') {
@@ -2434,7 +2548,7 @@ function renderLegend() {
         (top.length > LIM ? '<div class="note">weitere ' + (top.length - LIM) + ' im Reiter Modell</div>' : '');
     }
     const sa = S.man.status_alpha || {candidate: 0.55, held: 0.35};
-    h += '<h3>Status</h3>' + (S.candTransparent
+    if (INTERN) h += '<h3>Status</h3>' + (S.candTransparent
       ? '<div class="li">' + sw('#9aa4b2', sa.candidate) + '<span class="t">Kandidat halbtransparent</span></div>'
       : '<div class="li">' + sw('#d9dde3') + '<span class="t">Kandidat heller</span></div>') +
       '<div class="li">' + sw('#9aa4b2', sa.held) + '<span class="t">zurückgestellt halbtransparent, anfangs aus</span></div>';
@@ -2730,7 +2844,7 @@ function trow(depth, key, label, count, kids, o = {}) {
 function objRow(depth, n) {
   const I = S.idx, c = I.status[n];
   return trow(depth, 'o:' + n, I.name[n], null, false, {eye: S.hidden.has(n) ? 'off' : 'on', sel: S.selSet.has(n), cur: n === S.last, dim: !S.vis[n], title: I.name[n] + '\n' + I.id[n] + '\n' + I.arts[I.art[n]] + ', ' + floorLabel(n),
-    tag: (c ? '<span class="tag">' + statShort(c) + '</span>' : '') + (I.body[n] ? '' : '<span class="tag">ohne Körper</span>')});
+    tag: (c && INTERN ? '<span class="tag">' + statShort(c) + '</span>' : '') + (I.body[n] ? '' : '<span class="tag">ohne Körper</span>')});
 }
 function moreRow(depth, key, rest) { const d = el('div', {className: 'tmore'}); d.style.paddingLeft = (22 + depth * 14) + 'px'; d.innerHTML = '<button type="button" class="rel" data-more="' + key + '">Weitere ' + rest.toLocaleString('de') + ' zeigen</button>'; return d; }
 function addObjs(frag, depth, key, m) { const lim = TR.lim.get(key) || 100; for (const n of m.slice(0, lim)) frag.append(objRow(depth, n)); if (m.length > lim) frag.append(moreRow(depth, key, m.length - lim)); }
@@ -3558,6 +3672,7 @@ async function start() {
   try {
     const [man, idx] = await Promise.all([fetch(DATA + 'manifest.json').then(r => r.json()), fetch(DATA + 'index.json').then(r => r.json())]);
     // Modell3D: Stil A/B mit gleichen Objektnummern; Umschalten ohne Neuladen (beide Stile bleiben geladen). Start per ?stil=A|B
+    for (const f of man.floors || []) if (f.label === 'UG') f.label = '1.UG';  // Technikzentrale, das zweite heißt 2.UG (Wunsch main 19.11.)
     S.styles = [...new Set(man.files.map(f => f.style || 'A'))].sort();
     let st0 = URLSTIL;
     st0 = S.styles.includes(st0) ? st0 : S.styles.includes('B') ? 'B' : S.styles[0];
@@ -3606,13 +3721,14 @@ async function start() {
     buildFilterUI(); buildClipUI(); renderViews();
     // Status Standard: zurückgestellte (held) zunächst aus
     const held = idx.status_keys.indexOf('held'); if (held >= 0) S.statOff.add(held); buildFilterUI();
-    $('#srcInfo').textContent = 'Datenstand ' + man.source_seed_sha256.slice(0, 12) + ', exportiert ' + man.created + (man.with_tga ? ' mit Technik' : ' ohne Technik') + '. ' + man.objects_with_body.toLocaleString('de') + ' Körper und ' + man.objects_without_body.toLocaleString('de') + ' Objekte ohne Körper. Materialien, Möbelformen und Fenster in Stil B sind Darstellung und nicht Teil der Planungsdaten.';
+    const standIso = String(man.stand || man.created || '').slice(0, 10), standDe = /^\d{4}-\d\d-\d\d$/.test(standIso) ? standIso.slice(8, 10) + '.' + standIso.slice(5, 7) + '.' + standIso.slice(0, 4) : standIso;
+    $('#srcInfo').textContent = 'Stand ' + standDe + (man.version ? ', Version ' + man.version : '') + (man.with_tga ? ' mit Technik' : ' ohne Technik') + '. ' + man.objects_with_body.toLocaleString('de') + ' Körper und ' + man.objects_without_body.toLocaleString('de') + ' Objekte ohne Körper. Materialien, Möbelformen und Fenster in Stil B sind Darstellung und nicht Teil der Planungsdaten. Texturen frei lizenziert (CC0), Liste in tex/LIZENZ.txt.';
     renderLegend(); loadBS();
     syncLoads(); applyVisibility();
     S.cam.target.set(36, 6, -24); updateCamera(true); renderTree(); renderActs(); renderCutBar();
     // erste Ansicht, sobald etwas geladen ist
     setView('iso', idxBounds()); S.fitted = true; camSnap(); syncWalkUI();
-  } catch (e) { showMsg('Daten nicht geladen. Läuft der Server und gibt es den Ordner data? ' + e.message, 0); console.error(e); }
+  } catch (e) { showMsg('Das Modell konnte nicht geladen werden. Bitte lade die Seite neu.', 0); console.error(e); }
   requestAnimationFrame(tick);
 }
 async function bench(sec = 3) {
@@ -3647,7 +3763,7 @@ $('#bBench').onclick = async () => {
   $('#benchOut').innerHTML = (r ? '<b>' + dez(r.fps, 1) + ' Bilder/s</b> am Bildschirm in Stil ' + r.style + ', langsamstes Bild ' + dez(r.worstFrameMs, 1) + ' ms. ' : 'Fenster verdeckt, nur Zeichenzeit gemessen. ') +
     'Zeichenzeit je Bild ' + dez(q.avgMs, 2) + ' ms, 95 % unter ' + dez(q.p95Ms, 2) + ' ms, also etwa ' + q.fpsEquiv + ' Bilder/s möglich. ' + q.tris.toLocaleString('de') + ' Dreiecke sichtbar, ' + q.drawCalls + ' Zeichenaufrufe, Bild ' + q.canvas + ' px.';
 };
-window.__ow = {MEAS, measSet, measClick, roomTrisOf, step: () => { updateCamera(); drawFrame(); }, CAM, RS, WH, get WALK() { return WALK; }, walkStart, walkEnd, floorAt, GP, pickSelect, S, OWU, TR, get GR() { return GR; }, loadGraph, showNet, showSet, xraySel, showAll, renderTree, THREE, renderer, scene, camera, render: () => { updateCamera(true); drawFrame(); }, CV, camSnap, KG, syncLoads, setQuality, QUAL, LOOK, relook: () => { lookMode = ''; invalidate(); }, pick, select, goTo, setView, setColorMode, setStyle, applyVisibility, applyClip, bench, benchSync, renderLegend};
+window.__ow = {MEAS, measSet, measClick, roomTrisOf, TEXU, TEX, texSync, step: () => { updateCamera(); drawFrame(); }, CAM, RS, WH, get WALK() { return WALK; }, walkStart, walkEnd, floorAt, GP, pickSelect, S, OWU, TR, get GR() { return GR; }, loadGraph, showNet, showSet, xraySel, showAll, renderTree, THREE, renderer, scene, camera, render: () => { updateCamera(true); drawFrame(); }, CV, camSnap, KG, syncLoads, setQuality, QUAL, LOOK, relook: () => { lookMode = ''; invalidate(); }, pick, select, goTo, setView, setColorMode, setStyle, applyVisibility, applyClip, bench, benchSync, renderLegend};
 start();
 </script>
 </body></html>

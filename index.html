@@ -251,11 +251,19 @@ canvas.arm{cursor:crosshair !important}
 .mh .sp{flex:1}
 .mb{padding:6px 12px 10px;display:flex;flex-direction:column;gap:6px}
 .mb h3{margin:6px 0 0;font-size:var(--fs-s);font-weight:500;color:var(--muted)}
-.mb .mi{display:flex;flex-direction:column;align-items:stretch;height:auto;min-height:var(--tap);padding:4px 10px;text-align:left;white-space:normal}
-.mb .mi small{color:var(--muted);font-size:var(--fs-s)}
+#selMenu .mi{display:flex;flex-direction:row;align-items:center;gap:12px;height:auto;min-height:var(--tap);padding:0 10px;text-align:left;white-space:nowrap;min-width:0}
+#selMenu .mi span{flex:none}
+#selMenu .mi small{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:right;color:var(--muted);font-size:var(--fs-s)}
+#selMenu .mr .mi{flex:1}
+#selMenu hr{border:0;border-top:1px solid var(--line);margin:4px 0 0}
+#selMenu .mz{margin-top:6px}
+#selMenu .mz h3{margin:0}
+#selMenu .mz .sp{flex:1}
+#selMenu .mz .seg button{height:26px;padding:0 10px}
+@media (pointer:coarse){#selMenu .mz .seg button{height:40px}}
 .mb .mi:disabled small{color:inherit}
 .mb .mr{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.mb select{flex:1;min-width:120px}
+.mb select{flex:none;width:auto;min-width:0}
 .kgh{display:flex;align-items:center;gap:6px;min-height:28px;font-size:var(--fs-s);font-weight:500;color:var(--muted);margin-top:6px}
 .kgh label{flex:1;display:flex;align-items:center;gap:6px;cursor:pointer}
 .row button.only{border-color:transparent;background:transparent;color:var(--muted);height:24px;padding:0 6px;font-size:var(--fs-s);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:2px}
@@ -399,24 +407,22 @@ body:not(.intern) .intern{display:none !important}
 
     <div id="t-filter" class="tab act" role="tabpanel" aria-labelledby="tb-filter">
       <h2>Ich bin <button class="ib info" data-i="Zeigt nur die Anlagen und Leitungen dieses Gewerks. Der Rest bleibt als blasser Geist stehen oder wird ausgeblendet. Die Zuordnung kommt aus den Planungsdaten: Gewerk des Objekts und Art der Anlage. Sanitär umfasst Trinkwasser und Abwasser. Brandschutz umfasst die Brandschutz-Ebenen, die Löschwasserleitung und die Brandmeldung. Bei Brandschutz werden Abschottungen, Klappen, Rettungswege und Feuerwehrflächen eingeschaltet."></button></h2>
-      <div class="roleBox"><select id="roleSel" aria-label="Ansicht nach Gewerk" autocomplete="off"></select><span class="seg" id="roleRest" role="group" aria-label="Der Rest"><button data-r="ghost" aria-pressed="true" class="act" title="Der Rest bleibt blass sichtbar">Rest blass</button><button data-r="hide" aria-pressed="false" title="Der Rest wird ausgeblendet">Rest aus</button></span></div>
+      <div class="roleBox"><select id="roleSel" aria-label="Ansicht nach Gewerk" autocomplete="off"></select><span class="seg" id="roleRest" role="group" aria-label="Der Rest"><button data-r="ghost" aria-pressed="true" class="act" >Rest blass</button><button data-r="hide" aria-pressed="false">Rest aus</button></span></div>
       <div class="ftools"><button class="sm" id="secCollapse" title="Alle Abschnitte und Baumäste zuklappen">Alle zuklappen</button></div>
       <details class="sec" id="kgSec"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Kostengruppen DIN 276</span></summary>
-        <div class="note">Zuordnung zur Ansicht. Sie ist aus Ebene, Gewerk, Art und Anlage abgeleitet und steht nicht in den Planungsdaten. Haken blendet die Gruppe ein oder aus, die Zahl zählt Körper.</div>
+        <div class="note">Abgeleitet, nicht aus den Planungsdaten.</div>
         <div class="ftools"><button class="sm" id="kgAll">Alle</button><button class="sm" id="kg300" title="Nur Baukonstruktionen">Nur 300</button><button class="sm" id="kg400" title="Nur Technische Anlagen">Nur 400</button></div>
         <div id="kgList"></div>
       </details>
       <h2>Zeigen <button class="ib info" data-i="Geschosse wählst du rechts im Bild mit Häkchen, beliebig kombiniert. Die Decke über dem obersten gezeigten Geschoss bleibt offen, solange das Dach aus ist."></button></h2>
       <div class="btns qt" id="quick"></div>
-      <div class="row"><label for="cMode">Einfärbung</label><select id="cMode" autocomplete="off"><option value="material">Modell</option><option value="gewerk">Gewerk</option><option value="art">Objektart</option><option value="status">Status</option><option value="floor">Geschoss</option><option value="kg">Kostengruppe (Zuordnung zur Ansicht)</option></select></div>
+      <div class="row"><label for="cMode">Einfärbung</label><select id="cMode" autocomplete="off"><option value="material">Modell</option><option value="gewerk">Gewerk</option><option value="art">Objektart</option><option value="status">Status</option><option value="floor">Geschoss</option><option value="kg">Kostengruppe</option></select></div>
       <div class="row" id="rTgaGew" hidden><label title="Technik in Stil B in den Farben der Anlagen statt als Werkstoff"><input type="checkbox" id="cTgaGew" autocomplete="off"> Gewerke einfärben</label></div>
       <details class="sec" id="secTree"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Filterbaum</span></summary>
-        <div class="note">Haken blendet ein oder aus. Ein Oberknoten schaltet alles darunter, ein halber Haken zeigt eine Mischung.</div>
         <div class="ftools"><button class="sm" id="ftAll" title="Ebenen wie beim Start, Unterteilungen wieder ein">Standard</button><button class="sm" id="ftNone">Alle aus</button></div>
         <div id="fTree"></div>
       </details>
       <details class="sec" id="secLayers"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ebenen und Deckkraft</span></summary>
-        <div class="note">Haken blendet aus, der Regler stellt die Deckkraft ein. Gewerke und Anlagen stehen auch im Reiter Modell.</div>
         <div id="fLayers"></div>
       </details>
       <details class="sec" id="secArt"><summary><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M6 3.5l4.5 4.5L6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Objektart</span></summary>
@@ -457,7 +463,7 @@ body:not(.intern) .intern{display:none !important}
       <div class="row"><label for="wheelSel">Mausrad und Wischen</label><select id="wheelSel" autocomplete="off"><option value="auto">Automatisch</option><option value="zoom">Immer zoomen</option><option value="pan">Immer verschieben</option></select></div>
       <div class="row"><label for="zoomSpd">Zoom Tempo</label><input type="range" id="zoomSpd" min="40" max="200" value="100" autocomplete="off"></div>
       <h2>Kameramodus</h2>
-      <div class="seg" id="modeSeg" role="group" aria-label="Steuerung"><button data-m="orbit" aria-pressed="true" title="Ziehen dreht um das Ziel (Taste M)">Orbit</button><button data-m="walk" aria-pressed="false" title="Auf einen Boden klicken und dort stehen, Ziehen schaut, W A S D geht (Taste G)">Begehen</button></div>
+      <div class="seg" id="modeSeg" role="group" aria-label="Steuerung"><button data-m="orbit" aria-pressed="true" title="Ziehen dreht um das Ziel (Taste M)">Orbit</button><button data-m="walk" aria-pressed="false" title="Auf einen Boden klicken, W A S D geht, Umschalt rennt (Taste G)">Begehen</button></div>
       <h2>Farbschema</h2>
       <div class="seg" id="themeSeg" role="group" aria-label="Farbschema"><button data-t="auto" aria-pressed="true">Wie System</button><button data-t="light" aria-pressed="false">Hell</button><button data-t="dark" aria-pressed="false">Dunkel</button></div>
       <div id="benchBox" hidden>
@@ -539,7 +545,7 @@ body:not(.intern) .intern{display:none !important}
       <tr><td>Maus</td><td>Linke Taste ziehen dreht. Rechte oder mittlere Taste oder Umschalt, Strg oder Cmd und Ziehen verschiebt. Das Rad zoomt zum Mauszeiger. Doppelklick fliegt zum Objekt.</td></tr>
       <tr><td>Trackpad</td><td>Zwei Finger wischen verschiebt. Spreizen und Zusammenziehen zoomt zum Zeiger. Drehen: Taste drücken und ziehen, oder Wahltaste (Alt) halten und mit zwei Fingern wischen, oder den Schalter Drehen unten im Bild nutzen.</td></tr>
       <tr><td>Touch</td><td>Ein Finger zieht. Was er tut, steht im Schalter Drehen und Verschieben unten im Bild. Zwei Finger verschieben, zoomen und drehen. Tippen wählt ein Objekt. Doppeltippen fliegt hin.</td></tr>
-      <tr><td>Tastatur</td><td>Pfeiltasten verschieben. W A S D bewegen auf dem Boden, Q und E hoch und runter. Plus und Minus zoomen. Alt und Pfeile drehen. Mit Umschalt geht es schneller. Die Tasten wirken nach einem Klick ins Bild.</td></tr>
+      <tr><td>Tastatur</td><td>Pfeiltasten verschieben. W A S D bewegen auf dem Boden, Q und E hoch und runter. Plus und Minus zoomen. Alt und Pfeile drehen. Mit Umschalt rennst du. Die Tasten wirken nach einem Klick ins Bild.</td></tr>
       <tr><td>Leiste unten</td><td>Drehen oder Verschieben legt fest, was Ziehen tut. Minus und Plus zoomen. Das Haus zeigt das ganze Gebäude. Dann folgen Begehen, Schnitt und Messen.</td></tr>
       <tr><td>Einstellung</td><td>Links im Reiter Ansicht: Mausrad und Wischen umstellen und das Zoom Tempo.</td></tr>
     </table>
@@ -588,7 +594,7 @@ body:not(.intern) .intern{display:none !important}
     <h2>Begehen</h2>
     <table class="help">
       <tr><td>Start</td><td>Knopf mit der Figur unten oder Taste <kbd>G</kbd>. Dann auf einen Boden klicken, dort stehst du in Augenhöhe.</td></tr>
-      <tr><td>Maus und Tasten</td><td>Ziehen schaut dich um. W A S D, Pfeile oder das Rad gehen. Ein Klick auf einen Boden geht dorthin.</td></tr>
+      <tr><td>Maus und Tasten</td><td>Ziehen schaut dich um. W A S D, Pfeile oder das Rad gehen, mit Umschalt rennst du. Ein Klick auf einen Boden geht dorthin.</td></tr>
       <tr><td>Touch</td><td>Ziehen schaut. Zwei Finger gehen vor und zurück. Tippen auf den Boden geht hin.</td></tr>
       <tr><td>Ende</td><td><kbd>Esc</kbd> oder Beenden oben im Bild. Die Kamera fliegt zurück.</td></tr>
       <tr><td>Tipp</td><td>Blende vorher das Geschoss darüber aus, dann ist es heller. Mit Grundriss 1,5 m im Schnitt siehst du von oben in die Räume.</td></tr>
@@ -609,7 +615,7 @@ body:not(.intern) .intern{display:none !important}
       <tr><td><kbd>1</kbd> bis <kbd>6</kbd></td><td>Grundriss, Süd, Nord, West, Ost, Isometrie</td></tr>
       <tr><td><kbd>M</kbd></td><td>Messen an oder aus</td></tr>
       <tr><td><kbd>G</kbd></td><td>Begehen an oder aus</td></tr>
-      <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>Q</kbd> <kbd>E</kbd>, Pfeile</td><td>verschieben, mit Umschalt schneller. Alt und Pfeile drehen</td></tr>
+      <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>Q</kbd> <kbd>E</kbd>, Pfeile</td><td>verschieben, mit Umschalt rennen. Alt und Pfeile drehen</td></tr>
       <tr><td><kbd>+</kbd> <kbd>-</kbd></td><td>zoomen</td></tr>
       <tr><td><kbd>Pos1</kbd> <kbd>R</kbd></td><td>ganzes Gebäude</td></tr>
       <tr><td><kbd>T</kbd></td><td>Ziehen dreht oder verschiebt</td></tr>
@@ -2374,9 +2380,9 @@ function bsBands() {
   }
   bsVis();
 }
-function bsPick(cx, cy) {  // Band unter dem Zeiger (Bildschirmabstand bis 9 px), sonst -1
+function bsPick(cx, cy, h) {  // Band unter dem Zeiger (Bildschirmabstand bis 9 px), nicht hinter dem Treffer h, sonst -1
   if (!BS.grp || S.colorMode !== 'brand') return -1;
-  const r = cv.getBoundingClientRect(), px = cx - r.left, py = cy - r.top;
+  const r = cv.getBoundingClientRect(), px = cx - r.left, py = cy - r.top, hd = h ? camera.position.distanceTo(h.P) + 0.5 : Infinity, q = new THREE.Vector3();
   const sc = v => { const p = v.clone().project(camera); return p.z > 1 ? null : [(p.x + 1) / 2 * r.width, (1 - p.y) / 2 * r.height]; };
   let best = 81, li = -1;
   for (const s of BS.segs) {
@@ -2385,7 +2391,7 @@ function bsPick(cx, cy) {  // Band unter dem Zeiger (Bildschirmabstand bis 9 px)
     const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy;
     const t = l2 > 0 ? Math.max(0, Math.min(1, ((px - a[0]) * dx + (py - a[1]) * dy) / l2)) : 0;
     const ex = a[0] + t * dx - px, ey = a[1] + t * dy - py, d2 = ex * ex + ey * ey;
-    if (d2 < best) { best = d2; li = s.li; }
+    if (d2 < best && camera.position.distanceTo(q.copy(s.a).lerp(s.b, t)) <= hd) { best = d2; li = s.li; }
   }
   return li;
 }
@@ -2836,9 +2842,9 @@ async function renderAttr() {
     (n < S.worldN ? '<div class="idl"><span>Anlagennummer ' + esc(I.id[n]) + '</span><button type="button" class="ib" id="aCopy" title="Nummer kopieren" aria-label="Nummer kopieren">' + IC.copy + '</button></div>' : '');
   { const gi = groupInfo(n), kd = GP_KIND[I.arts[I.art[n]]];
     if (gi) { const whole = S.selGrp === gi.id;
-      h += '<div class="note"><b>' + (whole ? 'Ganze Gruppe gewählt: ' : 'Einzelteil gewählt, gehört zu: ') + esc(gi.name) + '</b><br>' + gi.members.length + ' Teile. ' + (whole ? 'Ein weiterer Klick auf ein Teil oder Alt und Klick wählt nur dieses Teil.' : 'Ein Klick auf dieses Teil wählt wieder die ganze Gruppe.') + '</div><div class="btns"><button class="sm" id="aGrp">' + (whole ? 'Nur dieses Teil wählen' : 'Ganze Gruppe wählen') + '</button></div>'; }
+      h += '<div class="note"><b>' + (whole ? 'Gruppe ' : 'Teil von ') + esc(gi.name) + '</b>, ' + gi.members.length + ' Teile</div><div class="btns"><button class="sm" id="aGrp">' + (whole ? 'Nur dieses Teil wählen' : 'Ganze Gruppe wählen') + '</button></div>'; }
     else if (kd && !GP.loaded.has(kd) && n < S.worldN) ensureGroups(kd).then(() => { if (S.last === n) renderAttr(); }).catch(() => {}); }
-  if (n >= S.worldN) h += '<div class="note">Dieses Teil gehört zur Darstellung in Stil B und ist kein Planungsobjekt. ' + (I.arts[I.art[n]] === 'Fenster (Darstellung)' ? 'Das Fenster ist aus den Fensteranteilen des Heizlastansatzes abgeleitet. Jedes Fenster ist ein eigenes Objekt.' : 'Das Dach ist Darstellung der Dachhaut und des Randes.') + '</div>';
+  if (n >= S.worldN) h += '<div class="note">Darstellung, kein Planungsobjekt' + (I.arts[I.art[n]] === 'Fenster (Darstellung)' ? '. Abgeleitet aus den Fensteranteilen der Heizlast.' : '.') + '</div>';
   if (S.sel.length > 1) h += '<div class="note">' + S.sel.length.toLocaleString('de') + ' gewählt, hier das zuletzt gewählte</div>';
   const kv = [['Art', I.arts[I.art[n]] + (SUB_LABEL[I.sub[n]] ? ', ' + SUB_LABEL[I.sub[n]] : ''), I.sub[n] ? 'Unterart in den Planungsdaten: ' + I.sub[n] : ''], ['Geschoss', floorLabel(n)], ['Gewerk', I.gewerke[I.gewerk[n]]]];
   if (sysi && sysi.id) kv.push(['Anlage', sysi.label]);
@@ -3061,19 +3067,19 @@ function renderMenu() {
   box.hidden = !(S.menuOpen && S.sel.length); if (box.hidden) return;
   const I = S.idx, n = S.last, sy = I.system[n], sl = I.systems[sy], kgi = KG.of[n], kg = KG.list[kgi];
   let nSys = 0; if (sy) for (let i = 0; i < S.N; i++) if (I.system[i] === sy) nSys++;
-  const gs = selGroups();
+  const gs = selGroups(), kindTxt = gs.map(groupName).join(', ');
+  const sysTxt = sy ? sl.label + ', ' + nSys.toLocaleString('de') : 'keine';
+  const kgTxt = kg ? (kg.code ? 'KG ' + kg.code + ' ' : '') + kg.label + ', ' + kg.nAll.toLocaleString('de') : '';
   const mk = (a, t, sub, dis, tip) => '<button type="button" class="mi" data-a="' + a + '"' + (dis ? ' disabled' : '') + (tip ? ' title="' + esc(tip) + '"' : '') + '><span>' + esc(t) + '</span>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</button>';
   box.innerHTML = '<div class="mh"><span>Mehr zur Auswahl</span><span class="sp"></span><button type="button" class="ib" data-a="menu" aria-label="Menü schließen" title="Schließen">' + IC.close + '</button></div><div class="mb">' +
-    '<h3>Ausblenden</h3>' +
-    mk('kind', 'Alle dieser Art ausblenden', gs.map(groupName).join(', ')) +
-    mk('xray', S.xray ? 'Röntgen beenden' : 'Röntgen', 'Auswahl deckend, der Rest blass') +
-    '<h3>Zeigen, ausgehend von der Auswahl</h3>' +
-    mk('sys', 'Alles zur gleichen Anlage', sy ? sl.label + ', ' + nSys.toLocaleString('de') + ' Objekte' : 'Dieses Objekt gehört zu keiner Anlage', !sy) +
-    '<div class="mr">' + mk('con', 'Alles Verbundene', 'über die gespeicherten Verbindungen') +
+    mk('kind', 'Alle dieser Art ausblenden', kindTxt, false, kindTxt) +
+    mk('xray', S.xray ? 'Röntgen beenden' : 'Röntgen') +
+    '<div class="mr mz"><h3>Zeigen</h3><span class="sp"></span><span class="muted">Rest</span><span class="seg" id="mRest" role="group" aria-label="Der Rest"><button type="button" data-r="ghost" aria-pressed="' + (S.restMode !== 'hide') + '" class="' + (S.restMode !== 'hide' ? 'act' : '') + '">blass</button><button type="button" data-r="hide" aria-pressed="' + (S.restMode === 'hide') + '" class="' + (S.restMode === 'hide' ? 'act' : '') + '">aus</button></span></div>' +
+    mk('sys', 'Gleiche Anlage', sysTxt, !sy, sysTxt) +
+    '<div class="mr">' + mk('con', 'Verbundenes') +
       '<select id="mDepth" aria-label="Tiefe der Verbindung">' + DEPTHS.map(d => '<option value="' + d[0] + '"' + (S.conDepth === d[0] ? ' selected' : '') + '>' + d[1] + '</option>').join('') + '</select></div>' +
-    mk('kgs', 'Alles der gleichen Kostengruppe', kg ? (kg.code ? 'KG ' + kg.code + ' ' : '') + kg.label + ', ' + kg.nAll.toLocaleString('de') + ' Objekte (Zuordnung zur Ansicht)' : '') +
-    '<div class="mr"><span class="muted">Der Rest</span><span class="seg" id="mRest" role="group" aria-label="Der Rest"><button type="button" data-r="ghost" aria-pressed="' + (S.restMode !== 'hide') + '" class="' + (S.restMode !== 'hide' ? 'act' : '') + '">blass</button><button type="button" data-r="hide" aria-pressed="' + (S.restMode === 'hide') + '" class="' + (S.restMode === 'hide' ? 'act' : '') + '">aus</button></span></div>' +
-    '<h3>Zurück</h3>' + mk('all', 'Alles wieder zeigen', 'hebt Ausblenden, Isolieren und Filter auf') + '</div>';
+    mk('kgs', 'Gleiche Kostengruppe', kgTxt, !kg, kgTxt) +
+    '<hr>' + mk('all', 'Alles zeigen') + '</div>';
   $('#mDepth').onchange = e => { S.conDepth = e.target.value; };
   box.querySelectorAll('#mRest button').forEach(b => b.onclick = e => { e.stopPropagation(); S.restMode = b.dataset.r; renderMenu(); });
 }
@@ -3120,11 +3126,11 @@ function renderHid() {
   const box = $('#hidPanel'); if (!box) return;
   box.hidden = !S.hidOpen; if (!S.hidOpen) return;
   const I = S.idx, items = [];
-  for (const a of S.artOff) items.push({g: 'Art', t: I.arts[a], sub: 'alle dieser Art', undo: () => S.artOff.delete(a)});
-  for (const id of S.leafOff) items.push({g: 'Art', t: groupName({t: 'leaf', id}), sub: 'alle dieser Art', undo: () => S.leafOff.delete(id)});
-  for (const g of S.gewOff) items.push({g: 'Gewerk', t: I.gewerke[g], sub: 'ganzes Gewerk', undo: () => S.gewOff.delete(g)});
-  for (const y of S.sysOff) items.push({g: 'Anlage', t: I.systems[y].label, sub: 'ganze Anlage', undo: () => S.sysOff.delete(y)});
-  for (const k of S.kgOff) items.push({g: 'KG', t: (KG.list[k].code ? 'KG ' + KG.list[k].code + ' ' : '') + KG.list[k].label, sub: 'ganze Kostengruppe', undo: () => S.kgOff.delete(k)});
+  for (const a of S.artOff) items.push({g: 'Art', t: I.arts[a], sub: 'Art', undo: () => S.artOff.delete(a)});
+  for (const id of S.leafOff) items.push({g: 'Art', t: groupName({t: 'leaf', id}), sub: 'Art', undo: () => S.leafOff.delete(id)});
+  for (const g of S.gewOff) items.push({g: 'Gewerk', t: I.gewerke[g], sub: 'Gewerk', undo: () => S.gewOff.delete(g)});
+  for (const y of S.sysOff) items.push({g: 'Anlage', t: I.systems[y].label, sub: 'Anlage', undo: () => S.sysOff.delete(y)});
+  for (const k of S.kgOff) items.push({g: 'KG', t: (KG.list[k].code ? 'KG ' + KG.list[k].code + ' ' : '') + KG.list[k].label, sub: 'Kostengruppe', undo: () => S.kgOff.delete(k)});
   const gAll = items.length;
   const objs = [...S.hidden];
   const h = document.createDocumentFragment();
@@ -3133,11 +3139,11 @@ function renderHid() {
     b.onclick = () => { it.undo(); buildFilterUI(); applyVisibility(); renderTree(true); };
     return el('div', {className: 'hi'}, el('span', {className: 'tx', title: it.t}, it.t, el('span', {className: 'sub', textContent: it.sub ? ', ' + it.sub : ''})), b);
   };
-  if (gAll) { h.append(el('div', {className: 'hg', textContent: 'Gruppen, zum Beispiel Art, Gewerk, Anlage, Kostengruppe'})); items.forEach(it => h.append(mk(it))); }
+  if (gAll) { h.append(el('div', {className: 'hg', textContent: 'Gruppen'})); items.forEach(it => h.append(mk(it))); }
   if (objs.length) {
     h.append(el('div', {className: 'hg', textContent: 'Einzelne Objekte, ' + objs.length.toLocaleString('de')}));
     for (const n of objs.slice(0, 100)) h.append(mk({t: I.name[n], sub: I.arts[I.art[n]] + ', ' + floorLabel(n), undo: () => S.hidden.delete(n)}));
-    if (objs.length > 100) h.append(el('div', {className: 'hg', textContent: 'und ' + (objs.length - 100).toLocaleString('de') + ' weitere, zurückholen mit Alles einblenden'}));
+    if (objs.length > 100) h.append(el('div', {className: 'hg', textContent: 'und ' + (objs.length - 100).toLocaleString('de') + ' weitere'}));
   }
   const x = el('button', {type: 'button', className: 'ib', title: 'Liste schließen', innerHTML: IC.close}); x.setAttribute('aria-label', 'Liste schließen'); x.onclick = () => { S.hidOpen = false; renderActs(); };
   const all = el('button', {type: 'button', className: 'sm', textContent: 'Alles einblenden'}); all.onclick = showAll;
@@ -3844,9 +3850,8 @@ cv.addEventListener('pointerup', e => {
   const now = performance.now();
   if (d.touch && now - TAP.t < 330 && Math.hypot(e.clientX - TAP.x, e.clientY - TAP.y) < 30) { TAP.t = 0; flyToHit(e.clientX, e.clientY); return; }  // Doppeltippen
   TAP.t = now; TAP.x = e.clientX; TAP.y = e.clientY;
-  const bl = bsPick(e.clientX, e.clientY);
-  if (bl >= 0 && !d.add) { bsShowLine(bl); return; }
-  const h = pick(e.clientX, e.clientY);
+  const h = pick(e.clientX, e.clientY), bl = d.add ? -1 : bsPick(e.clientX, e.clientY, h);
+  if (bl >= 0) { bsShowLine(bl); return; }
   if (h) pickSelect(h.n, d.add, e.altKey); else if (!d.add) select(-1);
 });
 function flyToHit(cx, cy) {  // sanft hinfliegen, dort ist der neue Drehpunkt, nie weiter weg als jetzt
@@ -4271,7 +4276,7 @@ function hoverSoon(e) {
 }
 cv.addEventListener('pointerleave', () => { $('#tip').style.display = 'none'; });
 const keys = new Set();
-let shiftHeld = false, altHeld = false;
+let shiftHeld = false, altHeld = false, SPRINT = 0;
 addEventListener('keydown', e => {
   shiftHeld = e.shiftKey; altHeld = e.altKey;
   if (e.key === '/' && !e.ctrlKey && !e.metaKey && !$('#help').open) { const t = document.activeElement; if (!t || !/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) { e.preventDefault(); $('#q').focus(); $('#q').select(); return; } }
@@ -4297,7 +4302,8 @@ function tick(now) {
   const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
   if (keys.size) {
     camTake();
-    const c = S.cam, b = camBasis(c), walk = S.mode === 'walk', sp = (walk ? 1.6 : Math.max(2, c.dist * 0.5)) * (shiftHeld ? (walk ? 2.5 : 3) : 1) * dt;
+    SPRINT += ((shiftHeld ? 1 : 0) - SPRINT) * Math.min(1, dt * 5);  // Umschalt: weich anlaufen und auslaufen
+    const c = S.cam, b = camBasis(c), walk = S.mode === 'walk', sp = (walk ? 1.6 : Math.max(2, c.dist * 0.5)) * (1 + SPRINT * (walk ? 5 : 2)) * dt;
     const f = b.f.clone();
     if (S.mode === 'orbit' || walk) { f.y = 0; if (f.lengthSq() < 1e-6) f.set(0, 0, -1); f.normalize(); }
     const r = b.right, mv = new THREE.Vector3();
@@ -4317,7 +4323,7 @@ function tick(now) {
     c.target.add(mv);
     if (keys.has('+')) zoomAt(Math.exp(-1.1 * dt)); if (keys.has('-')) zoomAt(Math.exp(1.1 * dt));
     camDirect();
-  }
+  } else SPRINT = 0;
   if (MK.P) placeMarker();
   // Auflösung: beim Bewegen kleiner, in Ruhe ein Bild in voller Auflösung
   const moving = now - CAM.moveT < 150 || !!drag || ptrs.size > 0 || keys.size > 0;

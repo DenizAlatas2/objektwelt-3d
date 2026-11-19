@@ -301,11 +301,19 @@ header h1{font-size:14px;letter-spacing:.01em;margin-right:10px}
 #nav .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);box-shadow:none;font-weight:600}
 #nav .seg button[aria-pressed="false"]{color:var(--muted);background:transparent}
 #nav .seg button[aria-pressed="false"]:hover{color:var(--text);background:var(--hover)}
-#cutBar{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:min(300px,100%);padding:6px;display:flex;flex-direction:column;gap:2px;z-index:6}
+#cutBar{width:min(520px,100%);padding:6px;display:flex;flex-direction:column;gap:6px;z-index:6}
 #cutBar[hidden]{display:none}
-#cutBar .mi{display:flex;flex-direction:column;align-items:flex-start;height:auto;min-height:40px;padding:6px 10px;border:0;border-radius:6px;background:transparent;text-align:left;white-space:normal}
-#cutBar .mi:hover{background:var(--hover)}
-#cutBar .mi small{color:var(--muted);font-size:var(--fs-s)}
+#cutBar .cbr{display:flex;align-items:center;gap:8px;min-width:0}
+#cutBar .cbt{font-weight:500;padding:0 4px 0 6px}
+#cutBar .sp{flex:1}
+#cutBar .seg button{height:30px;padding:0 12px}
+#cutBar input[type=range]{flex:1;min-width:0;margin:0 4px}
+#cutBar .cbv{min-width:11ch;text-align:right;font-variant-numeric:tabular-nums;font-size:var(--fs-s);color:var(--muted)}
+#cutBar button.sm{height:30px}
+@media (pointer:coarse){ #cutBar .seg button,#cutBar button.sm{height:40px} }
+#app.walking #navSeg,#app.walking #navSeg+.nsep{display:none}
+#walkHint .wfl{display:flex;align-items:center;gap:2px}
+#walkHint .wfl b{min-width:5ch;text-align:center;font-weight:500}
 /* Auswahlleiste und Meldung */
 #acts{padding:4px 4px 4px 12px;gap:4px}
 #acts button{border-color:transparent;background:transparent;border-radius:8px}
@@ -484,7 +492,7 @@ body:not(.intern) .intern{display:none !important}
     <div id="pivotDot"></div>
     <svg id="measSvg" aria-hidden="true"></svg>
     <div id="measLab" aria-hidden="true"></div>
-    <div id="walkHint" hidden><span></span><button type="button" class="sm" id="walkX">Beenden</button></div>
+    <div id="walkHint" hidden><span></span><span class="wfl"><button type="button" class="ib" id="walkDn" aria-label="Ein Geschoss runter" title="Ein Geschoss runter (Bild ab)"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b id="walkFl"></b><button type="button" class="ib" id="walkUp" aria-label="Ein Geschoss hoch" title="Ein Geschoss hoch (Bild auf)"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M3.5 10l4.5-4.5 4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span><button type="button" class="sm" id="walkX">Beenden</button></div>
     <div id="dock">
       <div id="welcome" hidden role="region" aria-label="So bewegst du dich">
         <div class="wh"><b class="wt">So bewegst du dich</b><span class="wl" id="wcLine">Ziehen dreht. Rechte Taste oder zwei Finger verschieben. Rad oder Spreizen zoomt.</span><button type="button" class="sm wm" id="wcMoreB" aria-expanded="false" aria-controls="wcBody">Mehr</button><button type="button" class="ib" id="wcX" aria-label="Schließen" title="Schließen"></button></div>
@@ -502,8 +510,8 @@ body:not(.intern) .intern{display:none !important}
       <div id="selMenu" hidden role="dialog" aria-label="Mehr zur Auswahl"></div>
       <div id="measPanel" hidden role="region" aria-label="Messen"></div>
       <div id="acts" role="toolbar" aria-label="Auswahl"></div>
+      <div id="cutBar" hidden role="group" aria-label="Schnitt"></div>
       <div id="navRow">
-        <div id="cutBar" hidden role="menu" aria-label="Schnitt"></div>
         <div id="nav" role="toolbar" aria-label="Kamera">
           <span class="seg" id="navSeg" role="group" aria-label="Ziehen mit Maus oder Finger"><button type="button" id="bNavO" data-nm="orbit" aria-pressed="true" title="Ziehen dreht das Modell (Taste T wechselt)"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M13.2 8.6A5.2 5.2 0 1 1 11.4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11.8 1.6l-.2 2.8-2.8-.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Drehen</span></button><button type="button" id="bNavP" data-nm="pan" aria-pressed="false" title="Ziehen verschiebt das Bild (Taste T wechselt)"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1.5v13M1.5 8h13M8 1.5L6.2 3.3M8 1.5l1.8 1.8M8 14.5l-1.8-1.8M8 14.5l1.8-1.8M1.5 8l1.8-1.8M1.5 8l1.8 1.8M14.5 8l-1.8-1.8M14.5 8l-1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Verschieben</span></button></span>
           <span class="nsep" aria-hidden="true"></span>
@@ -512,7 +520,7 @@ body:not(.intern) .intern{display:none !important}
           <button type="button" class="ib" id="bNavHome" title="Ganzes Gebäude zeigen (Taste R)" aria-label="Ganzes Gebäude zeigen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 7.5L8 2.5l6 5M3.8 6.6V13h3V9.5h2.4V13h3V6.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
           <span class="nsep" aria-hidden="true"></span>
           <button type="button" class="ib" id="bWalk" aria-pressed="false" aria-label="Begehen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8.6" cy="2.6" r="1.5" fill="currentColor"/><path d="M8 5.2L6.3 9l2.4 1.6L7.6 14.6M8 5.2l2.6 2.2 2 .4M6.3 9L4 8.4M8.7 10.6l2.3 1.4.6 2.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <button type="button" class="ib" id="bCut" aria-pressed="false" aria-haspopup="menu" aria-expanded="false" aria-label="Schnitt" title="Schnitt: Grundriss, Schnitt einstellen, Schnitt aus"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5 5.5L8 2.5l5.5 3L8 8.5z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M2.5 5.5v5L8 13.5l5.5-3v-5M8 8.5v5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" opacity=".55"/><path d="M1 9.2h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+          <button type="button" class="ib" id="bCut" aria-pressed="false" aria-expanded="false" aria-label="Schnitt" title="Schnitt: Grundriss, Längs, Quer"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5 5.5L8 2.5l5.5 3L8 8.5z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M2.5 5.5v5L8 13.5l5.5-3v-5M8 8.5v5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" opacity=".55"/><path d="M1 9.2h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
           <button type="button" class="ib" id="bMeas" aria-pressed="false" aria-label="Messen" title="Messen: Strecke, Fläche, Raum (Taste M)"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M1.8 11.3L11.3 1.8l2.9 2.9-9.5 9.5z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.6 8.5l1.4 1.4M6.5 6.6l2 2M8.4 4.7l1.4 1.4M10.3 2.8l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
         </div>
       </div>
@@ -594,8 +602,8 @@ body:not(.intern) .intern{display:none !important}
     <h2>Begehen</h2>
     <table class="help">
       <tr><td>Start</td><td>Knopf mit der Figur unten oder Taste <kbd>G</kbd>. Dann auf einen Boden klicken, dort stehst du in Augenhöhe.</td></tr>
-      <tr><td>Maus und Tasten</td><td>Ziehen schaut dich um. W A S D, Pfeile oder das Rad gehen, mit Umschalt rennst du. Ein Klick auf einen Boden geht dorthin.</td></tr>
-      <tr><td>Touch</td><td>Ziehen schaut. Zwei Finger gehen vor und zurück. Tippen auf den Boden geht hin.</td></tr>
+      <tr><td>Maus und Tasten</td><td>Ziehen, W A S D, Pfeile oder das Rad gehen, mit Umschalt rennst du. Rechte Taste und Ziehen schaut. Treppen gehst du hoch und runter, Bild auf und ab wechselt das Geschoss. Klick auf einen Boden geht hin, Klick auf ein Objekt wählt es.</td></tr>
+      <tr><td>Touch</td><td>Ein Finger geht. Zwei Finger drehen und gehen vor und zurück. Tippen auf den Boden geht hin.</td></tr>
       <tr><td>Ende</td><td><kbd>Esc</kbd> oder Beenden oben im Bild. Die Kamera fliegt zurück.</td></tr>
       <tr><td>Tipp</td><td>Blende vorher das Geschoss darüber aus, dann ist es heller. Mit Grundriss 1,5 m im Schnitt siehst du von oben in die Räume.</td></tr>
     </table>
@@ -681,8 +689,8 @@ const CUTMAT = new THREE.MeshBasicMaterial({color: 0x4b5058, side: THREE.BackSid
 function updateCutState(p) {
   // Runde 5: deckende Körper nur mit Vorderseiten (Rückseiten liegen innen und sind verdeckt, spart etwa 0,5 ms GPU je Bild).
   // Beidseitig bleiben durchsichtige Teile und Laub mit Ausschnitt (durch die Lücken sieht man die Rückseite). Schatten unverändert beidseitig.
-  const on = CUT.value > 0.5 && !p.mat.transparent;
-  const side = on || (!p.mat.transparent && !p.dbl) ? THREE.FrontSide : THREE.DoubleSide;
+  const on = CUT.value > 0.5 && !p.mat.transparent && !p.dbl;
+  const side = !p.mat.transparent && !p.dbl ? THREE.FrontSide : THREE.DoubleSide;  // Runde 7: Seite hängt nicht am Schnitt, also kein Shaderwechsel
   if (p.mat.side !== side) { p.mat.side = side; p.mat.needsUpdate = true; }
   p.meshCut.visible = on && p.meshV.visible;
 }
@@ -772,7 +780,8 @@ scene.add(hemi, head, head.target, sun);
 const worldGroup = new THREE.Group();
 const selGroup = new THREE.Group();
 scene.add(worldGroup, selGroup);
-const clipPlanes = [];
+const clipPlanes = [0, 1, 2].map(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 1e6));  // Runde 7: immer drei Ebenen, aus = weit weg. Sonst baut three.js bei jedem Ein- und Ausschalten alle Shader neu (gemessen 5 s)
+let CLIPN = 0, CLIPQ = 0;
 renderer.clippingPlanes = clipPlanes;
 /* Einfaches Umgebungsbild (Verlauf Boden -> Himmel), nur für metallische Darstellungsmaterialien in Stil B; keine externe Datei */
 let envTex = null;
@@ -1338,7 +1347,12 @@ async function loadFile(f) {
     let buf = {byteLength: 0}, g = null, t1 = t0;
     if (f.virtual) { t1 = performance.now(); g = {prims: ausBuild(f.style || 'A')}; }  // Außenanlagen: im Browser gebaut
     else {
-      const r = await fetch(DATA + f.path);
+      let r = null;
+      for (let k = 0; k < 3; k++) {  // Runde 7: kurze Serverfehler (zum Beispiel 503) zweimal wiederholen
+        try { r = await fetch(DATA + f.path); } catch (x) { r = null; }
+        if (r && (r.ok || r.status < 500)) break; if (k < 2) await sleep(700 * (k + 1));
+      }
+      if (!r) throw new Error(f.path + ': keine Verbindung');
       if (!r.ok) throw new Error(f.path + ': HTTP ' + r.status);
       buf = await r.arrayBuffer();
       t1 = performance.now();
@@ -2423,7 +2437,7 @@ function pick(clientX, clientY) {
   ray.setFromCamera({x: nx, y: ny}, camera);
   return pickRay(ray.ray.origin, ray.ray.direction, camera.near, Infinity);
 }
-function pickRay(o, d, tNear = 0, tFar = Infinity) {  // Strahl in Weltlage, Treffer mit Punkt P und Neigung ny der Fläche
+function pickRay(o, d, tNear = 0, tFar = Infinity, acc = null) {  // Strahl in Weltlage, Treffer mit Punkt P und Neigung ny der Fläche
   const ox = o.x, oy = o.y, oz = o.z, dx = d.x, dy = d.y, dz = d.z;
   const ix = 1 / (dx || 1e-12), iy = 1 / (dy || 1e-12), iz = 1 / (dz || 1e-12);
   let bestT = tFar, bestObj = -1, bestP = null, bestR = -1, bestTri = -1, bnx = 0, bny = 1, bnz = 0;
@@ -2439,7 +2453,7 @@ function pickRay(o, d, tNear = 0, tFar = Infinity) {  // Strahl in Weltlage, Tre
     if (tmax < Math.max(tmin, 0)) continue;
     const bb = p.bb, pos = p.pos, idx = p.idx;
     for (let rr = 0; rr < p.nR; rr++) {
-      if (!vis[p.rO[rr]]) continue;
+      if (!vis[p.rO[rr]] || (acc && !acc(p.rO[rr]))) continue;
       const k = rr * 6;
       t1 = (bb[k] - ox) * ix; t2 = (bb[k + 3] - ox) * ix;
       tmin = Math.min(t1, t2); tmax = Math.max(t1, t2);
@@ -2461,7 +2475,7 @@ function pickRay(o, d, tNear = 0, tFar = Infinity) {  // Strahl in Weltlage, Tre
         if (v < 0 || u + v > 1) continue;
         const tt = (e2x * qx + e2y * qy + e2z * qz) * inv;
         if (tt <= tNear || tt >= bestT) continue;
-        if (clipPlanes.length && clipped(ox + dx * tt, oy + dy * tt, oz + dz * tt)) continue;
+        if (CLIPN && clipped(ox + dx * tt, oy + dy * tt, oz + dz * tt)) continue;
         bestT = tt; bestObj = p.rO[rr]; bestP = p; bestR = rr; bestTri = t;
         bnx = e1y * e2z - e1z * e2y; bny = e1z * e2x - e1x * e2z; bnz = e1x * e2y - e1y * e2x;
       }
@@ -3617,7 +3631,7 @@ function buildClipUI() {
     rg.setAttribute('aria-label', 'Schnitt ' + A + ' in m');
     const num = el('input', {type: 'text', value: dez(c.pos, 2), className: 'numin', inputMode: 'decimal'});
     num.setAttribute('aria-label', 'Schnitt ' + A + ' in m, Zahl');
-    rg.oninput = () => { c.pos = +rg.value; num.value = dez(c.pos, 2); c.on = true; cb.checked = true; applyClip(); };
+    rg.oninput = () => { c.pos = +rg.value; num.value = dez(c.pos, 2); cb.checked = true; if (c.on) clipLive(); else { c.on = true; applyClip(); } };
     num.onchange = () => { const v = parseFloat(num.value.replace(',', '.')); if (!isNaN(v)) { c.pos = v; rg.value = v; c.on = true; cb.checked = true; applyClip(); } };
     const sel = el('select', {}, el('option', {value: 'lo', textContent: ax === 'z' ? 'darunter' : 'kleiner'}), el('option', {value: 'hi', textContent: ax === 'z' ? 'darüber' : 'größer'}));
     sel.setAttribute('aria-label', 'Schnitt ' + A + ', welche Seite bleibt'); sel.value = c.keep; sel.onchange = () => { c.keep = sel.value; applyClip(); };
@@ -3625,39 +3639,93 @@ function buildClipUI() {
     box.append(el('div', {className: 'row'}, el('label', {style: 'flex:none;width:92px'}, cb, ax.toUpperCase() + ' behalten'), sel), el('div', {className: 'row'}, rg, num));
   }
 }
-function applyClip() {
-  clipPlanes.length = 0;
+function applyClip(live = false) {
   const {x, y, z} = S.clip;
-  if (x.on) clipPlanes.push(x.keep === 'hi' ? new THREE.Plane(new THREE.Vector3(1, 0, 0), -x.pos) : new THREE.Plane(new THREE.Vector3(-1, 0, 0), x.pos));
-  if (y.on) clipPlanes.push(y.keep === 'hi' ? new THREE.Plane(new THREE.Vector3(0, 0, -1), -y.pos) : new THREE.Plane(new THREE.Vector3(0, 0, 1), y.pos));
-  if (z.on) clipPlanes.push(z.keep === 'hi' ? new THREE.Plane(new THREE.Vector3(0, 1, 0), -z.pos) : new THREE.Plane(new THREE.Vector3(0, -1, 0), z.pos));
-  for (const pl of clipPlanes) pl.constant += 0.002;  // 2 mm Zugabe: Flächen genau in der Schnittebene bleiben ganz (kein Flimmern)
-  CUT.value = clipPlanes.length && S.cutFill ? 1 : 0;
-  renderCutBar();
+  const put = (pl, c, nx, ny, nz) => {  // 2 mm Zugabe: Flächen genau in der Schnittebene bleiben ganz (kein Flimmern)
+    if (!c.on) { pl.normal.set(0, 1, 0); pl.constant = 1e6; return; }
+    const s = c.keep === 'hi' ? 1 : -1; pl.normal.set(s * nx, s * ny, s * nz); pl.constant = -s * c.pos + 0.002;
+  };
+  put(clipPlanes[0], x, 1, 0, 0); put(clipPlanes[1], y, 0, 0, -1); put(clipPlanes[2], z, 0, 1, 0);
+  CLIPN = (x.on ? 1 : 0) + (y.on ? 1 : 0) + (z.on ? 1 : 0);
+  CUT.value = CLIPN && S.cutFill ? 1 : 0;
+  if (!live) renderCutBar();
   for (const p of S.prims) updateCutState(p);
-  shadowDirty = true;
-  invalidate();
+  invalidate();  // Schatten bleiben: die Schnittebenen schneiden den Schatten nicht
+}
+function clipLive() {  // Regler ziehen: ein Schnitt je Bild, beim Ziehen kleinere Auflösung wie beim Drehen
+  CAM.moveT = performance.now();
+  if (!CLIPQ) CLIPQ = requestAnimationFrame(() => { CLIPQ = 0; applyClip(true); syncClipUI(); const v = $('#cutVal'), k = cutKind(); if (v && CUTK[k]) v.textContent = cutLabel(CUTK[k].ax, S.clip[CUTK[k].ax].pos); });
 }
 document.querySelectorAll('#qualSeg button').forEach(b => b.onclick = () => setQuality(b.dataset.q));
 $('#cCutFill').onchange = e => { S.cutFill = e.target.checked; applyClip(); };
+/* Runde 7: Schnittleiste über der Navigation. Grundriss (Z, Blick von oben), Längsschnitt (Y, Blick von der Seite) und Querschnitt (X).
+   Der Regler schiebt die Ebene live. Die Leiste bleibt offen, solange ein Schnitt an ist. */
+const CUTK = {plan: {ax: 'z', t: 'Grundriss'}, laengs: {ax: 'y', t: 'Längs'}, quer: {ax: 'x', t: 'Quer'}};
+function cutKind() { const on = ['x', 'y', 'z'].filter(a => S.clip[a].on); return on.length === 1 ? {z: 'plan', y: 'laengs', x: 'quer'}[on[0]] : on.length ? 'mehr' : ''; }
+function cutRange(ax) {
+  const b = idxBounds(); if (b.isEmpty()) return {x: [-2, 74], y: [-2, 50], z: [-8, 27]}[ax];
+  const r = ax === 'x' ? [b.min.x, b.max.x] : ax === 'y' ? [-b.max.z, -b.min.z] : [b.min.y, b.max.y];
+  return [Math.floor(r[0] - 1), Math.ceil(r[1] + 1)];
+}
+function cutLabel(ax, v) {
+  if (ax !== 'z') return dez(v, 2) + ' m';
+  const f = [...S.man.floors].reverse().find(q => v >= q.ffl - 0.05);
+  return f ? f.label + ', ' + dez(v - f.ffl, 2) + ' m' : dez(v, 2) + ' m';
+}
+function walkFloorIx() {  // Geschoss unter den Füßen beim Begehen, sonst -1
+  if (S.mode !== 'walk') return -1;
+  const c = S.cam, feet = c.target.clone().addScaledVector(camBasis(c).f, -c.dist).y - WALK.eye, F = S.man.floors;
+  let i = F.findIndex(f => feet >= f.lo - 0.3 && feet < f.hi - 0.3); if (i < 0) i = feet < F[0].lo ? 0 : F.length - 1; return i;
+}
+function cutLook(k) {  // Kamera auf die Schnittfläche, von der abgeschnittenen Seite
+  if (k === 'plan') { setView('top'); return; }
+  const ax = CUTK[k].ax, c = S.clip[ax], b = idxBounds(), vs = ax === 'y' ? ['south', 'north'] : ['west', 'east'];
+  for (const v of vs) {
+    setView(v, b.isEmpty() ? undefined : b);
+    const e = S.cam.target.clone().addScaledVector(camBasis(S.cam).f, -S.cam.dist), w = ax === 'y' ? -e.z : e.x;
+    if ((c.keep === 'hi') === (w < c.pos)) return;
+  }
+}
+function cutSet(k) {
+  const ax = CUTK[k].ax, c = S.clip[ax], same = cutKind() === k;
+  for (const a of ['x', 'y', 'z']) S.clip[a].on = a === ax;
+  if (!same) {
+    if (k === 'plan') {
+      const F = S.man.floors; let fi = -1;
+      if (S.last >= 0 && S.idx.fmask[S.last]) fi = 31 - Math.clz32(S.idx.fmask[S.last] & -S.idx.fmask[S.last]);
+      else if (S.mode === 'walk') fi = walkFloorIx();
+      else { fi = F.findIndex(f => Math.abs(f.ffl) < 0.01); if (fi < 0 || !S.floorOn.has(fi)) fi = S.floorOn.size ? Math.min(...S.floorOn) : 0; }
+      c.pos = F[Math.max(0, fi)].ffl + 1.5; c.keep = 'lo';
+    } else { const r = cutRange(ax); c.pos = Math.round((r[0] + (r[1] - r[0]) * 0.2) * 20) / 20; c.keep = 'hi'; }  // durch den vorderen Flügel, nicht durch den Hof
+  }
+  syncClipUI(); applyClip(); cutLook(k);
+}
+function cutOff() { for (const a of ['x', 'y', 'z']) S.clip[a].on = false; syncClipUI(); applyClip(); }
 function renderCutBar() {
   const box = $('#cutBar'); if (!box) return;
-  const on = ['x', 'y', 'z'].some(a => S.clip[a].on);
-  const close = () => { box.hidden = true; $('#bCut').setAttribute('aria-expanded', 'false'); };
-  const mk = (t, sub, fn) => { const b = el('button', {type: 'button', className: 'mi'}, el('span', {textContent: t}), el('small', {textContent: sub})); b.setAttribute('role', 'menuitem'); b.onclick = () => { close(); fn(); }; return b; };
-  box.replaceChildren(mk('Grundriss 1,5 m', 'Schnitt über dem Fußboden, Blick von oben', () => $('#bPlan').onclick()),
-    mk('Schnitt einstellen', 'Ebenen in X, Y und Z im Menü', () => { setPanel('l', true); activateTab('t-clip'); }),
-    ...(on ? [mk('Schnitt aus', 'Alle Schnitte ausschalten', () => $('#bClipOff').onclick())] : []));
-  $('#bCut').setAttribute('aria-pressed', on ? 'true' : 'false');
+  const k = cutKind(), kb = (id, t) => '<button type="button" data-k="' + id + '" aria-pressed="' + (k === id) + '"' + (k === id ? ' class="act"' : '') + '>' + t + '</button>';
+  let h = '<div class="cbr"><b class="cbt">Schnitt</b><span class="seg" role="group" aria-label="Art des Schnitts">' + kb('plan', 'Grundriss') + kb('laengs', 'Längs') + kb('quer', 'Quer') + '</span><span class="sp"></span>' +
+    '<button type="button" class="ib" data-c="close" aria-label="Leiste schließen" title="Schließen">' + IC.close + '</button></div>';
+  if (CUTK[k]) {
+    const ax = CUTK[k].ax, c = S.clip[ax], r = cutRange(ax);
+    h += '<div class="cbr"><input type="range" id="cutPos" min="' + r[0] + '" max="' + r[1] + '" step="0.05" value="' + c.pos + '" aria-label="Lage des Schnitts"><span class="cbv" id="cutVal">' + cutLabel(ax, c.pos) + '</span>' +
+      (k !== 'plan' ? '<button type="button" class="sm" data-c="flip" title="Andere Hälfte zeigen, Blick von der anderen Seite">Wenden</button>' : '') + '<button type="button" class="sm" data-c="off">Aus</button></div>';
+  } else if (k === 'mehr') h += '<div class="cbr"><span class="muted">Mehrere Schnitte aktiv</span><span class="sp"></span><button type="button" class="sm" data-c="off">Aus</button></div>';
+  box.innerHTML = h;
+  const rg = $('#cutPos');
+  if (rg) rg.oninput = () => { const ax = CUTK[cutKind()].ax; S.clip[ax].pos = +rg.value; $('#cutVal').textContent = cutLabel(ax, S.clip[ax].pos); clipLive(); };
+  $('#bCut').setAttribute('aria-pressed', k ? 'true' : 'false');
 }
 function syncClipUI() { for (const ax of ['x', 'y', 'z']) { const c = S.clip[ax], u = c.ui; if (!u) continue; u.cb.checked = c.on; u.rg.value = c.pos; u.num.value = dez(c.pos, 2); u.sel.value = c.keep; } }
-$('#bClipOff').onclick = () => { for (const ax of ['x', 'y', 'z']) S.clip[ax].on = false; syncClipUI(); applyClip(); };
-$('#bPlan').onclick = () => {
-  let fi = [...S.floorOn].sort()[0];
-  if (S.last >= 0 && S.idx.fmask[S.last]) fi = 31 - Math.clz32(S.idx.fmask[S.last] & -S.idx.fmask[S.last]);
-  if (fi === undefined) { showMsg('Kein Geschoss gewählt'); return; }
-  const f = S.man.floors[fi];
-  S.clip.z.on = true; S.clip.z.keep = 'lo'; S.clip.z.pos = f.ffl + 1.5; syncClipUI(); applyClip(); setView('top');
+$('#bClipOff').onclick = cutOff;
+$('#bPlan').onclick = () => cutSet('plan');
+$('#cutBar').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.k) { cutSet(b.dataset.k); return; }
+  const a = b.dataset.c, k = cutKind();
+  if (a === 'close') { $('#cutBar').hidden = true; $('#bCut').setAttribute('aria-expanded', 'false'); }
+  else if (a === 'off') cutOff();
+  else if (a === 'flip' && CUTK[k]) { const c = S.clip[CUTK[k].ax]; c.keep = c.keep === 'hi' ? 'lo' : 'hi'; syncClipUI(); applyClip(); cutLook(k); }
 };
 
 /* ====================================================================================================
@@ -3777,7 +3845,7 @@ function orbitPx(dx, dy, pivot) {
 }
 function zoomAt(f, cx, cy, P0) {
   const c = S.cam, B = camBounds(), g = goalRay(cx, cy), P = P0 || (cx == null ? c.target.clone() : anchorCached(cx, cy));
-  if (S.mode === 'walk') { walkMove(Math.log(1 / f) * 6, 0); return; }
+  if (S.mode === 'walk') { walkMove(Math.log(1 / f) * 6, 0); WALK.settle = true; return; }
   const to = P.clone().sub(g.G), L = to.length(), u = L > 1e-6 ? to.divideScalar(L) : g.dir;
   let travel = L * (1 - f);
   if (f < 1) travel = Math.max(travel, 0.08);  // Mindestschritt, an der Fläche vorbei statt anhalten
@@ -3787,11 +3855,11 @@ function zoomAt(f, cx, cy, P0) {
 }
 function dragKind(e) {  // 'rotate' oder 'pan'
   if (e.pointerType === 'mouse') {
-    if (e.button === 1 || e.button === 2) return 'pan';
-    if (e.shiftKey || e.ctrlKey || e.metaKey) return S.nav === 'pan' ? 'rotate' : 'pan';
+    if (e.button === 1 || e.button === 2) return S.mode === 'walk' ? 'rotate' : 'pan';  // Begehen: rechte Taste schaut
+    if (e.shiftKey || e.ctrlKey || e.metaKey) return S.mode === 'walk' || S.nav === 'pan' ? 'rotate' : 'pan';
     if (e.altKey) return 'rotate';
   }
-  if (S.mode === 'walk') return 'rotate';  // Begehen: Ziehen schaut sich um
+  if (S.mode === 'walk') return 'pan';  // Runde 7: Begehen, Ziehen geht (vor, zurück, seitlich)
   return S.nav === 'pan' ? 'pan' : 'rotate';
 }
 function endPtr(e) {
@@ -3817,7 +3885,7 @@ cv.addEventListener('pointermove', e => {
   if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
   if (pinch && ptrs.size >= 2) {
     const p = pinchOf();
-    if (S.mode === 'walk') { walkMove((p.d / pinch.d - 1) * 5, 0); walkPan(p.x - pinch.x, p.y - pinch.y); }
+    if (S.mode === 'walk') { let da = p.ang - pinch.ang; da -= Math.round(da / (2 * Math.PI)) * 2 * Math.PI; if (Math.abs(da) < 0.5) lookTurn(da, 0); walkMove((p.d / pinch.d - 1) * 5, 0); }
     else {
       let da = p.ang - pinch.ang; da -= Math.round(da / (2 * Math.PI)) * 2 * Math.PI;
       if (Math.abs(da) < 0.5 && Math.abs(da) > 0.002) yawAround(pinch.P, da);  // Verdrehen, Inhalt folgt den Fingern
@@ -4109,14 +4177,14 @@ $('#bMeas').onclick = () => measSet();
 
 /* Begehen (Rundgang im Geschoss): Klick auf einen Boden stellt dich dort hin, Augenhöhe 1,6 m. Ziehen schaut sich um, Rad, Wischen oder
    Spreizen geht vor und zurück, W A S D und Pfeile gehen, Klick auf einen Boden geht dorthin. Esc oder der Knopf beendet und fliegt zurück. */
-const WALK = {arm: false, prev: null, eye: 1.6};
+const WALK = {arm: false, prev: null, eye: 1.6, settle: false};
 function syncWalkUI() {
   const b = $('#bWalk'); if (b) { b.setAttribute('aria-pressed', S.mode === 'walk' || WALK.arm ? 'true' : 'false'); b.title = S.mode === 'walk' ? 'Begehen beenden (Esc)' : 'Begehen: auf einen Boden klicken und dort stehen (Taste G)'; }
   cv.classList.toggle('arm', WALK.arm);
   document.querySelectorAll('#modeSeg button').forEach(x => { const on = x.dataset.m === (S.mode === 'walk' ? 'walk' : 'orbit'); x.classList.toggle('act', on); x.setAttribute('aria-pressed', on); });
   $('#app').classList.toggle('walking', S.mode === 'walk');
   const wh = $('#walkHint'); if (wh) wh.hidden = !(S.mode === 'walk' || WALK.arm);
-  if (wh) wh.querySelector('span').textContent = WALK.arm ? 'Auf einen Boden klicken, dort stehst du.' : (COARSE ? 'Ziehen schaut, zwei Finger gehen, Tippen auf den Boden geht hin.' : 'Ziehen schaut. W A S D, Pfeile oder Rad gehen. Klick auf den Boden geht hin.');
+  if (wh) { wh.querySelector('span').textContent = WALK.arm ? 'Auf einen Boden klicken, dort stehst du.' : (COARSE ? 'Ein Finger geht, zwei Finger drehen.' : 'Ziehen oder W A S D geht, Umschalt rennt, rechte Taste schaut.'); wh.querySelector('.wfl').hidden = S.mode !== 'walk'; walkFlLabel(); }
 }
 function walkArm(on = !WALK.arm) {
   if (S.mode === 'walk') { walkEnd(); return; }
@@ -4124,6 +4192,7 @@ function walkArm(on = !WALK.arm) {
 }
 function floorAt(cx, cy, strict = false) {  // Standpunkt auf dem Boden unter dem Zeiger
   const h = pick(cx, cy); if (!h) return null;
+  if (strict && !walkable(h.n)) return null;  // Runde 7: Technik und Möbel werden gewählt, nicht betreten
   const P = h.P.clone(), eyeY = camera.position.y;
   if (Math.abs(h.ny) > 0.7) { if (strict && P.y > eyeY - 1.1) return null; return P; }
   if (strict) return null;
@@ -4141,14 +4210,41 @@ function walkStart(P) {
   c.yaw = Math.atan2(-f.x, -f.z); c.pitch = 0.06; c.dist = 1.2; c.fov = 64;
   c.target.copy(eye).addScaledVector(camBasis(c).f, c.dist);
   S.mode = 'walk'; WALK.arm = false; syncWalkUI(); applyVisibility();
-  showMsg(COARSE ? 'Begehen: Ziehen schaut, zwei Finger gehen. Tippen auf den Boden geht hin.' : 'Begehen: Ziehen schaut. W A S D, Pfeile oder Rad gehen. Esc beendet.', 4000);
+  WALK.settle = true;
+  showMsg('Begehen. Treppen gehst du hoch und runter, Bild auf und ab wechselt das Geschoss. Esc beendet.', 4000);
 }
 function walkTo(P) { camTake(); const c = S.cam, eye = P.clone(); eye.y += WALK.eye; c.target.copy(eye).addScaledVector(camBasis(c).f, c.dist); invalidate(); }
 function walkMove(fw, side) {  // vor und zurück, seitlich (Meter), waagrecht
   const c = S.cam, b = camBasis(c), f = b.f.clone(); f.y = 0; if (f.lengthSq() < 1e-6) f.set(0, 0, -1); f.normalize();
   c.target.addScaledVector(f, fw).addScaledVector(b.right, side);
 }
-function walkPan(dx, dy) { const k = 7 / Math.max(300, cv.clientHeight); walkMove(dy * k, -dx * k); }
+function walkPan(dx, dy) { const k = 7 / Math.max(300, cv.clientHeight); walkMove(dy * k, -dx * k); WALK.settle = true; }
+/* Runde 7: Füße folgen Boden, Podest und Treppe (Stufe bis 0,5 m hoch, bis 0,7 m runter). Nur begehbare Ebenen zählen. */
+const DOWN = new THREE.Vector3(0, -1, 0);
+let WALKL = null;
+function walkable(n) {
+  const I = S.idx;
+  if (!WALKL) WALKL = Uint8Array.from(I.layers, l => ['boden', 'treppe', 'decke', 'raum', 'tuer', 'tg_bauwerk', 'tg_zufahrt', 'tg_markierung', 'aussen', 'dach'].includes(l.key) ? 1 : 0);
+  const l = I.layer[n]; return l >= 0 && WALKL[l] === 1;
+}
+function walkGround() {
+  if (S.mode !== 'walk') return false;
+  const c = S.cam, eye = c.target.clone().addScaledVector(camBasis(c).f, -c.dist), feet = eye.y - WALK.eye;
+  const g = pickRay(new THREE.Vector3(eye.x, feet + 0.5, eye.z), DOWN, 0, 1.2, walkable);
+  if (!g || Math.abs(g.ny) < 0.5) return false;
+  const dy = g.P.y - feet; if (Math.abs(dy) < 0.004) return false;
+  c.target.y += Math.abs(dy) < 0.25 ? dy : dy * 0.4; walkFlLabel(); invalidate();
+  return Math.abs(dy) >= 0.25;
+}
+function walkFlLabel() { const b = $('#walkFl'), i = walkFloorIx(); if (b && i >= 0) b.textContent = S.man.floors[i].label; }
+function walkFloor(d) {  // Begehen: ein Geschoss hoch oder runter, gleiche Stelle
+  if (S.mode !== 'walk') return;
+  const F = S.man.floors, i = walkFloorIx(), j = Math.max(0, Math.min(F.length - 1, i + d));
+  if (j === i) { showMsg(d > 0 ? 'Schon im obersten Geschoss' : 'Schon im untersten Geschoss', 1500); return; }
+  if (!S.floorOn.has(j)) { S.floorOn.add(j); buildFloors(); syncLoads(); applyVisibility(); }
+  camTake(); const c = S.cam, feet = c.target.clone().addScaledVector(camBasis(c).f, -c.dist).y - WALK.eye;
+  c.target.y += F[j].ffl - feet; WALK.settle = true; walkFlLabel(); invalidate();
+}
 function walkEnd(back = true) {
   if (S.mode !== 'walk') { if (WALK.arm) { WALK.arm = false; syncWalkUI(); } return; }
   camTake(); S.mode = 'orbit';
@@ -4250,8 +4346,9 @@ $('#bZoomIn').onclick = () => zoomBtn(Math.exp(-0.3)); $('#bZoomOut').onclick = 
 $('#bNavHome').onclick = () => setView('iso');
 $('#cTgaGew').checked = !!S.tgaGew; $('#cTgaGew').onchange = e => setTgaGew(e.target.checked);
 $('#bWalk').onclick = () => walkArm(); $('#walkX').onclick = () => walkEnd();
-$('#bCut').onclick = e => { e.stopPropagation(); const b = $('#cutBar'); b.hidden = !b.hidden; $('#bCut').setAttribute('aria-expanded', !b.hidden); };
-document.addEventListener('pointerdown', e => { const b = $('#cutBar'); if (!b.hidden && !b.contains(e.target) && !$('#bCut').contains(e.target)) { b.hidden = true; $('#bCut').setAttribute('aria-expanded', 'false'); } });
+$('#walkUp').onclick = () => { walkFloor(1); cv.focus({preventScroll: true}); }; $('#walkDn').onclick = () => { walkFloor(-1); cv.focus({preventScroll: true}); };
+$('#bCut').onclick = e => { e.stopPropagation(); const b = $('#cutBar'); b.hidden = !b.hidden; if (!b.hidden) renderCutBar(); $('#bCut').setAttribute('aria-expanded', !b.hidden); };
+document.addEventListener('pointerdown', e => { const b = $('#cutBar'); if (!b.hidden && !CLIPN && !b.contains(e.target) && !$('#bCut').contains(e.target)) { b.hidden = true; $('#bCut').setAttribute('aria-expanded', 'false'); } });
 try { const w = LS.get('wheel'); if (w === 'zoom' || w === 'pan') S.wheelMode = w; const z = +LS.get('zoomspd'); if (z >= 0.4 && z <= 2) S.zoomSpeed = z; } catch (e) {}
 $('#wheelSel').value = S.wheelMode; $('#zoomSpd').value = Math.round(S.zoomSpeed * 100);
 $('#wheelSel').onchange = e => { S.wheelMode = e.target.value; try { LS.set('wheel', S.wheelMode); } catch (x) {} };
@@ -4289,6 +4386,7 @@ addEventListener('keydown', e => {
   if ('wasdqe'.includes(k) && k.length === 1 && !e.ctrlKey && !e.metaKey) { keys.add(k); e.preventDefault(); return; }
   if (e.key.startsWith('Arrow')) { keys.add(e.key); e.preventDefault(); return; }
   if ('+=-_'.includes(e.key) && e.key.length === 1 && !e.ctrlKey && !e.metaKey) { keys.add(e.key === '=' ? '+' : e.key === '_' ? '-' : e.key); e.preventDefault(); return; }
+  if ((e.key === 'PageUp' || e.key === 'PageDown') && S.mode === 'walk') { e.preventDefault(); walkFloor(e.key === 'PageUp' ? 1 : -1); return; }
   if (e.key === 'Home') { e.preventDefault(); setView('iso'); return; }
   if (k === 'v') setStyle(S.style === 'A' ? 'B' : 'A'); else if (k === 'f') { if (S.sel.length) zoomSel(); else { const b = sceneBounds(); if (!b.isEmpty()) zoomToBox(b, 1.1); } } else if (k === 't') setNav(S.nav === 'pan' ? 'orbit' : 'pan', false); else if (k === 'h' && e.shiftKey) showAll(); else if (k === 'h') hideSel(); else if (k === 'i') isolateSel(); else if (k === 'x') xraySel(); else if (k === 'r') setView('iso'); else if (k === 'g') setMode(S.mode === 'walk' || WALK.arm ? 'orbit' : 'walk'); else if (k === 'm') measSet(); else if (MEAS.on && e.key === 'Enter') measFinish(); else if (MEAS.on && e.key === 'Backspace' && MEAS.pts.length) { e.preventDefault(); MEAS.pts.pop(); renderMeas(); measDraw(); }
   else if (e.key === 'Escape') { if (MEAS.on) { if (MEAS.pts.length) { MEAS.pts = []; MEAS.hover = null; renderMeas(); measDraw(); } else measSet(false); return; } if (S.mode === 'walk' || WALK.arm) { walkEnd(); return; } select(-1); if ($('#q') === document.activeElement) $('#q').blur(); }
@@ -4321,9 +4419,11 @@ function tick(now) {
       if (keys.has('ArrowUp')) mv.addScaledVector(b.up, sp); if (keys.has('ArrowDown')) mv.addScaledVector(b.up, -sp);
     }
     c.target.add(mv);
+    if (walk && mv.lengthSq() > 0 && !keys.has('e') && !keys.has('q')) WALK.settle = true;
     if (keys.has('+')) zoomAt(Math.exp(-1.1 * dt)); if (keys.has('-')) zoomAt(Math.exp(1.1 * dt));
     camDirect();
   } else SPRINT = 0;
+  if (WALK.settle) { WALK.settle = walkGround(); camDirect(); }
   if (MK.P) placeMarker();
   // Auflösung: beim Bewegen kleiner, in Ruhe ein Bild in voller Auflösung
   const moving = now - CAM.moveT < 150 || !!drag || ptrs.size > 0 || keys.size > 0;
@@ -4449,7 +4549,7 @@ $('#bBench').onclick = async () => {
   $('#benchOut').innerHTML = (r ? '<b>' + dez(r.fps, 1) + ' Bilder/s</b> am Bildschirm in Stil ' + r.style + ', langsamstes Bild ' + dez(r.worstFrameMs, 1) + ' ms. ' : 'Fenster verdeckt, nur Zeichenzeit gemessen. ') +
     'Zeichenzeit je Bild ' + dez(q.avgMs, 2) + ' ms, 95 % unter ' + dez(q.p95Ms, 2) + ' ms, also etwa ' + q.fpsEquiv + ' Bilder/s möglich. ' + q.tris.toLocaleString('de') + ' Dreiecke sichtbar, ' + q.drawCalls + ' Zeichenaufrufe, Bild ' + q.canvas + ' px.';
 };
-window.__ow = {MEAS, measSet, measClick, roomTrisOf, TEXU, TEX, texSync, step: () => { updateCamera(); drawFrame(); }, CAM, RS, WH, get WALK() { return WALK; }, walkStart, walkEnd, floorAt, GP, pickSelect, S, OWU, TR, get GR() { return GR; }, loadGraph, showNet, showSet, xraySel, showAll, renderTree, THREE, renderer, scene, camera, render: () => { updateCamera(true); drawFrame(); }, CV, camSnap, KG, syncLoads, setQuality, QUAL, LOOK, relook: () => { lookMode = ''; invalidate(); }, pick, select, goTo, setView, setColorMode, setStyle, applyVisibility, applyClip, bench, benchSync, renderLegend};
+window.__ow = {walkGround, walkFloor, walkMove, cutSet, cutOff, MEAS, measSet, measClick, roomTrisOf, TEXU, TEX, texSync, step: () => { updateCamera(); drawFrame(); }, CAM, RS, WH, get WALK() { return WALK; }, walkStart, walkEnd, floorAt, GP, pickSelect, S, OWU, TR, get GR() { return GR; }, loadGraph, showNet, showSet, xraySel, showAll, renderTree, THREE, renderer, scene, camera, render: () => { updateCamera(true); drawFrame(); }, CV, camSnap, KG, syncLoads, setQuality, QUAL, LOOK, relook: () => { lookMode = ''; invalidate(); }, pick, select, goTo, setView, setColorMode, setStyle, applyVisibility, applyClip, bench, benchSync, renderLegend};
 start();
 </script>
 </body></html>

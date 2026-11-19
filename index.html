@@ -99,7 +99,6 @@ aside{background:var(--panel);overflow:auto;min-height:0}
 #hidPanel .hi .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #hidPanel .hi .sub{color:var(--muted);font-size:var(--fs-s)}
 #hidPanel .hg{font-size:var(--fs-s);color:var(--muted);margin:8px 0 0}
-#cutBar{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 dialog#help{width:min(560px,calc(100% - 32px));max-height:calc(100% - 64px);padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--text)}
 dialog#help::backdrop{background:rgba(0,0,0,.25)}
 #help .hh{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
@@ -222,12 +221,16 @@ kbd{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padd
 #stage,header,#tabs,#left,#dock,#status,#floors,#legend,#hint,button,summary,label{-webkit-user-select:none;user-select:none}
 input,textarea,select,#q,.numin{-webkit-user-select:text;user-select:text}
 body.ziehen,body.ziehen *{-webkit-user-select:none !important;user-select:none !important;cursor:grabbing !important}
+#walkHint{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:10px;padding:4px 4px 4px 12px;background:var(--panel);border:1px solid var(--accent);border-radius:var(--r);font-size:var(--fs-s);max-width:calc(100% - 20px)}
+#walkHint[hidden]{display:none}
+canvas.arm{cursor:crosshair !important}
 #welcome{width:min(520px,100%);background:var(--panel);border:1px solid var(--accent);border-radius:var(--r);padding:8px 12px 10px}
 #welcome h3{margin:0 0 4px;font-size:var(--fs);display:flex;align-items:center;gap:6px}
 #welcome h3 span{flex:1}
 #welcome p{margin:4px 0}
 #welcome .mr{display:flex;gap:6px;margin-top:6px}
 #welcome button{height:var(--tap)}
+@media (min-width:701px){ #welcome{align-self:flex-start;width:min(520px,calc(100% - 190px))} }
 #nav .ib{width:var(--tap);color:var(--text);border-color:var(--line);background:var(--panel)}
 #nav svg{display:block}
 #acts button,#selMenu button,#hidPanel button.sm{height:var(--tap)}
@@ -247,9 +250,67 @@ body.ziehen,body.ziehen *{-webkit-user-select:none !important;user-select:none !
 .row button.only:hover{color:var(--text);background:var(--hover)}
 .help td:first-child{white-space:nowrap;padding-right:12px}
 @media (pointer:coarse),(max-width:900px){ #floors .fr button.only{height:44px;padding:0 10px} .fchev{height:44px;width:44px} .fsp{width:44px} #floors .ft{min-height:44px} .row button.only{height:44px;padding:0 10px} .kgh{min-height:44px} .mb .mi{min-height:44px} }
-@media (max-width:700px){ .navlab{display:none} #hidPanel,#selMenu{max-height:36vh} #cutBar{display:none} #nav{width:100%;justify-content:space-between} #navRow{flex-direction:column;align-items:stretch} #acts{padding:4px} }
+@media (max-width:700px){ .navlab{display:none} #hidPanel,#selMenu{max-height:36vh}  #acts{padding:4px} }
 @media (min-width:1900px){ :root{--fs:15px;--fs-s:14px;--sc:1.25;--h:32px;--tap:40px} }
 @media (min-width:2500px){ :root{--fs:18px;--fs-s:16px;--sc:1.5;--h:38px;--tap:48px} }
+/* ===== all out: ruhige Oberfläche. Schwebende Teile im Bild mit gleicher Form (Rundung 10 px, Schatten, Rand),
+   Werkzeugleiste unten in der Mitte, Abstände in Schritten von 4 px. ===== */
+:root{--rf:10px;--shadow:0 1px 2px rgba(16,24,40,.06),0 6px 18px rgba(16,24,40,.10);--glass:rgba(255,255,255,.94);--tb:36px}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.38);--glass:rgba(28,31,36,.94)} }
+:root[data-theme="dark"]{--shadow:0 1px 2px rgba(0,0,0,.35),0 8px 24px rgba(0,0,0,.38);--glass:rgba(28,31,36,.94)}
+#legend,#floors,#nav,#acts,#msg,#welcome,#hidPanel,#selMenu,#walkHint,#tip,#cutBar,#pop{background:var(--glass);border:1px solid var(--line);border-radius:var(--rf);box-shadow:var(--shadow)}
+#welcome{border-color:var(--line)}
+#legend{top:10px;left:10px;padding:2px 10px 6px 6px}
+#floors{top:10px;right:10px;padding:2px 8px 6px}
+header{min-height:48px;gap:6px;padding:0 10px}
+header h1{font-size:14px;letter-spacing:.01em;margin-right:10px}
+#q{height:34px;border-radius:8px;padding-left:30px;background:var(--panel2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' width='14' height='14'%3E%3Ccircle cx='7' cy='7' r='4.6' fill='none' stroke='%23888' stroke-width='1.5'/%3E%3Cpath d='M10.5 10.5l3.3 3.3' stroke='%23888' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat 10px 50%;border-color:var(--line)}
+#q:focus{border-color:var(--field-line)}
+#styleSeg{border-radius:8px}
+#styleSeg button{height:28px;padding:0 10px;border-radius:6px}
+#styleSeg button.act{background:var(--panel);box-shadow:0 0 0 1px var(--line),0 1px 2px rgba(0,0,0,.08);font-weight:500}
+/* Werkzeugleiste */
+#navRow{position:relative;justify-content:center}
+#nav{gap:2px;padding:4px;flex-wrap:nowrap}
+#nav .ib{width:var(--tb);height:var(--tb);border:0;border-radius:8px;background:transparent;color:var(--text)}
+#nav .ib:hover{background:var(--hover)}
+#nav .ib[aria-pressed="true"]{background:var(--accent);color:var(--accent-text)}
+#nav .nsep{width:1px;height:22px;background:var(--line);margin:0 4px;flex:none}
+#nav .seg{padding:2px;gap:2px;background:var(--panel2);border:0;border-radius:8px;overflow:visible}
+#nav .seg button{height:calc(var(--tb) - 4px);padding:0 10px 0 8px;display:inline-flex;align-items:center;gap:6px;border-radius:6px;box-shadow:none;font-weight:500}
+#nav .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);box-shadow:none;font-weight:600}
+#nav .seg button[aria-pressed="false"]{color:var(--muted);background:transparent}
+#nav .seg button[aria-pressed="false"]:hover{color:var(--text);background:var(--hover)}
+#cutBar{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:min(300px,100%);padding:6px;display:flex;flex-direction:column;gap:2px;z-index:6}
+#cutBar[hidden]{display:none}
+#cutBar .mi{display:flex;flex-direction:column;align-items:flex-start;height:auto;min-height:40px;padding:6px 10px;border:0;border-radius:6px;background:transparent;text-align:left;white-space:normal}
+#cutBar .mi:hover{background:var(--hover)}
+#cutBar .mi small{color:var(--muted);font-size:var(--fs-s)}
+/* Auswahlleiste und Meldung */
+#acts{padding:4px 4px 4px 12px;gap:4px}
+#acts button{border-color:transparent;background:transparent;border-radius:8px}
+#acts button:hover{background:var(--hover)}
+#acts button[aria-pressed="true"]{background:var(--hover);border-color:var(--line)}
+#msg{padding:8px 12px;font-size:var(--fs-s)}
+/* Erstkarte: drei Spalten, nie unter der Geschossliste */
+#welcome{width:min(640px,calc(100% - 2 * var(--fw,190px)));padding:10px 14px 12px;align-self:center}
+#welcome .wh{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:var(--fs)}
+#welcome .wh .sp{flex:1}
+#welcome .wg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#welcome h4{margin:0 0 2px;font-size:var(--fs-s);font-weight:600;color:var(--text)}
+#welcome .wg p{margin:0;font-size:var(--fs-s);line-height:1.5;color:var(--muted)}
+#welcome .wf{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:var(--fs-s)}
+#welcome .wf .muted{flex:1}
+#welcome .wf button{height:32px}
+#walkHint{top:10px;padding:4px 4px 4px 14px;border-color:var(--accent)}
+#status{font-size:11px}
+@media (min-width:701px){ #welcome{align-self:center;width:min(640px,calc(100% - 2 * var(--fw,190px)))} }
+@media (max-width:900px){ #welcome .wg{grid-template-columns:1fr;gap:6px} #welcome .wg p br{display:none} }
+@media (pointer:coarse){ #welcome .wfine{display:none} #welcome .wg{grid-template-columns:1fr} }
+@media (pointer:coarse),(max-width:900px){ :root{--tb:44px} #cutBar .mi{min-height:44px} #welcome .wf button{height:44px} #nav .seg{padding:0} #nav .seg button{height:var(--tb)} }
+@media (max-width:700px){ #welcome{width:100%;align-self:stretch} #nav{width:auto;justify-content:center;max-width:100%} #navRow{flex-direction:row;align-items:flex-end} #nav .seg .lbl{display:none} #nav .seg button{padding:0 10px} #cutBar{display:flex} #cutBar[hidden]{display:none} }
+@media (min-width:1900px){ :root{--tb:40px} }
+@media (min-width:2500px){ :root{--tb:48px} }
 </style>
 <div id="app">
   <header>
@@ -257,8 +318,7 @@ body.ziehen,body.ziehen *{-webkit-user-select:none !important;user-select:none !
     <h1>Objektwelt 3D-Modell</h1>
     <input id="q" type="text" placeholder="Suche nach Kennung oder Name (Taste /)" autocomplete="off" aria-label="Suche nach Kennung oder Name">
     <span class="sp"></span>
-    <span id="styleSeg" class="seg" role="group" aria-label="Stil" title="Gleiche Objekte, nur das Aussehen ändert sich (Taste V)"><button id="bStyleA" data-st="A" aria-pressed="false">A<span class="lbl"> einfach</span></button><button id="bStyleB" data-st="B" aria-pressed="false">B<span class="lbl"> realistisch</span></button></span>
-    <button id="bHome" type="button" title="Ganzes Gebäude zeigen (Taste R)">Gesamt</button>
+    <span id="styleSeg" class="seg" role="group" aria-label="Stil" title="Gleiche Objekte, nur das Aussehen ändert sich (Taste V)"><button id="bStyleA" data-st="A" aria-pressed="false">A<span class="lbl"> schlicht</span></button><button id="bStyleB" data-st="B" aria-pressed="false">B<span class="lbl"> realistisch</span></button></span>
     <button id="bHelp" type="button" aria-haspopup="dialog" aria-label="Hilfe"><span aria-hidden="true">?</span><span class="lbl"> Hilfe</span></button>
     <button id="bRight" class="pt" type="button" aria-controls="right" aria-expanded="true"><span class="lbl">Details</span><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10 2.5v11" stroke="currentColor" stroke-width="1.3"/><path d="M11.4 5h1.8M11.4 7h1.8M11.4 9h1.8" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></button>
   </header>
@@ -330,7 +390,7 @@ body.ziehen,body.ziehen *{-webkit-user-select:none !important;user-select:none !
       <div class="row"><label for="wheelSel">Mausrad und Wischen</label><select id="wheelSel"><option value="auto">Automatisch</option><option value="zoom">Immer zoomen</option><option value="pan">Immer verschieben</option></select></div>
       <div class="row"><label for="zoomSpd">Zoom Tempo</label><input type="range" id="zoomSpd" min="40" max="200" value="100"></div>
       <h2>Kameramodus</h2>
-      <div class="seg" id="modeSeg" role="group" aria-label="Steuerung"><button data-m="orbit" aria-pressed="true" title="Ziehen dreht um das Ziel (Taste M)">Orbit</button><button data-m="fly" aria-pressed="false" title="Ziehen schaut sich um, W A S D bewegt (Taste M)">Fliegen</button></div>
+      <div class="seg" id="modeSeg" role="group" aria-label="Steuerung"><button data-m="orbit" aria-pressed="true" title="Ziehen dreht um das Ziel (Taste M)">Orbit</button><button data-m="walk" aria-pressed="false" title="Auf einen Boden klicken und dort stehen, Ziehen schaut, W A S D geht (Taste G)">Begehen</button></div>
       <h2>Farbschema</h2>
       <div class="seg" id="themeSeg" role="group" aria-label="Farbschema"><button data-t="auto" aria-pressed="true">Wie System</button><button data-t="light" aria-pressed="false">Hell</button><button data-t="dark" aria-pressed="false">Dunkel</button></div>
       <div id="benchBox" hidden>
@@ -347,30 +407,35 @@ body.ziehen,body.ziehen *{-webkit-user-select:none !important;user-select:none !
     <canvas id="cv" tabindex="0" aria-label="3D-Modell"></canvas>
     <div id="legend"></div>
     <div id="floors" role="group" aria-label="Geschosse"></div>
-    <div id="hint">Ziehen dreht, Rad zoomt, Klick wählt</div>
     <div id="tip"></div>
     <div id="pivotDot"></div>
+    <div id="walkHint" hidden><span></span><button type="button" class="sm" id="walkX">Beenden</button></div>
     <div id="dock">
       <div id="welcome" hidden role="region" aria-label="So bewegst du dich">
-        <h3><span>So bewegst du dich</span><button type="button" class="ib" id="wcX" aria-label="Schließen" title="Schließen"></button></h3>
-        <p><b>Maus:</b> Ziehen dreht. Umschalt, Strg oder Cmd und Ziehen verschiebt. Das Rad zoomt.</p>
-        <p><b>Trackpad:</b> Zwei Finger wischen verschiebt. Spreizen zoomt. Ziehen dreht.</p>
-        <p><b>Touch:</b> Ein Finger dreht oder verschiebt, je nach Schalter Drehen und Verschieben. Zwei Finger verschieben und zoomen.</p>
-        <div class="mr"><button type="button" class="pri" id="wcOk">Verstanden</button></div>
+        <div class="wh"><b>So bewegst du dich</b><span class="sp"></span><button type="button" class="ib" id="wcX" aria-label="Schließen" title="Schließen"></button></div>
+        <div class="wg">
+          <div class="wfine"><h4>Maus</h4><p>Ziehen dreht.<br> Rechte Taste oder Umschalt und Ziehen verschiebt.<br> Rad zoomt zum Zeiger.</p></div>
+          <div class="wfine"><h4>Trackpad</h4><p>Klicken und Ziehen dreht.<br> Zwei Finger wischen verschiebt.<br> Spreizen zoomt.</p></div>
+          <div class="wtouch"><h4>Touch</h4><p>Ein Finger dreht.<br> Zwei Finger verschieben, zoomen und drehen.<br> Doppeltippen fliegt hin.</p></div>
+        </div>
+        <div class="wf"><span class="muted" id="wcMore">Doppelklick fliegt zum Objekt. In der Leiste unten: Begehen und Schnitt.</span><button type="button" class="pri" id="wcOk">Verstanden</button></div>
       </div>
       <div id="msg" role="status"></div>
       <div id="hidPanel" hidden role="dialog" aria-label="Ausgeblendet"></div>
       <div id="selMenu" hidden role="dialog" aria-label="Mehr zur Auswahl"></div>
       <div id="acts" role="toolbar" aria-label="Auswahl"></div>
       <div id="navRow">
+        <div id="cutBar" hidden role="menu" aria-label="Schnitt"></div>
         <div id="nav" role="toolbar" aria-label="Kamera">
-          <span class="navlab" id="navLab">Ziehen:</span><span class="seg" id="navSeg" role="group" aria-label="Ziehen mit Maus oder Finger"><button type="button" id="bNavO" data-nm="orbit" aria-pressed="true" title="Ziehen dreht das Modell (Taste T wechselt)">Drehen</button><button type="button" id="bNavP" data-nm="pan" aria-pressed="false" title="Ziehen verschiebt das Bild (Taste T wechselt)">Verschieben</button></span>
+          <span class="seg" id="navSeg" role="group" aria-label="Ziehen mit Maus oder Finger"><button type="button" id="bNavO" data-nm="orbit" aria-pressed="true" title="Ziehen dreht das Modell (Taste T wechselt)"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M13.2 8.6A5.2 5.2 0 1 1 11.4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11.8 1.6l-.2 2.8-2.8-.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Drehen</span></button><button type="button" id="bNavP" data-nm="pan" aria-pressed="false" title="Ziehen verschiebt das Bild (Taste T wechselt)"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1.5v13M1.5 8h13M8 1.5L6.2 3.3M8 1.5l1.8 1.8M8 14.5l-1.8-1.8M8 14.5l1.8-1.8M1.5 8l1.8-1.8M1.5 8l1.8 1.8M14.5 8l-1.8-1.8M14.5 8l-1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Verschieben</span></button></span>
+          <span class="nsep" aria-hidden="true"></span>
           <button type="button" class="ib" id="bZoomOut" title="Herauszoomen (Taste Minus)" aria-label="Herauszoomen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
           <button type="button" class="ib" id="bZoomIn" title="Hineinzoomen (Taste Plus)" aria-label="Hineinzoomen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M8 3v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
-          <button type="button" class="ib" id="bNavHome" title="Ganzes Gebäude zeigen (Taste Pos1 oder R)" aria-label="Ganzes Gebäude zeigen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 7.5L8 2.5l6 5M3.8 6.6V13h3V9.5h2.4V13h3V6.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
-          <button type="button" class="ib" id="bNavHelp" title="Hilfe zur Steuerung" aria-label="Hilfe zur Steuerung"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6.2 6.3a1.9 1.9 0 1 1 2.7 1.7c-.6.3-.9.7-.9 1.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11.6" r=".8" fill="currentColor"/></svg></button>
+          <button type="button" class="ib" id="bNavHome" title="Ganzes Gebäude zeigen (Taste R)" aria-label="Ganzes Gebäude zeigen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2 7.5L8 2.5l6 5M3.8 6.6V13h3V9.5h2.4V13h3V6.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/></svg></button>
+          <span class="nsep" aria-hidden="true"></span>
+          <button type="button" class="ib" id="bWalk" aria-pressed="false" aria-label="Begehen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="8.6" cy="2.6" r="1.5" fill="currentColor"/><path d="M8 5.2L6.3 9l2.4 1.6L7.6 14.6M8 5.2l2.6 2.2 2 .4M6.3 9L4 8.4M8.7 10.6l2.3 1.4.6 2.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button type="button" class="ib" id="bCut" aria-pressed="false" aria-haspopup="menu" aria-expanded="false" aria-label="Schnitt" title="Schnitt: Grundriss, Schnitt einstellen, Schnitt aus"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5 5.5L8 2.5l5.5 3L8 8.5z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M2.5 5.5v5L8 13.5l5.5-3v-5M8 8.5v5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" opacity=".55"/><path d="M1 9.2h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
         </div>
-        <div id="cutBar"></div>
       </div>
     </div>
   </div>
@@ -473,7 +538,7 @@ const S = {
   hidden: new Set(), isolate: null, ghost: false, xray: false, gv: null, colorMode: 'material', sel: [], selSet: new Set(), last: -1, selGrp: -1,
   files: new Map(), prims: [], objPrims: new Map(), mode: 'orbit', theme: 'auto',
   clip: {x: {on: false, pos: 36, keep: 'lo'}, y: {on: false, pos: 24, keep: 'lo'}, z: {on: false, pos: 12, keep: 'lo'}},
-  cam: {target: new THREE.Vector3(36, 6, -24), yaw: 0.6, pitch: 0.7, dist: 110},
+  cam: {target: new THREE.Vector3(36, 6, -24), yaw: 0.6, pitch: 0.7, dist: 110, fov: 50},
   listCache: [], metrics: {},
   style: 'A', stylePaths: new Set(), styles: ['A'], dispN: -1, cutFill: true, legendMin: false, candTransparent: false
 };
@@ -577,10 +642,10 @@ try {
    berechnet (nicht beim Drehen der Kamera).
    ==================================================================================================== */
 const QUAL = {A: 'einfach', B: 'hoch'};
-const LOOK = {exposure: 1.1, sun: 4.3, env: 0.7, hemi: 0.0, ao: 1.0, edge: 0.45, sat: 1.35};  // Abstimmung Stil B (Darstellung), AP-09c mehr Kontrast
+const LOOK = {exposure: 1.0, sun: 4.6, env: 0.75, hemi: 0.0, ao: 1.0, edge: 0.4, sat: 1.12, tm: 'aces'};  // all out: ACES für mehr Tiefe und Kontrast  // Abstimmung Stil B (Darstellung), AP-09c mehr Kontrast
 try { const q = JSON.parse(localStorage.getItem('ow_quality') || 'null'); if (q && q.A && q.B) Object.assign(QUAL, q); } catch (e) {}
 const qual = () => QUAL[S.style] || 'einfach';
-const SUN_DIR = new THREE.Vector3(0.42, 0.55, 0.72).normalize();  // three: x Ost, y oben, z Süd. Sonne aus Süd-Südost, etwa 33 Grad hoch (Darstellung)
+const SUN_DIR = new THREE.Vector3(0.3, 0.6, 0.74).normalize();  // three: x Ost, y oben, z Süd. Sonne aus Süd-Südost, etwa 37 Grad hoch (Darstellung): von Südwest gesehen ist die Südfassade hell, die Westfassade im weichen Himmelslicht, der Schatten fällt sichtbar nach Nordwest
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.autoUpdate = false;
@@ -596,10 +661,10 @@ function makeSkyTexture(ground) {
   const g = c.getContext('2d');
   const gr = g.createLinearGradient(0, 0, 0, h);
   // AP-09d: das Umgebungslicht (ground) bekommt einen blasseren Himmel, sonst werden Schattenflächen deutlich blau
-  const sk = ground ? ['#717a86', '#9da5ae', '#d2d6d9'] : ['#4f7fb8', '#80a9d8', '#c5d8ea'];
-  gr.addColorStop(0.00, sk[0]); gr.addColorStop(0.25, sk[1]); gr.addColorStop(0.44, sk[2]); gr.addColorStop(0.495, '#eef1f2');
+  const sk = ground ? ['#6f7d8f', '#9aa6b3', '#d0d6dc'] : ['#3f74b8', '#79a3d6', '#c9dbeb'];
+  gr.addColorStop(0.00, sk[0]); gr.addColorStop(0.25, sk[1]); gr.addColorStop(0.44, sk[2]); gr.addColorStop(0.495, ground ? '#eef1f2' : '#e3eaf0');
   if (ground) { gr.addColorStop(0.505, '#b6b7b4'); gr.addColorStop(0.60, '#9c9d9a'); gr.addColorStop(1.00, '#80817e'); }   // neutral, sonst werden Decken und Stürze unten bräunlich
-  else { gr.addColorStop(0.505, '#dde2e5'); gr.addColorStop(1.00, '#cdd3d7'); }
+  else { gr.addColorStop(0.505, '#e3eaf0'); gr.addColorStop(1.00, '#d4dbe0'); }
   g.fillStyle = gr; g.fillRect(0, 0, w, h);
   const u = Math.atan2(SUN_DIR.z, SUN_DIR.x) / (2 * Math.PI) + 0.5, v = Math.asin(SUN_DIR.y) / Math.PI + 0.5;
   const sx = u * w, sy = (1 - v) * h;
@@ -621,19 +686,19 @@ try {
 
 /* Umgebungsboden: großer Boden um das Grundstück, blendet in der Ferne in den Dunst des Himmels über (Darstellung, kein Weltobjekt).
    Sichtbar nur in Stil B (hoch/mittel) mit Gruppe Außen und Ebene Außenanlagen. Unter dem Gebäude ausgespart. */
-const GROUND = {mesh: null, haze: new THREE.Color().setStyle('#e4e7e8', THREE.SRGBColorSpace)};
+const GROUND = {mesh: null, haze: new THREE.Color().setStyle('#dfe6ec', THREE.SRGBColorSpace)};
 function makeGround() {
   if (GROUND.mesh || !S.man) return;
   const sh = new THREE.Shape([new THREE.Vector2(-3000, -3000), new THREE.Vector2(3000, -3000), new THREE.Vector2(3000, 3000), new THREE.Vector2(-3000, 3000)]);
   const bo = S.man.building_outline;
   if (bo && bo.length > 2) sh.holes.push(new THREE.Path(bo.map(q => new THREE.Vector2(q[0], q[1]))));
   const g = new THREE.ShapeGeometry(sh); g.rotateX(-Math.PI / 2);
-  const m = new THREE.MeshStandardMaterial({color: new THREE.Color().setStyle('#a4a894', THREE.SRGBColorSpace), roughness: 1, metalness: 0});
+  const m = new THREE.MeshStandardMaterial({color: new THREE.Color().setStyle('#a7b48f', THREE.SRGBColorSpace), roughness: 1, metalness: 0});
   m.onBeforeCompile = sh2 => {
     sh2.uniforms.haze = {value: GROUND.haze};
     sh2.vertexShader = 'varying vec3 vWP;\n' + sh2.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
     sh2.fragmentShader = 'uniform vec3 haze; varying vec3 vWP;\n' + sh2.fragmentShader.replace('#include <fog_fragment>',
-      'float hd = length(vWP.xz - cameraPosition.xz); gl_FragColor.rgb = mix(gl_FragColor.rgb, haze, smoothstep(120.0, 1400.0, hd));');
+      'float hd = length(vWP.xz - cameraPosition.xz); gl_FragColor.rgb = mix(gl_FragColor.rgb, haze, smoothstep(90.0, 900.0, hd));');
   };
   const mesh = new THREE.Mesh(g, m);
   mesh.position.y = (S.man.ground_z ?? -0.17); mesh.receiveShadow = true; mesh.visible = false; mesh.renderOrder = -2;
@@ -691,6 +756,7 @@ void main(){
     occ += (sz >= q.z + bias * r ? 1.0 : 0.0) * rc;
   }
   float ao = 1.0 - occ / float(N);
+  ao = mix(ao, 1.0, smoothstep(110.0, 220.0, -p.z));   // ferne flache Flächen ohne Verdeckung (keine Streifen am Horizont)
   gl_FragColor = vec4(vec3(ao), 1.0);
 }`});
 const BLUR_MAT = new THREE.ShaderMaterial({
@@ -736,7 +802,7 @@ void main(){
       vec3 nq = viewNormal(vUv + o, q);
       e = max(e, smoothstep(0.35, 0.75, 1.0 - dot(n, nq)) * 0.6);
     }
-    float fade = clamp(1.0 - (-p.z - 60.0) / 140.0, 0.35, 1.0);   // ferne Kanten schwächer
+    float fade = clamp(1.0 - (-p.z - 60.0) / 140.0, 0.35, 1.0) * (1.0 - smoothstep(160.0, 320.0, -p.z));   // ferne Kanten schwächer, am Horizont keine
     c *= 1.0 - edge * e * fade;
   }
   float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
@@ -746,16 +812,25 @@ void main(){
   #include <colorspace_fragment>
 }`});
 
-function ensureTargets() {
-  const w = renderer.domElement.width, h = renderer.domElement.height;
-  if (PP.rt && PP.w === w && PP.h === h) return;
-  for (const k of ['rt', 'ao', 'ao2']) if (PP[k]) { if (PP[k].depthTexture) PP[k].depthTexture.dispose(); PP[k].dispose(); }
-  PP.w = w; PP.h = h;
-  PP.rt = new THREE.WebGLRenderTarget(w, h, {type: THREE.HalfFloatType, samples: 4, depthTexture: new THREE.DepthTexture(w, h, THREE.UnsignedIntType)});
-  PP.rt.depthTexture.minFilter = PP.rt.depthTexture.magFilter = THREE.NearestFilter;
+/* Ruhiges Bild in voller Auflösung, während die Kamera sich bewegt in kleinerer Auflösung (zwei Zielsätze, kein Neuanlegen beim Wechsel).
+   Die Stufe beim Bewegen passt sich an die gemessene Bildzeit an (Bildschirm mit hoher Pixeldichte, Beamer). */
+const RS = {move: 1, ema: 16, lastAdj: 0, sets: {}, low: false, cap: 2.2e6};
+function makeSet(w, h) {
+  const st = {w, h};
+  st.rt = new THREE.WebGLRenderTarget(w, h, {type: THREE.HalfFloatType, samples: 4, depthTexture: new THREE.DepthTexture(w, h, THREE.UnsignedIntType)});
+  st.rt.depthTexture.minFilter = st.rt.depthTexture.magFilter = THREE.NearestFilter;
   const hw = Math.max(1, w >> 1), hh = Math.max(1, h >> 1);
-  PP.ao = new THREE.WebGLRenderTarget(hw, hh, {type: THREE.UnsignedByteType, depthBuffer: false});
-  PP.ao2 = new THREE.WebGLRenderTarget(hw, hh, {type: THREE.UnsignedByteType, depthBuffer: false});
+  st.ao = new THREE.WebGLRenderTarget(hw, hh, {type: THREE.UnsignedByteType, depthBuffer: false});
+  st.ao2 = new THREE.WebGLRenderTarget(hw, hh, {type: THREE.UnsignedByteType, depthBuffer: false});
+  return st;
+}
+function dropSet(st) { if (!st) return; st.rt.depthTexture.dispose(); st.rt.dispose(); st.ao.dispose(); st.ao2.dispose(); }
+function ensureTargets(scale = 1) {
+  const W = renderer.domElement.width, H = renderer.domElement.height, key = scale < 0.999 ? 'move' : 'full';
+  const w = Math.max(16, Math.round(W * scale)), h = Math.max(16, Math.round(H * scale));
+  let st = RS.sets[key];
+  if (!st || st.w !== w || st.h !== h) { dropSet(st); st = RS.sets[key] = makeSet(w, h); }
+  PP.rt = st.rt; PP.ao = st.ao; PP.ao2 = st.ao2; PP.w = w; PP.h = h;
 }
 function pass(mat, target) { PP.quad.material = mat; renderer.setRenderTarget(target); renderer.render(PP.scene, PP.cam); }
 
@@ -768,7 +843,7 @@ function applyLook() {
   OWU.on.value = q === 'einfach' ? 0 : 1;  // Muster Stil B nur bei hoch und mittel
   if (rich) {
     scene.environment = SKY.env; scene.background = SKY.bg;
-    renderer.toneMapping = THREE.AgXToneMapping; renderer.toneMappingExposure = LOOK.exposure;
+    renderer.toneMapping = LOOK.tm === 'aces' ? THREE.ACESFilmicToneMapping : THREE.AgXToneMapping; renderer.toneMappingExposure = LOOK.exposure;
     hemi.intensity = LOOK.hemi; head.intensity = 0.0; sun.intensity = LOOK.sun; sun.castShadow = q === 'hoch';
     sun.color.setHex(0xfff8f0);  // AP-09d kaum warme Sonne zum blassen Himmelslicht, Asphalt und Dach bleiben neutral grau
   } else {
@@ -796,7 +871,7 @@ function drawFrame() {
   syncGround(rich);
   if (sun.castShadow && shadowDirty) { fitSun(); renderer.shadowMap.needsUpdate = true; shadowDirty = false; }
   if (!rich) { renderer.setRenderTarget(null); renderer.render(scene, camera); return; }
-  ensureTargets();
+  ensureTargets(RS.low ? RS.move : 1);
   renderer.setRenderTarget(PP.rt); renderer.render(scene, camera);
   const pi = camera.projectionMatrixInverse, tx = new THREE.Vector2(1 / PP.w, 1 / PP.h), th = new THREE.Vector2(1 / PP.ao.width, 1 / PP.ao.height);
   AO_MAT.uniforms.tDepth.value = PP.rt.depthTexture; AO_MAT.uniforms.projInv.value.copy(pi); AO_MAT.uniforms.proj.value.copy(camera.projectionMatrix); AO_MAT.uniforms.texel.value.copy(tx);
@@ -880,21 +955,33 @@ $('#bHelp').onclick = () => { const d = $('#help'); if (d.showModal) d.showModal
 $('#helpX').onclick = () => $('#help').close();
 $('#help').addEventListener('click', e => { if (e.target === $('#help')) $('#help').close(); });
 const COARSE = matchMedia('(pointer: coarse)').matches;
-$('#hint').textContent = COARSE ? 'Ein Finger dreht oder verschiebt, siehe Schalter unten. Zwei Finger zoomen.' : 'Ziehen dreht. Umschalt und Ziehen verschiebt. Rad zoomt.';
-try { if (localStorage.getItem('ow_hint') === '1') $('#hint').hidden = true; } catch (e) {}
-const hideHint = () => { if ($('#hint').hidden) return; $('#hint').hidden = true; try { localStorage.setItem('ow_hint', '1'); } catch (e) {} };
-cv.addEventListener('pointerdown', hideHint); cv.addEventListener('wheel', hideHint, {passive: true});
+const hideHint = () => {};
 if (DEBUG) $('#benchBox').hidden = false;
 
 /* ====================================================================================================
    Kamera
    ==================================================================================================== */
-/* Kamera: Eingaben und Programm ändern nur das Ziel S.cam. updateCamera zieht die gezeigte Kamera CV weich nach (Dämpfung,
-   Abstand im Logarithmus, Drehung auf kürzestem Weg). Grenzen: Abstand und Ziel bleiben im Bereich des Modells. */
-const CV = {target: new THREE.Vector3(36, 6, -24), yaw: 0.6, pitch: 0.7, dist: 110};
-const CAM = {t: 0, kv: 9, kUntil: 0, n: -1, box: new THREE.Box3(), minD: 0.8, maxD: 600};
-const camKick = k => { CAM.kv = k; CAM.kUntil = performance.now() + 220; };
-function camSnap() { CV.target.copy(S.cam.target); CV.yaw = S.cam.yaw; CV.pitch = S.cam.pitch; CV.dist = S.cam.dist; }
+/* Kamera (all out): S.cam ist die gewünschte Kamera, CV die gezeigte. Drei Arten, wie CV folgt:
+   direkt (Ziehen, Finger, Trackpad, Tasten): sofort, ohne Nachlauf, der gegriffene Punkt bleibt unter dem Zeiger.
+   kurz gedämpft (Mausrad): etwa 70 ms, damit Radstufen nicht springen.
+   Flug (Programm: Gesamt, Ansichten, Zoom auf Auswahl, Doppelklick, Begehen): Ein- und Auslaufen in 0,35 bis 0,8 s.
+   Jede Eingabe übernimmt zuerst die gerade gezeigte Kamera (camTake), ein laufender Flug bricht damit ohne Sprung ab. */
+const CV = {target: new THREE.Vector3(36, 6, -24), yaw: 0.6, pitch: 0.7, dist: 110, fov: 50};
+const CAM = {t: 0, n: -1, box: new THREE.Box3(), minD: 0.4, maxD: 600, mode: 'idle', anim: null, moveT: 0, sig: ''};
+const camKick = () => {};  // alte Aufrufe, Dämpfung entfällt
+function camSnap() { CV.target.copy(S.cam.target); CV.yaw = S.cam.yaw; CV.pitch = S.cam.pitch; CV.dist = S.cam.dist; CV.fov = S.cam.fov || 50; CAM.mode = 'idle'; CAM.anim = null; }
+function camTake() {  // Eingabe beginnt: gezeigte Kamera wird Ziel
+  if (CAM.mode === 'idle') return;
+  S.cam.target.copy(CV.target); S.cam.yaw = CV.yaw; S.cam.pitch = CV.pitch; S.cam.dist = CV.dist; S.cam.fov = CV.fov; CAM.mode = 'idle'; CAM.anim = null;
+}
+function camClamp() {
+  const c = S.cam, B = camBounds();
+  c.pitch = Math.max(-1.55, Math.min(1.55, c.pitch)); c.dist = Math.max(B.minD, Math.min(B.maxD, c.dist)); c.target.clamp(B.box.min, B.box.max);
+  if (!c.fov) c.fov = 50;
+}
+function camDirect() { camClamp(); camSnap(); invalidate(); }
+function camChase() { if (CAM.mode !== 'chase') { CAM.mode = 'chase'; CAM.anim = null; } invalidate(); }
+const easeIO = k => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
 function camBounds() {
   if (CAM.n !== S.prims.length) {
     CAM.n = S.prims.length;
@@ -910,36 +997,60 @@ function camBasis(c) {
   const right = new THREE.Vector3().crossVectors(f, new THREE.Vector3(0, 1, 0)).normalize(), up = new THREE.Vector3().crossVectors(right, f).normalize();
   return {f, right, up};
 }
+const camSame = (a, b, d) => Math.abs(a.yaw - b.yaw) < 1e-5 && Math.abs(a.pitch - b.pitch) < 1e-5 && Math.abs(Math.log(a.dist / b.dist)) < 1e-5 && a.target.distanceTo(b.target) < d * 1e-5 && Math.abs((a.fov || 50) - (b.fov || 50)) < 1e-3;
+const camCopy = c => ({target: c.target.clone(), yaw: c.yaw, pitch: c.pitch, dist: c.dist, fov: c.fov || 50});
 function updateCamera(snap = false) {
-  const c = S.cam, v = CV, now = performance.now(), dt = Math.max(0.001, Math.min(0.034, (now - CAM.t) / 1000)); CAM.t = now;
-  const B = camBounds();
-  c.pitch = Math.max(-1.55, Math.min(1.55, c.pitch)); c.dist = Math.max(B.minD, Math.min(B.maxD, c.dist)); c.target.clamp(B.box.min, B.box.max);
+  const c = S.cam, v = CV, now = performance.now(), dt = Math.max(0.001, Math.min(0.05, (now - CAM.t) / 1000)); CAM.t = now;
+  camClamp();
   let dy = c.yaw - v.yaw; dy -= Math.round(dy / (2 * Math.PI)) * 2 * Math.PI; c.yaw = v.yaw + dy;
   if (snap) camSnap();
-  else {
-    const a = 1 - Math.exp(-dt * (now < CAM.kUntil ? CAM.kv : 8));
-    v.target.lerp(c.target, a); v.yaw += (c.yaw - v.yaw) * a; v.pitch += (c.pitch - v.pitch) * a; v.dist *= Math.pow(c.dist / v.dist, a);
-    if (Math.abs(c.yaw - v.yaw) < 1e-4 && Math.abs(c.pitch - v.pitch) < 1e-4 && Math.abs(Math.log(c.dist / v.dist)) < 5e-4 && v.target.distanceTo(c.target) < c.dist * 5e-4) camSnap(); else invalidate();
-  }
+  else if (CAM.mode === 'chase') {  // Mausrad: kurze Dämpfung
+    const a = 1 - Math.exp(-dt / 0.07);
+    v.target.lerp(c.target, a); v.yaw += (c.yaw - v.yaw) * a; v.pitch += (c.pitch - v.pitch) * a; v.dist *= Math.pow(c.dist / v.dist, a); v.fov += ((c.fov || 50) - v.fov) * a;
+    if (Math.abs(Math.log(c.dist / v.dist)) < 2e-3 && v.target.distanceTo(c.target) < c.dist * 2e-3 && Math.abs(c.yaw - v.yaw) < 2e-4 && Math.abs(c.pitch - v.pitch) < 2e-4) camSnap(); else invalidate();
+  } else if (!camSame(c, v, c.dist)) {  // Flug mit Ein- und Auslaufen
+    let A = CAM.anim;
+    if (!A || !camSame(c, A.end, c.dist)) {
+      const turn = Math.abs(c.yaw - v.yaw) + Math.abs(c.pitch - v.pitch), zl = Math.abs(Math.log(c.dist / v.dist)), mv = v.target.distanceTo(c.target) / Math.max(1, Math.min(c.dist, v.dist));
+      A = CAM.anim = {from: camCopy(v), end: camCopy(c), t0: now, ms: Math.max(350, Math.min(800, 300 + 160 * zl + 220 * turn + 60 * Math.min(4, mv)))};
+      CAM.mode = 'anim';
+    }
+    const k = Math.min(1, (now - A.t0) / A.ms), e = easeIO(k), f = A.from, g = A.end;
+    v.target.lerpVectors(f.target, g.target, e); v.yaw = f.yaw + (g.yaw - f.yaw) * e; v.pitch = f.pitch + (g.pitch - f.pitch) * e;
+    v.dist = f.dist * Math.pow(g.dist / f.dist, e); v.fov = f.fov + (g.fov - f.fov) * e;
+    if (k >= 1) camSnap(); else invalidate();
+  } else if (CAM.mode !== 'idle') camSnap();
   const cp = Math.cos(v.pitch);
   camera.position.set(v.target.x + v.dist * cp * Math.sin(v.yaw), v.target.y + v.dist * Math.sin(v.pitch), v.target.z + v.dist * cp * Math.cos(v.yaw));
   camera.near = Math.max(0.03, Math.min(2, v.dist / 400));
   camera.far = Math.max(300, v.dist * 8);
+  if (Math.abs(camera.fov - v.fov) > 1e-4) camera.fov = v.fov;
   camera.lookAt(v.target);
   camera.updateProjectionMatrix();
+  const sig = camera.position.x.toFixed(4) + camera.position.y.toFixed(4) + camera.position.z.toFixed(4) + v.target.x.toFixed(4) + v.target.y.toFixed(4) + v.target.z.toFixed(4) + v.fov.toFixed(3);
+  if (sig !== CAM.sig) { CAM.sig = sig; CAM.moveT = now; }
   head.position.copy(camera.position);
   head.target.position.copy(v.target);
   const w = t2w(v.target);
   if (DEBUG) $('#sCur').textContent = 'Ziel X ' + dez(w[0], 1) + '  Y ' + dez(w[1], 1) + '  Z ' + dez(w[2], 1) + ', Abstand ' + dez(v.dist, 1) + ' m';
 }
-function setView(name) {
-  const c = S.cam, b = sceneBounds();
+function idxBounds() {  // Hülle der Gebäudehülle (Wände, Decken, Dach) aus dem Index, vor dem Laden der Netze bekannt
+  const I = S.idx, b = new THREE.Box3(); if (!I) return b;
+  const shell = new Set(['wand', 'decke', 'dach', 'darstellung']);
+  for (let i = 0; i < S.worldN; i++) { if (!S.vis[i] || !I.body[i]) continue; const k = I.bbox[i]; if (!k) continue; const g = I.groups[I.group[i]];
+    if (!I.layers[I.layer[i]] || !shell.has(I.layers[I.layer[i]].key) || g === 'SONST' || (I.fmask[i] & 1)) continue;
+    b.expandByPoint(w2t(k[0] / 100, k[1] / 100, k[2] / 100)); b.expandByPoint(w2t(k[3] / 100, k[4] / 100, k[5] / 100)); }
+  return b;
+}
+function setView(name, bb) {
+  leaveWalk(); camTake();
+  const c = S.cam, b = bb && !bb.isEmpty() ? bb : sceneBounds();
   const ctr = b.getCenter(new THREE.Vector3()), sz = b.getSize(new THREE.Vector3());
   const r = Math.max(sz.x, sz.z, sz.y * 1.2, 8);
   c.target.copy(ctr);
-  const presets = {top: [0, 1.5, 1.25], south: [0, 0.15, 1.1], north: [Math.PI, 0.15, 1.1], west: [-Math.PI / 2, 0.15, 1.1], east: [Math.PI / 2, 0.15, 1.1], iso: [0.75, 0.62, 1.25]};
+  const presets = {top: [0, 1.5, 1.25], south: [0, 0.15, 1.1], north: [Math.PI, 0.15, 1.1], west: [-Math.PI / 2, 0.15, 1.1], east: [Math.PI / 2, 0.15, 1.1], iso: [-0.72, 0.45, 1.5]};  // Startansicht von Südwest, leicht von oben
   const p = presets[name] || presets.iso;
-  c.yaw = p[0]; c.pitch = p[1]; c.dist = r * p[2];
+  c.yaw = p[0]; c.pitch = p[1]; c.dist = r * p[2] * Math.max(1, 1.15 / Math.max(0.3, camera.aspect));  // Hochformat: weiter weg, damit alles passt
   invalidate();
 }
 function sceneBounds() {
@@ -952,20 +1063,19 @@ function sceneBounds() {
   return b;
 }
 function zoomToBox(b, margin = 1.5) {  // Ziel setzen, die Kamera gleitet hin
+  leaveWalk(); camTake();
   const ctr = b.getCenter(new THREE.Vector3()), sz = b.getSize(new THREE.Vector3());
   const r = Math.max(sz.length() / 2, 0.15);
   S.cam.target.copy(ctr);
-  S.cam.dist = Math.max(0.6, r * margin / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 0.9);
+  S.cam.dist = Math.max(0.6, r * margin / Math.sin(THREE.MathUtils.degToRad(50 / 2)) * 0.9);
   invalidate();
 }
-$('#bHome').onclick = () => setView('iso');
-function setMode(m, quiet = false) {
-  S.mode = m === 'fly' ? 'fly' : 'orbit';
-  document.querySelectorAll('#modeSeg button').forEach(b => { const on = b.dataset.m === S.mode; b.classList.toggle('act', on); b.setAttribute('aria-pressed', on); });
-  if (!quiet) showMsg(S.mode === 'orbit' ? 'Orbit, Ziehen dreht um das Ziel' : 'Fliegen, Ziehen schaut sich um, W A S D bewegt', 2500);
+function setMode(m) {  // Orbit oder Begehen (Begehen startet mit einem Klick auf einen Boden)
+  if (m === 'walk') { if (S.mode !== 'walk') walkArm(true); return; }
+  walkEnd();
 }
+const leaveWalk = () => { if (S.mode === 'walk' || WALK.arm) { const w = S.mode === 'walk'; S.mode = 'orbit'; WALK.arm = false; WALK.prev = null; S.cam.fov = 50; syncWalkUI(); if (w) applyVisibility(); } };
 document.querySelectorAll('#modeSeg button').forEach(b => b.onclick = () => setMode(b.dataset.m));
-setMode('orbit', true);
 
 /* ====================================================================================================
    GLB-Leser (glTF 2.0 binär). Eigener Minimalleser: GLTFLoader/OrbitControls liegen nicht auf cdnjs.
@@ -1285,7 +1395,8 @@ function neededFiles(st = S.style) {
 }
 function loadMany(need) {
   // kleine zuerst, höchstens 4 gleichzeitig; liefert ein Promise, das nach allen Dateien erfüllt ist
-  const queue = need.slice().sort((a, b) => a.bytes - b.bytes);
+  const late = f => f.layer.startsWith('tga_') || f.layer === 'durchfuehrung' || f.layer.startsWith('bs_') ? 1 : 0;  // Bauwerk zuerst, Technik danach
+  const queue = need.slice().sort((a, b) => late(a) - late(b) || a.bytes - b.bytes);
   const workers = Array.from({length: 4}, async () => { while (queue.length) { const f = queue.shift(); if (!S.files.has(f.path)) await loadFile(f); else while (S.files.get(f.path).state === 'loading') await sleep(40); } });
   return Promise.all(workers);
 }
@@ -1460,7 +1571,7 @@ function computeVis() {
   const lfOf = LF.of, role = S.role, rof = LF.roleOf, rGhost = roleGhostOn();
   // Decken: die Decke über dem obersten gewählten Geschoss bleibt offen (Blick hinein), außer das Dach ist eingeschaltet
   const deckeL = I.layers.findIndex(l => l.key === 'decke');
-  const topSel = S.floorOn.size ? Math.max(...S.floorOn) : -1, roofOn = S.extraOn.has('DACH');
+  const topSel = S.floorOn.size ? Math.max(...S.floorOn) : -1, roofOn = S.extraOn.has('DACH'), walking = S.mode === 'walk';
   let cnt = 0;
   for (let i = 0; i < N; i++) {
     let ok;
@@ -1469,7 +1580,7 @@ function computeVis() {
     if (ok) {
       const l = I.layer[i];
       if (l >= 0 && !layerVis[l]) ok = false;
-      else if (l === deckeL && fm && !roofOn && 31 - Math.clz32(fm) >= topSel) ok = false;
+      else if (l === deckeL && fm && !roofOn && !walking && 31 - Math.clz32(fm) >= topSel) ok = false;  // beim Begehen bleibt die Decke
       else if (S.gewOff.has(I.gewerk[i]) || S.sysOff.has(I.system[i]) || S.artOff.has(I.art[i]) || S.statOff.has(I.status[i])) ok = false;
       else if (lfOf[i] >= 0 && lo[lfOf[i]]) ok = false;
       else if (kgo[kgOf[i]]) ok = false;
@@ -1662,10 +1773,12 @@ function pick(clientX, clientY) {
   const nx = ((clientX - r.left) / r.width) * 2 - 1, ny = -((clientY - r.top) / r.height) * 2 + 1;
   camera.updateMatrixWorld();
   ray.setFromCamera({x: nx, y: ny}, camera);
-  const o = ray.ray.origin, d = ray.ray.direction;
+  return pickRay(ray.ray.origin, ray.ray.direction, camera.near, Infinity);
+}
+function pickRay(o, d, tNear = 0, tFar = Infinity) {  // Strahl in Weltlage, Treffer mit Punkt P und Neigung ny der Fläche
   const ox = o.x, oy = o.y, oz = o.z, dx = d.x, dy = d.y, dz = d.z;
   const ix = 1 / (dx || 1e-12), iy = 1 / (dy || 1e-12), iz = 1 / (dz || 1e-12);
-  let bestT = Infinity, bestObj = -1, bestP = null, bestR = -1;
+  let bestT = tFar, bestObj = -1, bestP = null, bestR = -1, bnx = 0, bny = 1, bnz = 0;
   const vis = S.vis;
   for (const p of S.prims) {
     if (!p.meshV.visible) continue;
@@ -1699,13 +1812,14 @@ function pick(clientX, clientY) {
         const v = (dx * qx + dy * qy + dz * qz) * inv;
         if (v < 0 || u + v > 1) continue;
         const tt = (e2x * qx + e2y * qy + e2z * qz) * inv;
-        if (tt <= camera.near || tt >= bestT) continue;
+        if (tt <= tNear || tt >= bestT) continue;
         if (clipPlanes.length && clipped(ox + dx * tt, oy + dy * tt, oz + dz * tt)) continue;
         bestT = tt; bestObj = p.rO[rr]; bestP = p; bestR = rr;
+        bnx = e1y * e2z - e1z * e2y; bny = e1z * e2x - e1x * e2z; bnz = e1x * e2y - e1y * e2x;
       }
     }
   }
-  return bestObj >= 0 ? {n: bestObj, t: bestT, p: bestP, r: bestR} : null;
+  return bestObj >= 0 ? {n: bestObj, t: bestT, p: bestP, r: bestR, P: new THREE.Vector3(ox + dx * bestT, oy + dy * bestT, oz + dz * bestT), ny: bny / (Math.hypot(bnx, bny, bnz) || 1)} : null;
 }
 
 /* ====================================================================================================
@@ -2478,6 +2592,7 @@ function buildFloors() {
     box.append(row(f.label, S.floorOn.has(i), f.label + ', Fußboden ' + dez(f.ffl, 2) + ' m', on => { on ? S.floorOn.add(i) : S.floorOn.delete(i); }, () => { none(); S.floorOn.add(i); }, !have.has(f.group)));
   }
   grp('SONST', 'Außen', 'Gelände, Erdreich und Teile außerhalb der Geschosse ein oder aus');
+  requestAnimationFrame(() => $('#stage').style.setProperty('--fw', Math.ceil(box.offsetWidth + 16) + 'px'));
 }
 $('#bShowAll').onclick = () => {  // Filter auf Anfang: alle Objektarten, zurückgestellt aus, Ebenen wie beim Start
   S.artOff.clear(); S.leafOff.clear(); S.kgOff.clear(); S.statOff.clear(); const held = S.idx.status_keys.indexOf('held'); if (held >= 0) S.statOff.add(held);
@@ -2683,10 +2798,12 @@ $('#cCutFill').onchange = e => { S.cutFill = e.target.checked; applyClip(); };
 function renderCutBar() {
   const box = $('#cutBar'); if (!box) return;
   const on = ['x', 'y', 'z'].some(a => S.clip[a].on);
-  const mk = (t, title, fn) => { const b = el('button', {type: 'button', textContent: t, title}); b.onclick = fn; return b; };
-  box.replaceChildren(mk('Grundriss 1,5 m', 'Schnitt 1,5 m über dem Fußboden, Blick von oben', () => $('#bPlan').onclick()),
-    mk('Schnitt einstellen', 'Schnittebenen im Reiter Schnitt', () => { setPanel('l', true); activateTab('t-clip'); }),
+  const close = () => { box.hidden = true; $('#bCut').setAttribute('aria-expanded', 'false'); };
+  const mk = (t, sub, fn) => { const b = el('button', {type: 'button', className: 'mi'}, el('span', {textContent: t}), el('small', {textContent: sub})); b.setAttribute('role', 'menuitem'); b.onclick = () => { close(); fn(); }; return b; };
+  box.replaceChildren(mk('Grundriss 1,5 m', 'Schnitt über dem Fußboden, Blick von oben', () => $('#bPlan').onclick()),
+    mk('Schnitt einstellen', 'Ebenen in X, Y und Z im Menü', () => { setPanel('l', true); activateTab('t-clip'); }),
     ...(on ? [mk('Schnitt aus', 'Alle Schnitte ausschalten', () => $('#bClipOff').onclick())] : []));
+  $('#bCut').setAttribute('aria-pressed', on ? 'true' : 'false');
 }
 function syncClipUI() { for (const ax of ['x', 'y', 'z']) { const c = S.clip[ax], u = c.ui; if (!u) continue; u.cb.checked = c.on; u.rg.value = c.pos; u.num.value = dez(c.pos, 2); u.sel.value = c.keep; } }
 $('#bClipOff').onclick = () => { for (const ax of ['x', 'y', 'z']) S.clip[ax].on = false; syncClipUI(); applyClip(); };
@@ -2706,7 +2823,7 @@ function snapshot() {
   return {v: 1, style: S.style, candT: S.candTransparent, floors: [...S.floorOn], extra: [...S.extraOn], layerOn: S.layerOn, layerOp: S.layerOp, gewOff: [...S.gewOff], sysOff: [...S.sysOff], artOff: [...S.artOff], statOff: [...S.statOff], leafOff: [...S.leafOff].map(id => LF.list[id].key), kgOff: [...S.kgOff].map(k => KG.list[k].code), role: S.role, roleRest: S.roleRest,
     colorMode: S.colorMode, ghost: S.ghost, hidden: ids(S.hidden), isolate: S.isolate ? ids(S.isolate) : null,
     clip: Object.fromEntries(['x', 'y', 'z'].map(a => [a, {on: S.clip[a].on, pos: S.clip[a].pos, keep: S.clip[a].keep}])),
-    cam: {target: S.cam.target.toArray(), yaw: S.cam.yaw, pitch: S.cam.pitch, dist: S.cam.dist}, mode: S.mode};
+    cam: {target: S.cam.target.toArray(), yaw: S.cam.yaw, pitch: S.cam.pitch, dist: S.cam.dist, fov: S.cam.fov || 50}, mode: S.mode};
 }
 function restore(v) {
   S.floorOn = new Set(v.floors); S.extraOn = new Set(v.extra || []);
@@ -2719,8 +2836,8 @@ function restore(v) {
   S.hidden = new Set((v.hidden || []).map(id => S.idToNum.get(id)).filter(x => x !== undefined));
   S.isolate = v.isolate ? new Set(v.isolate.map(id => S.idToNum.get(id)).filter(x => x !== undefined)) : null;
   for (const a of ['x', 'y', 'z']) Object.assign(S.clip[a], v.clip[a]);
-  S.cam.target.fromArray(v.cam.target); S.cam.yaw = v.cam.yaw; S.cam.pitch = v.cam.pitch; S.cam.dist = v.cam.dist;
-  if (v.mode && v.mode !== S.mode) setMode(v.mode);
+  camTake(); S.cam.target.fromArray(v.cam.target); S.cam.yaw = v.cam.yaw; S.cam.pitch = v.cam.pitch; S.cam.dist = v.cam.dist; S.cam.fov = v.cam.fov || 50;
+  if (v.mode === 'walk') { if (S.mode !== 'walk') WALK.prev = null; S.mode = 'walk'; WALK.arm = false; syncWalkUI(); } else if (S.mode === 'walk' || WALK.arm) { S.mode = 'orbit'; WALK.arm = false; WALK.prev = null; S.cam.fov = 50; syncWalkUI(); }
   const cm = v.colorMode === 'brand' && !BS.d ? 'material' : v.colorMode;
   $('#cMode').value = cm; setColorMode(cm);
   buildFilterUI(); syncClipUI(); applyClip(); syncLoads(); applyVisibility();
@@ -2763,26 +2880,27 @@ $('#tabs').addEventListener('keydown', e => {
 let drag = null;
 cv.addEventListener('contextmenu', e => e.preventDefault());
 const ptrs = new Map(); let pinch = null;  // aktive Zeiger für Touch
-const pinchOf = () => { const [a, b] = [...ptrs.values()]; return {d: Math.hypot(a.x - b.x, a.y - b.y) || 1, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2}; };
-/* Greifen: der Punkt unter dem Zeiger (Raycast auf den Körper, sonst Ebene durch das Ziel) bleibt beim Verschieben unter dem Zeiger,
+const pinchOf = () => { const [a, b] = [...ptrs.values()]; return {d: Math.hypot(a.x - b.x, a.y - b.y) || 1, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, ang: Math.atan2(b.y - a.y, b.x - a.x)}; };
+/* Greifen: der Punkt unter dem Zeiger (Strahl auf den Körper, sonst Ebene durch das Ziel) bleibt beim Verschieben unter dem Zeiger,
    das Tempo passt damit zu jedem Abstand. Drehen geht um den Punkt unter dem Zeiger beim Drücken. Zoom läuft zum Zeiger, nah an der Fläche
-   schiebt ein Mindestschritt die Kamera an der Fläche vorbei. Alles wirkt auf das Ziel S.cam, die gezeigte Kamera gleitet nach. */
+   schiebt ein Mindestschritt die Kamera an der Fläche vorbei. Ziehen, Finger und Trackpad wirken direkt, ohne Nachlauf. */
 function goalRay(cx, cy) {
   const c = S.cam, b = camBasis(c), G = c.target.clone().addScaledVector(b.f, -c.dist);
   if (cx == null) return {G, dir: b.f.clone(), b};
-  const r = cv.getBoundingClientRect(), t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  const r = cv.getBoundingClientRect(), t = Math.tan(THREE.MathUtils.degToRad((c.fov || camera.fov) / 2));
   const nx = (cx - r.left) / r.width * 2 - 1, ny = -((cy - r.top) / r.height * 2 - 1);
   return {G, dir: b.f.clone().addScaledVector(b.right, nx * t * r.width / r.height).addScaledVector(b.up, ny * t).normalize(), b};
 }
 function anchorAt(cx, cy) {
   const h = cx == null ? null : pick(cx, cy);
-  if (h) return ray.ray.at(h.t, new THREE.Vector3());
-  const g = goalRay(cx, cy); return g.G.clone().addScaledVector(g.dir, S.cam.dist / g.dir.dot(g.b.f));
+  if (h) return h.P.clone();
+  const g = goalRay(cx, cy); return g.G.clone().addScaledVector(g.dir, S.cam.dist / Math.max(0.05, g.dir.dot(g.b.f)));
 }
 const AC = {x: -99, y: -99, t: 0, P: null};
 function anchorCached(cx, cy) {
   const now = performance.now();
-  if (!AC.P || Math.hypot(cx - AC.x, cy - AC.y) > 10 || now - AC.t > 800) { AC.P = anchorAt(cx, cy); AC.x = cx; AC.y = cy; AC.t = now; }
+  if (!AC.P || Math.hypot(cx - AC.x, cy - AC.y) > 10 || now - AC.t > 800) { AC.P = anchorAt(cx, cy); AC.x = cx; AC.y = cy; }
+  AC.t = now;
   return AC.P;
 }
 function panGrab(P, cx, cy) {  // P wandert unter den Zeiger
@@ -2790,26 +2908,31 @@ function panGrab(P, cx, cy) {  // P wandert unter den Zeiger
   S.cam.target.add(P.clone().sub(g.G.clone().addScaledVector(g.dir, t)));
 }
 function panPx(dx, dy, depth) {  // Bildinhalt wandert um dx, dy Bildpunkte mit, in der Tiefe der Fläche
-  const c = S.cam, k = Math.max(0.2, depth || c.dist) * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / Math.max(1, cv.clientHeight), b = camBasis(c);
+  const c = S.cam, k = Math.max(0.2, depth || c.dist) * 2 * Math.tan(THREE.MathUtils.degToRad((c.fov || 50) / 2)) / Math.max(1, cv.clientHeight), b = camBasis(c);
   c.target.addScaledVector(b.right, -dx * k).addScaledVector(b.up, dy * k);
+}
+function yawAround(P, a) {  // Drehung um die senkrechte Achse durch P (Verdrehen mit zwei Fingern)
+  const c = S.cam, off = c.target.clone().sub(P); off.applyAxisAngle(new THREE.Vector3(0, 1, 0), a); c.target.copy(P).add(off); c.yaw += a;
+}
+function lookTurn(dyaw, dpitch) {  // Begehen: Blick dreht um das Auge
+  const c = S.cam, eye = c.target.clone().addScaledVector(camBasis(c).f, -c.dist);
+  c.yaw += dyaw; c.pitch = Math.max(-1.45, Math.min(1.45, c.pitch + dpitch));
+  c.target.copy(eye).addScaledVector(camBasis(c).f, c.dist);
 }
 function orbitPx(dx, dy, pivot) {
   const c = S.cam;
-  if (S.mode === 'orbit') {
-    const r = 4.8 / Math.max(500, Math.min(1400, cv.clientHeight)), dyaw = -dx * r, np = Math.max(-1.55, Math.min(1.55, c.pitch + dy * r)), dp = np - c.pitch;
-    if (pivot) {  // Kamera dreht um den Punkt, das Ziel wandert mit
-      const off = c.target.clone().sub(pivot);
-      off.applyAxisAngle(new THREE.Vector3(Math.cos(c.yaw), 0, -Math.sin(c.yaw)), -dp).applyAxisAngle(new THREE.Vector3(0, 1, 0), dyaw);
-      c.target.copy(pivot).add(off);
-    }
-    c.yaw += dyaw; c.pitch = np; return;
+  if (S.mode === 'walk') { const k = 1.15 * THREE.MathUtils.degToRad(c.fov || 60) / Math.max(300, cv.clientHeight); lookTurn(dx * k, -dy * k); return; }
+  const r = 4.8 / Math.max(500, Math.min(1400, cv.clientHeight)), dyaw = -dx * r, np = Math.max(-1.55, Math.min(1.55, c.pitch + dy * r)), dp = np - c.pitch;
+  if (pivot) {  // Kamera dreht um den Punkt, das Ziel wandert mit
+    const off = c.target.clone().sub(pivot);
+    off.applyAxisAngle(new THREE.Vector3(Math.cos(c.yaw), 0, -Math.sin(c.yaw)), -dp).applyAxisAngle(new THREE.Vector3(0, 1, 0), dyaw);
+    c.target.copy(pivot).add(off);
   }
-  const pos = c.target.clone().addScaledVector(camBasis(c).f, -c.dist);  // Fliegen: Umsehen um die Kameraposition
-  c.yaw += dx * 0.004; c.pitch = Math.max(-1.55, Math.min(1.55, c.pitch - dy * 0.004));
-  c.target.copy(pos).addScaledVector(camBasis(c).f, c.dist);
+  c.yaw += dyaw; c.pitch = np;
 }
 function zoomAt(f, cx, cy, P0) {
   const c = S.cam, B = camBounds(), g = goalRay(cx, cy), P = P0 || (cx == null ? c.target.clone() : anchorCached(cx, cy));
+  if (S.mode === 'walk') { walkMove(Math.log(1 / f) * 6, 0); return; }
   const to = P.clone().sub(g.G), L = to.length(), u = L > 1e-6 ? to.divideScalar(L) : g.dir;
   let travel = L * (1 - f);
   if (f < 1) travel = Math.max(travel, 0.08);  // Mindestschritt, an der Fläche vorbei statt anhalten
@@ -2823,21 +2946,23 @@ function dragKind(e) {  // 'rotate' oder 'pan'
     if (e.shiftKey || e.ctrlKey || e.metaKey) return S.nav === 'pan' ? 'rotate' : 'pan';
     if (e.altKey) return 'rotate';
   }
+  if (S.mode === 'walk') return 'rotate';  // Begehen: Ziehen schaut sich um
   return S.nav === 'pan' ? 'pan' : 'rotate';
 }
 function endPtr(e) {
   ptrs.delete(e.pointerId); if (!ptrs.size) { document.body.classList.remove('ziehen'); setMarker(null); }
   if (ptrs.size < 2) pinch = null;
-  if (ptrs.size === 1 && drag) { const p = [...ptrs.values()][0]; drag.x = p.x; drag.y = p.y; }
+  if (ptrs.size === 1 && drag) { const p = [...ptrs.values()][0]; drag.x = p.x; drag.y = p.y; drag.P = anchorAt(p.x, p.y); }
 }
 cv.addEventListener('pointercancel', e => { endPtr(e); if (!ptrs.size) drag = null; });
 cv.addEventListener('lostpointercapture', e => { if (ptrs.has(e.pointerId)) { endPtr(e); if (!ptrs.size) drag = null; } });
 cv.addEventListener('pointerdown', e => {
-  e.preventDefault(); cv.focus({preventScroll: true}); cv.setPointerCapture(e.pointerId);
+  e.preventDefault(); cv.focus({preventScroll: true}); try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+  camTake();
   ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
-  if (ptrs.size === 2) { pinch = pinchOf(); pinch.P = anchorAt(pinch.x, pinch.y); if (drag) { drag.moved = true; setMarker(null); } document.body.classList.add('ziehen'); return; }
+  if (ptrs.size === 2) { pinch = pinchOf(); pinch.P = anchorAt(pinch.x, pinch.y); if (drag) { drag.moved = true; drag.multi = true; setMarker(null); } document.body.classList.add('ziehen'); return; }
   if (ptrs.size > 2) return;
-  drag = {x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, btn: e.button, kind: dragKind(e), touch: e.pointerType !== 'mouse', moved: false, add: e.ctrlKey || e.metaKey || e.shiftKey, P: null};
+  drag = {x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, btn: e.button, kind: dragKind(e), touch: e.pointerType !== 'mouse', moved: false, add: e.ctrlKey || e.metaKey || e.shiftKey, P: null, t: performance.now()};
   $('#tip').style.display = 'none'; AC.P = null;
   try { drag.P = anchorAt(e.clientX, e.clientY); } catch (x) {}
   document.body.classList.add('ziehen');
@@ -2845,37 +2970,106 @@ cv.addEventListener('pointerdown', e => {
 cv.addEventListener('pointermove', e => {
   if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
   if (pinch && ptrs.size >= 2) {
-    const p = pinchOf(); camKick(24);
-    panGrab(pinch.P, p.x, p.y); zoomAt(Math.max(0.8, Math.min(1.25, pinch.d / p.d)), p.x, p.y, pinch.P);
-    p.P = pinch.P; pinch = p; invalidate(); return;
+    const p = pinchOf();
+    if (S.mode === 'walk') { walkMove((p.d / pinch.d - 1) * 5, 0); walkPan(p.x - pinch.x, p.y - pinch.y); }
+    else {
+      let da = p.ang - pinch.ang; da -= Math.round(da / (2 * Math.PI)) * 2 * Math.PI;
+      if (Math.abs(da) < 0.5 && Math.abs(da) > 0.002) yawAround(pinch.P, da);  // Verdrehen, Inhalt folgt den Fingern
+      zoomAt(Math.max(0.75, Math.min(1.33, pinch.d / p.d)), p.x, p.y, pinch.P);
+      panGrab(pinch.P, p.x, p.y);
+    }
+    p.P = pinch.P; pinch = p; camDirect(); return;
   }
   if (!drag) { if (e.pointerType === 'mouse') hoverSoon(e); return; }
+  if (!drag.moved) {
+    if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) <= (drag.touch ? 8 : 3)) return;
+    drag.moved = true; WALK.arm && walkArm(false);
+  }
   const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
   drag.x = e.clientX; drag.y = e.clientY;
-  if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > (drag.touch ? 9 : 4)) drag.moved = true;
-  if (!drag.moved) return;
-  camKick(24);
-  if (drag.kind === 'pan') { if (drag.P) panGrab(drag.P, e.clientX, e.clientY); else panPx(dx, dy); }
-  else { orbitPx(dx, dy, drag.P); if (drag.P && !drag.touch) setMarker(drag.P); }
-  invalidate();
+  if (S.mode === 'walk' && drag.kind === 'pan') walkPan(dx, dy);
+  else if (drag.kind === 'pan') { if (drag.P) panGrab(drag.P, e.clientX, e.clientY); else panPx(dx, dy); }
+  else { orbitPx(dx, dy, S.mode === 'walk' ? null : drag.P); if (drag.P && !drag.touch && S.mode !== 'walk') setMarker(drag.P); }
+  camDirect();
 });
+const TAP = {t: 0, x: 0, y: 0};
 cv.addEventListener('pointerup', e => {
   const had = ptrs.size; endPtr(e);
   if (had > 1) return;  // nach zwei Fingern keine Auswahl
   const d = drag; drag = null;
-  if (!d || d.moved || d.btn !== 0) return;
+  if (!d || d.moved || d.multi || d.btn !== 0) return;
+  if (WALK.arm) { const P = floorAt(e.clientX, e.clientY); if (P) walkStart(P); else showMsg('Dort ist kein Boden. Bitte auf einen Boden klicken oder Esc.', 3000); return; }
+  if (S.mode === 'walk') { const P = floorAt(e.clientX, e.clientY, true); if (P && !d.add) { walkTo(P); return; } }
+  const now = performance.now();
+  if (d.touch && now - TAP.t < 330 && Math.hypot(e.clientX - TAP.x, e.clientY - TAP.y) < 30) { TAP.t = 0; flyToHit(e.clientX, e.clientY); return; }  // Doppeltippen
+  TAP.t = now; TAP.x = e.clientX; TAP.y = e.clientY;
   const bl = bsPick(e.clientX, e.clientY);
   if (bl >= 0 && !d.add) { bsShowLine(bl); return; }
   const h = pick(e.clientX, e.clientY);
   if (h) pickSelect(h.n, d.add, e.altKey); else if (!d.add) select(-1);
 });
-cv.addEventListener('dblclick', e => {  // sanft hinfliegen, dort ist der neue Drehpunkt
-  const h = pick(e.clientX, e.clientY); if (!h) return;
-  const P = ray.ray.at(h.t, new THREE.Vector3()); select(h.n, false); const b = objBox(h.n), d0 = S.cam.dist;
-  if (!b.isEmpty()) { zoomToBox(b, 2.2); S.cam.target.copy(P); S.cam.dist = Math.max(camBounds().minD, Math.min(S.cam.dist, d0 * 0.5)); }  // nie wegfliegen: höchstens halber Abstand
-});
-/* Mausrad, Trackpad und Spreizen. Spreizen kommt im Browser als Rad mit ctrlKey und zoomt immer. Mausrad: ein Schritt zoomt um etwa 9 Prozent.
-   Wischen mit zwei Fingern (Strom kleiner Werte, oder Werte in x) verschiebt, mit Wahltaste dreht es. Die Zuordnung ist im Reiter Ansicht umstellbar. */
+function flyToHit(cx, cy) {  // sanft hinfliegen, dort ist der neue Drehpunkt, nie weiter weg als jetzt
+  if (S.mode === 'walk') return;
+  const h = pick(cx, cy); if (!h) return;
+  const P = h.P.clone(); select(h.n, false); const b = objBox(h.n), d0 = S.cam.dist;
+  camTake();
+  if (!b.isEmpty()) { zoomToBox(b, 2.2); S.cam.target.copy(P); S.cam.dist = Math.max(camBounds().minD, Math.min(S.cam.dist, d0 * 0.5)); invalidate(); }
+}
+cv.addEventListener('dblclick', e => { if (e.pointerType === 'touch' || S.mode === 'walk' || WALK.arm) return; flyToHit(e.clientX, e.clientY); });
+
+/* Begehen (Rundgang im Geschoss): Klick auf einen Boden stellt dich dort hin, Augenhöhe 1,6 m. Ziehen schaut sich um, Rad, Wischen oder
+   Spreizen geht vor und zurück, W A S D und Pfeile gehen, Klick auf einen Boden geht dorthin. Esc oder der Knopf beendet und fliegt zurück. */
+const WALK = {arm: false, prev: null, eye: 1.6};
+function syncWalkUI() {
+  const b = $('#bWalk'); if (b) { b.setAttribute('aria-pressed', S.mode === 'walk' || WALK.arm ? 'true' : 'false'); b.title = S.mode === 'walk' ? 'Begehen beenden (Esc)' : 'Begehen: auf einen Boden klicken und dort stehen (Taste G)'; }
+  cv.classList.toggle('arm', WALK.arm);
+  document.querySelectorAll('#modeSeg button').forEach(x => { const on = x.dataset.m === (S.mode === 'walk' ? 'walk' : 'orbit'); x.classList.toggle('act', on); x.setAttribute('aria-pressed', on); });
+  $('#app').classList.toggle('walking', S.mode === 'walk');
+  const wh = $('#walkHint'); if (wh) wh.hidden = !(S.mode === 'walk' || WALK.arm);
+  if (wh) wh.querySelector('span').textContent = WALK.arm ? 'Auf einen Boden klicken, dort stehst du.' : (COARSE ? 'Ziehen schaut, zwei Finger gehen, Tippen auf den Boden geht hin.' : 'Ziehen schaut. W A S D, Pfeile oder Rad gehen. Klick auf den Boden geht hin.');
+}
+function walkArm(on = !WALK.arm) {
+  if (S.mode === 'walk') { walkEnd(); return; }
+  WALK.arm = on; syncWalkUI();
+}
+function floorAt(cx, cy, strict = false) {  // Standpunkt auf dem Boden unter dem Zeiger
+  const h = pick(cx, cy); if (!h) return null;
+  const P = h.P.clone(), eyeY = camera.position.y;
+  if (Math.abs(h.ny) > 0.7) { if (strict && P.y > eyeY - 1.1) return null; return P; }
+  if (strict) return null;
+  const Q = P.clone().addScaledVector(ray.ray.direction, -0.45); Q.y += 0.3;
+  const g = pickRay(Q, new THREE.Vector3(0, -1, 0), 0.01, 6);
+  if (g && Math.abs(g.ny) > 0.7) return g.P.clone();
+  const fl = S.man.floors.find(f => Q.y >= f.lo && Q.y < f.hi); if (fl) { Q.y = fl.ffl; return Q; }
+  return null;
+}
+function walkStart(P) {
+  camTake();
+  if (S.mode !== 'walk') WALK.prev = camCopy(S.cam);
+  const c = S.cam, f = camBasis(c).f.clone(); f.y = 0; if (f.lengthSq() < 1e-6) f.set(0, 0, -1); f.normalize();
+  const eye = P.clone(); eye.y += WALK.eye;
+  c.yaw = Math.atan2(-f.x, -f.z); c.pitch = 0.06; c.dist = 1.2; c.fov = 64;
+  c.target.copy(eye).addScaledVector(camBasis(c).f, c.dist);
+  S.mode = 'walk'; WALK.arm = false; syncWalkUI(); applyVisibility();
+  showMsg(COARSE ? 'Begehen: Ziehen schaut, zwei Finger gehen. Tippen auf den Boden geht hin.' : 'Begehen: Ziehen schaut. W A S D, Pfeile oder Rad gehen. Esc beendet.', 4000);
+}
+function walkTo(P) { camTake(); const c = S.cam, eye = P.clone(); eye.y += WALK.eye; c.target.copy(eye).addScaledVector(camBasis(c).f, c.dist); invalidate(); }
+function walkMove(fw, side) {  // vor und zurück, seitlich (Meter), waagrecht
+  const c = S.cam, b = camBasis(c), f = b.f.clone(); f.y = 0; if (f.lengthSq() < 1e-6) f.set(0, 0, -1); f.normalize();
+  c.target.addScaledVector(f, fw).addScaledVector(b.right, side);
+}
+function walkPan(dx, dy) { const k = 7 / Math.max(300, cv.clientHeight); walkMove(dy * k, -dx * k); }
+function walkEnd(back = true) {
+  if (S.mode !== 'walk') { if (WALK.arm) { WALK.arm = false; syncWalkUI(); } return; }
+  camTake(); S.mode = 'orbit';
+  if (back && WALK.prev) { const p = WALK.prev; S.cam.target.copy(p.target); S.cam.yaw = p.yaw; S.cam.pitch = p.pitch; S.cam.dist = p.dist; }
+  S.cam.fov = 50; WALK.prev = null; syncWalkUI(); applyVisibility();
+}
+
+/* Mausrad, Trackpad und Spreizen. Jede Folge von Ereignissen (Pause unter 240 ms, auch der Nachlauf des Trackpads) bekommt beim ersten
+   Ereignis eine Art und behält sie bis zum Ende, damit Zoomen und Verschieben nie mitten in der Bewegung wechseln. Rad: Zeilen (Firefox),
+   Vielfache von 4,000244 (Chrome am Mac), große Einzelwerte ab 50 (Windows) oder wheelDelta in Stufen von 120. Alles andere ist Trackpad.
+   Kein Warten auf das nächste Ereignis. Spreizen kommt als Rad mit ctrlKey (Safari: Geste) und zoomt immer. */
 const MK = {P: null, el: document.querySelector('#pivotDot')};
 function setMarker(P) { MK.P = P; if (!P) MK.el.style.display = 'none'; else placeMarker(); }
 function placeMarker() {
@@ -2884,57 +3078,60 @@ function placeMarker() {
   if (v.z > 1) { MK.el.style.display = 'none'; return; }
   MK.el.style.left = (r.left - st.left + (v.x + 1) / 2 * r.width) + 'px'; MK.el.style.top = (r.top - st.top + (1 - v.y) / 2 * r.height) + 'px'; MK.el.style.display = 'block';
 }
-const WH = {t: 0, pad: 0, pend: null, tm: 0};
-let gScale = 1, gAt = 0;  // Safari meldet das Spreizen als Geste statt als Rad mit ctrlKey
-function wheelZoom(dy, x, y, smooth) {
-  const st = smooth ? Math.max(-0.12, Math.min(0.12, dy * 0.0035)) : Math.sign(dy) * 0.09 * Math.min(1.5, Math.max(0.3, Math.abs(dy) / 100));
-  if (st) { zoomAt(Math.exp(st * S.zoomSpeed), x, y); invalidate(); }
+const WH = {t: 0, kind: null};
+const NOTCH = 4.000244140625;
+const isNotch = (e, dy) => { if (e.deltaMode !== 0) return true; if (!dy) return false; const r = dy / NOTCH; if (Math.abs(r - Math.round(r)) < 1e-6) return true; if (Math.abs(dy) >= 50) return true; return !!(e.wheelDeltaY && Math.abs(e.wheelDeltaY) >= 120 && e.wheelDeltaY % 120 === 0 && Number.isInteger(dy)); };
+function wheelSteps(e, dy) {
+  if (e.deltaMode === 1) return e.deltaY / 3;
+  if (e.deltaMode === 2) return Math.sign(e.deltaY);
+  const r = dy / NOTCH; if (dy && Math.abs(r - Math.round(r)) < 1e-6) return r;
+  if (e.wheelDeltaY && e.wheelDeltaY % 120 === 0) return -e.wheelDeltaY / 120;
+  return dy / 100;
 }
+let gScale = 1, gRot = 0, gAt = 0;  // Safari meldet das Spreizen als Geste statt als Rad mit ctrlKey
 function wheelPad(dx, dy, alt, x, y) {
+  if (S.mode === 'walk') { const k = 6 / Math.max(300, cv.clientHeight); walkMove(-dy * k, dx * k); return; }
   const P = x == null ? null : anchorCached(x, y);
   if (alt) orbitPx(-dx, -dy, P); else panPx(-dx, -dy, P ? Math.max(0.2, P.clone().sub(goalRay().G).dot(camBasis(S.cam).f)) : S.cam.dist);
-  invalidate();
 }
 cv.addEventListener('wheel', e => {
-  e.preventDefault(); hideHint(); camKick(12);
+  e.preventDefault(); hideHint();
   const m = e.deltaMode === 1 ? 100 / 3 : e.deltaMode === 2 ? cv.clientHeight : 1, dx = e.deltaX * m, dy = e.deltaY * m, now = performance.now();
+  if (WALK.arm) walkArm(false);
   if (e.ctrlKey) {  // Spreizen (oder Strg und Rad)
     if (now - gAt < 150) return;
-    const st = Math.max(-0.2, Math.min(0.2, dy * 0.01 * S.zoomSpeed));
-    if (st) { zoomAt(Math.exp(st), e.clientX, e.clientY); invalidate(); }
+    if (isNotch(e, dy)) { if (CAM.mode === 'anim') camTake(); const st = Math.max(-4, Math.min(4, wheelSteps(e, dy))); zoomAt(Math.exp(0.1 * st * S.zoomSpeed), e.clientX, e.clientY); camChase(); return; }
+    camTake();
+    const st = Math.max(-0.25, Math.min(0.25, dy * 0.011 * S.zoomSpeed));
+    if (st) { zoomAt(Math.exp(st), e.clientX, e.clientY); camDirect(); }
     return;
   }
-  const gap = now - WH.t; WH.t = now;
-  let kind = S.wheelMode === 'zoom' ? 'wheel' : S.wheelMode === 'pan' ? 'pad' : 'auto';
-  if (kind === 'auto') {
-    if (e.deltaMode !== 0) kind = 'wheel';
-    else if (dx !== 0 || now - WH.pad < 400 || gap < 60) kind = 'pad';
-    else if (Math.abs(dy) >= 80 || (e.wheelDeltaY && Math.abs(e.wheelDeltaY) % 120 === 0)) kind = 'wheel';
-    else {  // erster kleiner Wert: warten, ob ein Strom folgt (Trackpad) oder nichts (einzelner Schritt)
-      clearTimeout(WH.tm); WH.pend = {dx, dy, x: e.clientX, y: e.clientY, alt: e.altKey};
-      WH.tm = setTimeout(() => { const p = WH.pend; WH.pend = null; if (p) wheelZoom(p.dy, p.x, p.y, false); }, 80);
-      return;
-    }
-  }
-  if (kind === 'pad') {
-    WH.pad = now;
-    if (WH.pend) { clearTimeout(WH.tm); const p = WH.pend; WH.pend = null; wheelPad(p.dx, p.dy, p.alt, p.x, p.y); }
-    wheelPad(dx, dy, e.altKey, e.clientX, e.clientY);
-  } else wheelZoom(dy, e.clientX, e.clientY, S.wheelMode === 'zoom' && gap < 60 && Math.abs(dy) < 40);
+  if (now - WH.t > 240 || !WH.kind) WH.kind = S.wheelMode === 'zoom' ? 'wheel' : S.wheelMode === 'pan' ? 'pad' : (dx !== 0 && e.deltaMode === 0 && !e.shiftKey) ? 'pad' : isNotch(e, dy) ? 'wheel' : 'pad';
+  WH.t = now;
+  if (WH.kind === 'pad') { camTake(); wheelPad(dx, dy, e.altKey, e.clientX, e.clientY); camDirect(); return; }
+  if (CAM.mode === 'anim') camTake();
+  let st = wheelSteps(e, dy || (e.shiftKey ? dx : 0));
+  if (S.wheelMode === 'zoom' && !isNotch(e, dy)) st = dy / 60;  // Immer zoomen mit Trackpad: feiner
+  st = Math.max(-4, Math.min(4, st));
+  if (st) { zoomAt(Math.exp(0.1 * st * S.zoomSpeed), e.clientX, e.clientY); camChase(); }
 }, {passive: false});
-cv.addEventListener('gesturestart', e => { e.preventDefault(); gScale = 1; gAt = performance.now(); }, {passive: false});
+cv.addEventListener('gesturestart', e => { e.preventDefault(); camTake(); gScale = 1; gRot = 0; gAt = performance.now(); }, {passive: false});
 cv.addEventListener('gesturechange', e => {
   e.preventDefault();
-  const sc = e.scale || 1, f = gScale / sc;
-  gScale = sc; gAt = performance.now();
-  if (ptrs.size >= 2) return;  // iPad: zwei Finger zoomen schon über die Zeiger, die Geste käme doppelt
-  if (isFinite(f) && f > 0 && f !== 1) { camKick(14); zoomAt(Math.max(0.8, Math.min(1.25, f)), e.clientX, e.clientY); invalidate(); }
+  const sc = e.scale || 1, f = gScale / sc, rot = e.rotation || 0, da = THREE.MathUtils.degToRad(rot - gRot);
+  gScale = sc; gRot = rot; gAt = performance.now();
+  if (ptrs.size >= 2) return;  // iPad: zwei Finger laufen schon über die Zeiger, die Geste käme doppelt
+  camTake();
+  const P = anchorCached(e.clientX, e.clientY);
+  if (S.mode !== 'walk' && Math.abs(da) > 0.002 && Math.abs(da) < 0.5) yawAround(P, da);
+  if (isFinite(f) && f > 0 && f !== 1) zoomAt(Math.max(0.8, Math.min(1.25, f)), e.clientX, e.clientY, S.mode === 'walk' ? null : P);
+  camDirect();
 }, {passive: false});
 cv.addEventListener('gestureend', e => { e.preventDefault(); gAt = performance.now(); }, {passive: false});
 /* Schalter Drehen und Verschieben (gilt für Ziehen mit Maus, Trackpad und Finger), Zoomknöpfe, Einstellungen */
 const WC = {key: 'ow_welcome'};
 function showWelcome(on) { $('#welcome').hidden = !on; if (!on) { try { localStorage.setItem(WC.key, '1'); } catch (e) {} } }
-$('#wcX').innerHTML = IC.close; $('#wcX').onclick = $('#wcOk').onclick = () => showWelcome(false);
+$('#wcX').innerHTML = IC.close; if (COARSE) $('#wcMore').textContent = 'In der Leiste unten: Begehen und Schnitt.'; $('#wcX').onclick = $('#wcOk').onclick = () => showWelcome(false);
 $('#helpWc').onclick = () => { $('#help').close(); showWelcome(true); };
 { let seen = false; try { seen = localStorage.getItem(WC.key) === '1'; } catch (e) {} if (!seen) showWelcome(true); }
 function setNav(m, quiet = true) {
@@ -2945,9 +3142,12 @@ function setNav(m, quiet = true) {
 }
 document.querySelectorAll('#navSeg button').forEach(b => b.onclick = () => setNav(b.dataset.nm));
 try { setNav(localStorage.getItem('ow_nav') === 'pan' ? 'pan' : 'orbit'); } catch (e) { setNav('orbit'); }
-const zoomBtn = f => { camKick(10); zoomAt(f); invalidate(); };
+const zoomBtn = f => { if (CAM.mode === 'anim') camTake(); zoomAt(f); camChase(); };
 $('#bZoomIn').onclick = () => zoomBtn(Math.exp(-0.3)); $('#bZoomOut').onclick = () => zoomBtn(Math.exp(0.3));
-$('#bNavHome').onclick = () => setView('iso'); $('#bNavHelp').onclick = () => $('#bHelp').onclick();
+$('#bNavHome').onclick = () => setView('iso');
+$('#bWalk').onclick = () => walkArm(); $('#walkX').onclick = () => walkEnd();
+$('#bCut').onclick = e => { e.stopPropagation(); const b = $('#cutBar'); b.hidden = !b.hidden; $('#bCut').setAttribute('aria-expanded', !b.hidden); };
+document.addEventListener('pointerdown', e => { const b = $('#cutBar'); if (!b.hidden && !b.contains(e.target) && !$('#bCut').contains(e.target)) { b.hidden = true; $('#bCut').setAttribute('aria-expanded', 'false'); } });
 try { const w = localStorage.getItem('ow_wheel'); if (w === 'zoom' || w === 'pan') S.wheelMode = w; const z = +localStorage.getItem('ow_zoomspd'); if (z >= 0.4 && z <= 2) S.zoomSpeed = z; } catch (e) {}
 $('#wheelSel').value = S.wheelMode; $('#zoomSpd').value = Math.round(S.zoomSpeed * 100);
 $('#wheelSel').onchange = e => { S.wheelMode = e.target.value; try { localStorage.setItem('ow_wheel', S.wheelMode); } catch (x) {} };
@@ -2985,8 +3185,8 @@ addEventListener('keydown', e => {
   if (e.key.startsWith('Arrow')) { keys.add(e.key); e.preventDefault(); return; }
   if ('+=-_'.includes(e.key) && e.key.length === 1 && !e.ctrlKey && !e.metaKey) { keys.add(e.key === '=' ? '+' : e.key === '_' ? '-' : e.key); e.preventDefault(); return; }
   if (e.key === 'Home') { e.preventDefault(); setView('iso'); return; }
-  if (k === 'v') setStyle(S.style === 'A' ? 'B' : 'A'); else if (k === 'f') { if (S.sel.length) zoomSel(); else { const b = sceneBounds(); if (!b.isEmpty()) zoomToBox(b, 1.1); } } else if (k === 't') setNav(S.nav === 'pan' ? 'orbit' : 'pan', false); else if (k === 'h' && e.shiftKey) showAll(); else if (k === 'h') hideSel(); else if (k === 'i') isolateSel(); else if (k === 'x') xraySel(); else if (k === 'r') setView('iso'); else if (k === 'm') setMode(S.mode === 'orbit' ? 'fly' : 'orbit');
-  else if (e.key === 'Escape') { select(-1); if ($('#q') === document.activeElement) $('#q').blur(); }
+  if (k === 'v') setStyle(S.style === 'A' ? 'B' : 'A'); else if (k === 'f') { if (S.sel.length) zoomSel(); else { const b = sceneBounds(); if (!b.isEmpty()) zoomToBox(b, 1.1); } } else if (k === 't') setNav(S.nav === 'pan' ? 'orbit' : 'pan', false); else if (k === 'h' && e.shiftKey) showAll(); else if (k === 'h') hideSel(); else if (k === 'i') isolateSel(); else if (k === 'x') xraySel(); else if (k === 'r') setView('iso'); else if (k === 'm' || k === 'g') setMode(S.mode === 'walk' || WALK.arm ? 'orbit' : 'walk');
+  else if (e.key === 'Escape') { if (S.mode === 'walk' || WALK.arm) { walkEnd(); return; } select(-1); if ($('#q') === document.activeElement) $('#q').blur(); }
   else if ('123456'.includes(e.key) && e.key.length === 1) setView(['top', 'south', 'north', 'west', 'east', 'iso'][+e.key - 1]);
 });
 addEventListener('keyup', e => { shiftHeld = e.shiftKey; altHeld = e.altKey; keys.delete(e.key.toLowerCase()); keys.delete(e.key); if (e.key === '=' || e.key === '+') keys.delete('+'); if (e.key === '-' || e.key === '_') keys.delete('-'); });
@@ -2996,15 +3196,18 @@ function tick(now) {
   requestAnimationFrame(tick);
   const dt = Math.min(0.1, (now - lastT) / 1000); lastT = now;
   if (keys.size) {
-    const c = S.cam, b = camBasis(c), sp = Math.max(2, c.dist * 0.5) * (shiftHeld ? 3 : 1) * dt;
-    camKick(14);
+    camTake();
+    const c = S.cam, b = camBasis(c), walk = S.mode === 'walk', sp = (walk ? 1.6 : Math.max(2, c.dist * 0.5)) * (shiftHeld ? (walk ? 2.5 : 3) : 1) * dt;
     const f = b.f.clone();
-    if (S.mode === 'orbit') { f.y = 0; if (f.lengthSq() < 1e-6) f.set(0, 0, -1); f.normalize(); }
+    if (S.mode === 'orbit' || walk) { f.y = 0; if (f.lengthSq() < 1e-6) f.set(0, 0, -1); f.normalize(); }
     const r = b.right, mv = new THREE.Vector3();
     if (keys.has('w')) mv.addScaledVector(f, sp); if (keys.has('s')) mv.addScaledVector(f, -sp);
     if (keys.has('d')) mv.addScaledVector(r, sp); if (keys.has('a')) mv.addScaledVector(r, -sp);
     if (keys.has('e')) mv.y += sp; if (keys.has('q')) mv.y -= sp;
-    if (altHeld) {  // Wahltaste und Pfeile drehen
+    if (walk) {  // Begehen: Pfeile hoch und runter gehen, links und rechts drehen den Blick
+      if (keys.has('ArrowUp')) mv.addScaledVector(f, sp); if (keys.has('ArrowDown')) mv.addScaledVector(f, -sp);
+      if (keys.has('ArrowLeft')) lookTurn(1.3 * dt, 0); if (keys.has('ArrowRight')) lookTurn(-1.3 * dt, 0);
+    } else if (altHeld) {  // Wahltaste und Pfeile drehen
       if (keys.has('ArrowLeft')) c.yaw += 1.4 * dt; if (keys.has('ArrowRight')) c.yaw -= 1.4 * dt;
       if (keys.has('ArrowUp')) c.pitch -= 1.0 * dt; if (keys.has('ArrowDown')) c.pitch += 1.0 * dt;
     } else {  // Pfeile verschieben das Bild
@@ -3013,14 +3216,25 @@ function tick(now) {
     }
     c.target.add(mv);
     if (keys.has('+')) zoomAt(Math.exp(-1.1 * dt)); if (keys.has('-')) zoomAt(Math.exp(1.1 * dt));
-    dirty = true;
+    camDirect();
   }
   if (MK.P) placeMarker();
-  if (dirty) {
+  // Auflösung: beim Bewegen kleiner, in Ruhe ein Bild in voller Auflösung
+  const moving = now - CAM.moveT < 150 || !!drag || ptrs.size > 0 || keys.size > 0;
+  if (dirty || (RS.low && !moving)) {
     dirty = false; updateCamera();
+    const mv2 = now - CAM.moveT < 150 || !!drag || ptrs.size > 0 || keys.size > 0;
+    if (mv2 && RS.lastDraw && now - RS.lastDraw < 100) {
+      const fd = now - RS.lastDraw; RS.vs = Math.min(RS.vs || 99, Math.max(4, fd)); RS.ema = RS.ema * 0.85 + fd * 0.15;
+      if (now - RS.lastAdj > 600) { RS.lastAdj = now; if (RS.ema > RS.vs * 1.35) RS.adapt = Math.max(0.5, (RS.adapt || 1) * 0.85); else if (RS.ema < RS.vs * 1.1) RS.adapt = Math.min(1, (RS.adapt || 1) * 1.08); }
+    }
+    const W = renderer.domElement.width * renderer.domElement.height, capS = Math.min(1, Math.sqrt(RS.cap / Math.max(1, W)));
+    RS.move = Math.max(0.45, Math.round(capS * (RS.adapt || 1) * 20) / 20);
+    RS.low = mv2 && RS.move < 0.999;
     const t0 = performance.now();
     drawFrame();
     S.metrics.renderMs = performance.now() - t0;
+    RS.lastDraw = now;
     frames++;
   }
   if (DEBUG && now - fpsT > 1000) { $('#sFps').textContent = frames ? (frames * 1000 / (now - fpsT)).toFixed(0) + ' Bilder/s' : 'Ruhe'; frames = 0; fpsT = now; }
@@ -3036,8 +3250,7 @@ async function start() {
     // Modell3D: Stil A/B mit gleichen Objektnummern; Umschalten ohne Neuladen (beide Stile bleiben geladen). Start per ?stil=A|B
     S.styles = [...new Set(man.files.map(f => f.style || 'A'))].sort();
     let st0 = (new URLSearchParams(location.search).get('stil') || '').toUpperCase();
-    if (!st0) { try { st0 = localStorage.getItem('ow_style') || ''; } catch (e) {} }
-    st0 = S.styles.includes(st0) ? st0 : S.styles[0];
+    st0 = S.styles.includes(st0) ? st0 : S.styles.includes('B') ? 'B' : S.styles[0];
     S.legendMap = {}; for (const k in (man.legend || {})) S.legendMap[k] = Object.fromEntries(man.legend[k].map(e => [e.key, e]));
     let lgSaved = null; try { lgSaved = localStorage.getItem('ow_legend_min'); } catch (e) {}
     S.legendMin = lgSaved === '1' || (lgSaved === null && innerWidth <= 1400);  // schmaler Laptop: Legende startet eingeklappt, Wahl wird gemerkt
@@ -3077,7 +3290,9 @@ async function start() {
     idx.layers.forEach(l => { S.layerOn[l.key] = l.visible; S.layerOp[l.key] = 1; });
     const haveF = new Set(styleFiles().filter(f => f.group[0] === 'F').map(f => +f.group.slice(1)));
     const firstFloor = man.pilot_floor ? +man.pilot_floor.slice(1) : (haveF.has(1) ? 1 : [...haveF].sort()[0] ?? 0);
-    S.floorOn.add(firstFloor);
+    // Start: ganzes Gebäude mit Dach und Außenanlagen (Bauwerk lädt zuerst, Technik danach)
+    if (new URLSearchParams(location.search).has('geschoss')) S.floorOn.add(firstFloor);
+    else { man.floors.forEach((f, i) => { if (haveF.has(i)) S.floorOn.add(i); }); for (const g of ['DACH', 'SONST']) if (styleFiles().some(f => f.group === g)) S.extraOn.add(g); }
     buildFilterUI(); buildClipUI(); renderViews();
     // Status Standard: zurückgestellte (held) zunächst aus
     const held = idx.status_keys.indexOf('held'); if (held >= 0) S.statOff.add(held); buildFilterUI();
@@ -3086,8 +3301,7 @@ async function start() {
     syncLoads(); applyVisibility();
     S.cam.target.set(36, 6, -24); updateCamera(true); renderTree(); renderActs(); renderCutBar();
     // erste Ansicht, sobald etwas geladen ist
-    for (let k = 0; k < 600 && !S.prims.length; k++) await sleep(50);
-    setView('iso'); S.fitted = true; camSnap();
+    setView('iso', idxBounds()); S.fitted = true; camSnap(); syncWalkUI();
   } catch (e) { showMsg('Daten nicht geladen. Läuft der Server und gibt es den Ordner data? ' + e.message, 0); console.error(e); }
   requestAnimationFrame(tick);
 }
@@ -3105,7 +3319,7 @@ async function bench(sec = 3) {
 function benchSync(frames = 60, w = 0, h = 0) {
   // Synchrone Messung (auch im verdeckten Fenster): je Bild rendern und auf das Ergebnis warten; ergibt die reine Zeichenzeit je Bild (ohne Bildschirmtakt)
   // readPixels eines Bildpunkts wartet sicher auf das fertige Bild (gl.finish wartet nicht in jedem Browser)
-  const gl = renderer.getContext(), yaw0 = S.cam.yaw, ts = [], px = new Uint8Array(4);
+  const gl = renderer.getContext(), yaw0 = S.cam.yaw, ts = [], px = new Uint8Array(4); RS.low = false;
   if (w && h) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }  // feste Messgröße
   for (let i = 0; i < 10; i++) { S.cam.yaw += 0.02; updateCamera(true); drawFrame(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); }  // Aufwärmen
   for (let i = 0; i < frames; i++) { S.cam.yaw += 0.02; updateCamera(true); const t0 = performance.now(); drawFrame(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); ts.push(performance.now() - t0); }
@@ -3123,7 +3337,7 @@ $('#bBench').onclick = async () => {
   $('#benchOut').innerHTML = (r ? '<b>' + dez(r.fps, 1) + ' Bilder/s</b> am Bildschirm in Stil ' + r.style + ', langsamstes Bild ' + dez(r.worstFrameMs, 1) + ' ms. ' : 'Fenster verdeckt, nur Zeichenzeit gemessen. ') +
     'Zeichenzeit je Bild ' + dez(q.avgMs, 2) + ' ms, 95 % unter ' + dez(q.p95Ms, 2) + ' ms, also etwa ' + q.fpsEquiv + ' Bilder/s möglich. ' + q.tris.toLocaleString('de') + ' Dreiecke sichtbar, ' + q.drawCalls + ' Zeichenaufrufe, Bild ' + q.canvas + ' px.';
 };
-window.__ow = {GP, pickSelect, S, OWU, TR, get GR() { return GR; }, loadGraph, showNet, showSet, xraySel, showAll, renderTree, THREE, renderer, scene, camera, render: () => { updateCamera(true); drawFrame(); }, CV, camSnap, KG, syncLoads, setQuality, QUAL, LOOK, relook: () => { lookMode = ''; invalidate(); }, pick, select, goTo, setView, setColorMode, setStyle, applyVisibility, applyClip, bench, benchSync, renderLegend};
+window.__ow = {step: () => { updateCamera(); drawFrame(); }, CAM, RS, WH, get WALK() { return WALK; }, walkStart, walkEnd, floorAt, GP, pickSelect, S, OWU, TR, get GR() { return GR; }, loadGraph, showNet, showSet, xraySel, showAll, renderTree, THREE, renderer, scene, camera, render: () => { updateCamera(true); drawFrame(); }, CV, camSnap, KG, syncLoads, setQuality, QUAL, LOOK, relook: () => { lookMode = ''; invalidate(); }, pick, select, goTo, setView, setColorMode, setStyle, applyVisibility, applyClip, bench, benchSync, renderLegend};
 start();
 </script>
 </body></html>

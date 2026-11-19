@@ -1230,9 +1230,9 @@ function updateCamera(snap = false) {
   const w = t2w(v.target);
   if (DEBUG) $('#sCur').textContent = 'Ziel X ' + dez(w[0], 1) + '  Y ' + dez(w[1], 1) + '  Z ' + dez(w[2], 1) + ', Abstand ' + dez(v.dist, 1) + ' m';
 }
-function idxBounds() {  // Hülle der Gebäudehülle (Wände, Decken, Dach) aus dem Index, vor dem Laden der Netze bekannt
+function idxBounds() {  // Hülle der Gebäudehülle (Wände, Decken, Dach, Geländer der Gebäudehülle) aus dem Index, vor dem Laden der Netze bekannt
   const I = S.idx, b = new THREE.Box3(); if (!I) return b;
-  const shell = new Set(['wand', 'decke', 'dach', 'darstellung']);
+  const shell = new Set(['wand', 'decke', 'dach', 'darstellung', 'gebaeudehuelle']);
   for (let i = 0; i < S.worldN; i++) { if (!S.vis[i] || !I.body[i]) continue; const k = I.bbox[i]; if (!k) continue; const g = I.groups[I.group[i]];
     if (!I.layers[I.layer[i]] || !shell.has(I.layers[I.layer[i]].key) || g === 'SONST' || (I.fmask[i] & 1)) continue;
     b.expandByPoint(w2t(k[0] / 100, k[1] / 100, k[2] / 100)); b.expandByPoint(w2t(k[3] / 100, k[4] / 100, k[5] / 100)); }

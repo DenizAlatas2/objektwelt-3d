@@ -105,6 +105,16 @@ dialog#help::backdrop{background:rgba(0,0,0,.25)}
 #help .hh h2{margin:0;font-size:14px;font-weight:600;color:var(--text);flex:1}
 #help .hb{padding:4px 16px 16px}
 #help p{margin:6px 0}
+#help .htabs{display:flex;flex-wrap:wrap;margin:4px -4px 8px;border-bottom:1px solid var(--line)}
+#help .htabs button{height:32px;padding:0 8px;border:0;border-radius:0;background:transparent;border-bottom:2px solid transparent;color:var(--muted)}
+#help .htabs button:hover{color:var(--text);background:var(--hover)}
+#help .htabs button[aria-selected="true"]{border-bottom-color:var(--accent);color:var(--text);font-weight:500}
+@media (pointer:coarse){#help .htabs button{height:44px}}
+#help table.help{width:100%;table-layout:fixed}
+#help .help td:first-child{width:30%;white-space:normal}
+#hp-tas .help td:first-child{width:46%}
+#help .hpane[hidden]{display:none}
+#help .hpane h2:first-child{margin-top:4px}
 canvas{display:block;width:100%;height:100%;outline:none;touch-action:none}
 #status{grid-column:1/4;grid-row:3;display:flex;gap:16px;align-items:center;padding:0 12px;font-variant-numeric:tabular-nums;background:var(--panel);border-top:1px solid var(--line);color:var(--muted);font-size:var(--fs-s);white-space:nowrap;overflow:hidden}
 h2{font-size:var(--fs-s);font-weight:500;color:var(--muted);margin:16px 0 6px;display:flex;align-items:center;gap:4px}
@@ -396,7 +406,7 @@ body:not(.intern) .intern{display:none !important}
         <div class="ftools"><button class="sm" id="kgAll">Alle</button><button class="sm" id="kg300" title="Nur Baukonstruktionen">Nur 300</button><button class="sm" id="kg400" title="Nur Technische Anlagen">Nur 400</button></div>
         <div id="kgList"></div>
       </details>
-      <h2>Zeigen <button class="ib info" data-i="Geschosse wählen Sie rechts im Bild mit Häkchen, beliebig kombiniert. Die Decke über dem obersten gezeigten Geschoss bleibt offen, solange das Dach aus ist."></button></h2>
+      <h2>Zeigen <button class="ib info" data-i="Geschosse wählst du rechts im Bild mit Häkchen, beliebig kombiniert. Die Decke über dem obersten gezeigten Geschoss bleibt offen, solange das Dach aus ist."></button></h2>
       <div class="btns qt" id="quick"></div>
       <div class="row"><label for="cMode">Einfärbung</label><select id="cMode" autocomplete="off"><option value="material">Modell</option><option value="gewerk">Gewerk</option><option value="art">Objektart</option><option value="status">Status</option><option value="floor">Geschoss</option><option value="kg">Kostengruppe (Zuordnung zur Ansicht)</option></select></div>
       <div class="row" id="rTgaGew" hidden><label title="Technik in Stil B in den Farben der Anlagen statt als Werkstoff"><input type="checkbox" id="cTgaGew" autocomplete="off"> Gewerke einfärben</label></div>
@@ -443,7 +453,7 @@ body:not(.intern) .intern{display:none !important}
       <div class="btns"><button class="sm" id="vExport">Exportieren</button><button class="sm" id="vImport">Importieren</button></div>
       <h2>Bildqualität <button class="ib info" data-i="Hoch zeigt Himmelslicht, Sonnenschatten, Umgebungsverdeckung und feine Kanten. Mittel ist ohne Schatten. Einfach ist flaches Licht. Licht, Himmel und Materialien sind Darstellung und nicht Teil der Planungsdaten."></button></h2>
       <div class="seg" id="qualSeg" role="group" aria-label="Bildqualität"><button data-q="hoch" aria-pressed="false">Hoch</button><button data-q="mittel" aria-pressed="false">Mittel</button><button data-q="einfach" aria-pressed="false">Einfach</button></div>
-      <h2>Maus, Trackpad und Finger <button class="ib info" data-i="Der Schalter Drehen und Verschieben liegt auch unten im Bild. Mausrad und Wischen: Automatisch zoomt mit dem Mausrad und verschiebt beim Wischen mit zwei Fingern. Spreizen zoomt immer. Wählen Sie Immer zoomen, wenn Ihr Mausrad ungewollt verschiebt."></button></h2>
+      <h2>Maus, Trackpad und Finger <button class="ib info" data-i="Der Schalter Drehen und Verschieben liegt auch unten im Bild. Mausrad und Wischen: Automatisch zoomt mit dem Mausrad und verschiebt beim Wischen mit zwei Fingern. Spreizen zoomt immer. Wähle Immer zoomen, wenn dein Mausrad ungewollt verschiebt."></button></h2>
       <div class="row"><label for="wheelSel">Mausrad und Wischen</label><select id="wheelSel" autocomplete="off"><option value="auto">Automatisch</option><option value="zoom">Immer zoomen</option><option value="pan">Immer verschieben</option></select></div>
       <div class="row"><label for="zoomSpd">Zoom Tempo</label><input type="range" id="zoomSpd" min="40" max="200" value="100" autocomplete="off"></div>
       <h2>Kameramodus</h2>
@@ -514,56 +524,107 @@ body:not(.intern) .intern{display:none !important}
   <div class="hh"><h2 id="helpT">Hilfe</h2><button class="ib" type="button" id="helpX" aria-label="Hilfe schließen"></button></div>
   <div class="hb">
     <div class="mr" style="margin:8px 0"><button type="button" id="helpWc">Karte So bewegst du dich zeigen</button></div>
-    <h2>Steuerung je Gerät</h2>
+    <div class="htabs" role="tablist" aria-label="Themen der Hilfe">
+      <button type="button" role="tab" id="ht-bew" aria-controls="hp-bew" aria-selected="true">Bewegen</button>
+      <button type="button" role="tab" id="ht-ans" aria-controls="hp-ans" aria-selected="false" tabindex="-1">Ansicht</button>
+      <button type="button" role="tab" id="ht-fin" aria-controls="hp-fin" aria-selected="false" tabindex="-1">Finden</button>
+      <button type="button" role="tab" id="ht-mes" aria-controls="hp-mes" aria-selected="false" tabindex="-1">Messen und Begehen</button>
+      <button type="button" role="tab" id="ht-tas" aria-controls="hp-tas" aria-selected="false" tabindex="-1">Tasten</button>
+      <button type="button" role="tab" id="ht-ueb" aria-controls="hp-ueb" aria-selected="false" tabindex="-1">Über</button>
+    </div>
+
+    <section class="hpane" id="hp-bew" role="tabpanel" aria-labelledby="ht-bew">
+    <h2>Mit Maus, Trackpad, Finger und Tastatur</h2>
     <table class="help">
-      <tr><td>Maus</td><td>Linke Taste ziehen dreht. Rechte oder mittlere Taste oder Umschalt, Strg oder Cmd und Ziehen verschiebt. Das Rad zoomt zum Mauszeiger.</td></tr>
+      <tr><td>Maus</td><td>Linke Taste ziehen dreht. Rechte oder mittlere Taste oder Umschalt, Strg oder Cmd und Ziehen verschiebt. Das Rad zoomt zum Mauszeiger. Doppelklick fliegt zum Objekt.</td></tr>
       <tr><td>Trackpad</td><td>Zwei Finger wischen verschiebt. Spreizen und Zusammenziehen zoomt zum Zeiger. Drehen: Taste drücken und ziehen, oder Wahltaste (Alt) halten und mit zwei Fingern wischen, oder den Schalter Drehen unten im Bild nutzen.</td></tr>
-      <tr><td>Touch</td><td>Ein Finger zieht. Was er tut, steht im Schalter Drehen und Verschieben unten im Bild. Zwei Finger verschieben und zoomen immer. Tippen wählt.</td></tr>
-      <tr><td>Tastatur</td><td>Pfeiltasten verschieben, W A S D bewegen auf dem Boden, Q und E hoch und runter, Plus und Minus zoomen, Alt und Pfeile drehen, F auf die Auswahl, Pos1 oder R auf das ganze Gebäude, T wechselt Drehen und Verschieben.</td></tr>
-      <tr><td>Einstellung</td><td>Reiter Ansicht: Mausrad und Wischen umstellen, Zoom Tempo.</td></tr>
+      <tr><td>Touch</td><td>Ein Finger zieht. Was er tut, steht im Schalter Drehen und Verschieben unten im Bild. Zwei Finger verschieben, zoomen und drehen. Tippen wählt ein Objekt. Doppeltippen fliegt hin.</td></tr>
+      <tr><td>Tastatur</td><td>Pfeiltasten verschieben. W A S D bewegen auf dem Boden, Q und E hoch und runter. Plus und Minus zoomen. Alt und Pfeile drehen. Mit Umschalt geht es schneller. Die Tasten wirken nach einem Klick ins Bild.</td></tr>
+      <tr><td>Leiste unten</td><td>Drehen oder Verschieben legt fest, was Ziehen tut. Minus und Plus zoomen. Das Haus zeigt das ganze Gebäude. Dann folgen Begehen, Schnitt und Messen.</td></tr>
+      <tr><td>Einstellung</td><td>Links im Reiter Ansicht: Mausrad und Wischen umstellen und das Zoom Tempo.</td></tr>
     </table>
-    <h2>Erste Schritte</h2>
+    </section>
+
+    <section class="hpane" id="hp-ans" role="tabpanel" aria-labelledby="ht-ans" hidden>
+    <h2>Stil, Farben und Geschosse</h2>
     <table class="help">
-      <tr><td>Geschosse</td><td>rechts im Bild mit Häkchen wählen, beliebig kombiniert, dazu alle, keins und nur</td></tr>
-      <tr><td>Objekt</td><td>anklicken oder antippen, die Daten stehen unter Details</td></tr>
-      <tr><td>Gesamt</td><td>zeigt wieder das ganze Gebäude</td></tr>
+      <tr><td>Stil A und B</td><td>Oben rechts. A schlicht zeigt ruhige Farben und lädt schnell. B realistisch zeigt Himmel, Sonne mit Schatten und Werkstoffe mit Texturen: Putz, Raufaser, Holztüren, Böden je Raumnutzung, Pflaster, Asphalt, Rasen und Bäume. Taste V wechselt.</td></tr>
+      <tr><td>Technik</td><td>In Stil B ist die Technik aus Metall: Lüftungskanäle verzinkt, warme und kalte Rohre gedämmt in Alu, andere Rohre in der Farbe des Mediums, Geräte hellgrau lackiert. In Stil A hat jedes Gewerk seine Farbe.</td></tr>
+      <tr><td>Gewerke einfärben</td><td>Der Haken in der Legende oder links im Reiter Filter färbt die Technik auch in Stil B nach Gewerk. So siehst du schnell, was Lüftung, Heizung oder Elektro ist.</td></tr>
+      <tr><td>Einfärbung</td><td>Links im Reiter Filter: Modell, Gewerk, Objektart, Status, Geschoss, Brandschutz oder Kostengruppe.</td></tr>
+      <tr><td>Geschosse</td><td>Rechts oben im Bild. Ein Klick auf Geschosse öffnet die Liste. Haken wählen Geschosse, Dach und Außen, beliebig kombiniert. Das Auge zeigt nur diese Zeile, noch ein Klick zeigt wieder alle. Dazu alle und keins.</td></tr>
+      <tr><td>Ansichten</td><td>Tasten 1 bis 6: Grundriss, Süd, Nord, West, Ost, Isometrie. Links im Reiter Ansicht speicherst du eigene Ansichten.</td></tr>
+      <tr><td>Schnitt</td><td>Knopf Schnitt unten: Grundriss 1,5 m über dem Boden, Schnitt einstellen oder Schnitt aus.</td></tr>
+      <tr><td>Bildqualität</td><td>Links im Reiter Ansicht. Hoch mit Sonnenschatten, Mittel ohne Schatten, Einfach mit flachem Licht. Auf schwachen Geräten hilft Mittel oder Einfach.</td></tr>
+      <tr><td>Farbschema</td><td>Links im Reiter Ansicht: wie das System, hell oder dunkel.</td></tr>
     </table>
-    <h2>Ausblenden und Filtern</h2>
+    </section>
+
+    <section class="hpane" id="hp-fin" role="tabpanel" aria-labelledby="ht-fin" hidden>
+    <h2>Suchen, wählen, filtern</h2>
     <table class="help">
+      <tr><td>Suche</td><td>Oben im Feld nach Name oder Anlagennummer suchen. Auch die alten Namen aus den Planungsdaten werden gefunden. Taste <kbd>/</kbd> springt ins Feld. Die Treffer stehen links im Reiter Modell.</td></tr>
+      <tr><td>Objekt</td><td>Anklicken oder antippen wählt. Rechts unter Details stehen Art, Geschoss, Gewerk, Anlage, Kostengruppe und klein die Anlagennummer zum Kopieren. Bei Kanälen und Rohren steht dort auch der Querschnitt.</td></tr>
       <tr><td>Auge</td><td>Ein Klick auf das Auge einer Zeile (Gewerk, Anlage, Geschoss, Kostengruppe) zeigt nur diese Zeile. Noch ein Klick zeigt alle wieder. Umschalt oder Cmd und Klick nimmt Zeilen dazu oder heraus. Offenes Auge: an. Durchgestrichen: aus. Unterstrichen: nur diese.</td></tr>
       <tr><td>Ausblenden</td><td>Objekt anklicken, dann unten Ausblenden. Unter Mehr nimmt Alle dieser Art ausblenden die ganze Objektart weg, bei Technik das Gewerk getrennt nach Leitungen und Anlagen.</td></tr>
       <tr><td>Mehr</td><td>Alles zur gleichen Anlage, Alles Verbundene (Tiefe in Schritten oder ganze Anlage) und Alles der gleichen Kostengruppe. Der Rest bleibt blass oder wird ausgeblendet.</td></tr>
-      <tr><td>Kostengruppen</td><td>Reiter Filter, Kostengruppen DIN 276 mit Zählung. Das ist eine Zuordnung zur Ansicht, abgeleitet aus Ebene, Gewerk, Art und Anlage. Einfärben unter Einfärbung.</td></tr>
-      <tr><td>Zurückholen</td><td>unten Ausgeblendet öffnen und jeden Eintrag einzeln einblenden, oder Alles einblenden</td></tr>
-      <tr><td>Isolieren</td><td>zeigt nur die Auswahl, nochmal klicken hebt auf. Röntgen lässt den Rest blass stehen.</td></tr>
-      <tr><td>Filterbaum</td><td>links im Reiter Filter. Haken je Ebene, ein Oberknoten schaltet alles darunter, ein halber Haken zeigt eine Mischung.</td></tr>
+      <tr><td>Isolieren</td><td>zeigt nur die Auswahl, noch ein Klick hebt auf. Röntgen lässt den Rest blass stehen.</td></tr>
+      <tr><td>Zurückholen</td><td>unten Ausgeblendet öffnen und jeden Eintrag einzeln einblenden, oder Alles einblenden. <kbd>Strg</kbd> oder <kbd>Cmd</kbd> und <kbd>Z</kbd> nimmt den letzten Schritt zurück.</td></tr>
       <tr><td>Ich bin</td><td>links im Reiter Filter. Zeigt nur Anlagen und Leitungen eines Gewerks, der Rest bleibt blass oder wird ausgeblendet.</td></tr>
-      <tr><td>Schnitt</td><td>unten rechts im Bild: Grundriss 1,5 m, Schnitt einstellen, Schnitt aus</td></tr>
-      <tr><td>Suche</td><td>oben nach Kennung oder Name, Taste <kbd>/</kbd> springt ins Feld, Treffer stehen im Reiter Modell</td></tr>
+      <tr><td>Filterbaum</td><td>links im Reiter Filter. Haken je Ebene, ein Oberknoten schaltet alles darunter, ein halber Haken zeigt eine Mischung.</td></tr>
+      <tr><td>Kostengruppen</td><td>links im Reiter Filter, Kostengruppen DIN 276 mit Zählung. Das ist eine Zuordnung zur Ansicht, abgeleitet aus Ebene, Gewerk, Art und Anlage.</td></tr>
     </table>
-    <h2>Tasten</h2>
+    </section>
+
+    <section class="hpane" id="hp-mes" role="tabpanel" aria-labelledby="ht-mes" hidden>
+    <h2>Messen</h2>
+    <table class="help">
+      <tr><td>Start</td><td>Knopf mit dem Lineal unten oder Taste <kbd>M</kbd>. Oben wählst du Strecke, Fläche oder Raum.</td></tr>
+      <tr><td>Strecke</td><td>Zwei Punkte klicken, Ecken rasten ein. Du siehst die Länge, den waagerechten Abstand und den Höhenunterschied.</td></tr>
+      <tr><td>Fläche</td><td>Die Ecken klicken, alle liegen auf der Höhe des ersten Punkts. Der erste Punkt, ein Doppelklick oder <kbd>Enter</kbd> schließt die Fläche. Du siehst Fläche und Umfang.</td></tr>
+      <tr><td>Raum</td><td>Auf den Boden eines Raums klicken. Die Fläche kommt aus den Planungsdaten.</td></tr>
+      <tr><td>Korrigieren</td><td><kbd>Rücktaste</kbd> oder Letzten Punkt weg nimmt einen Punkt zurück. <kbd>Esc</kbd> beginnt neu, noch einmal <kbd>Esc</kbd> beendet das Messen.</td></tr>
+    </table>
+    <h2>Begehen</h2>
+    <table class="help">
+      <tr><td>Start</td><td>Knopf mit der Figur unten oder Taste <kbd>G</kbd>. Dann auf einen Boden klicken, dort stehst du in Augenhöhe.</td></tr>
+      <tr><td>Maus und Tasten</td><td>Ziehen schaut dich um. W A S D, Pfeile oder das Rad gehen. Ein Klick auf einen Boden geht dorthin.</td></tr>
+      <tr><td>Touch</td><td>Ziehen schaut. Zwei Finger gehen vor und zurück. Tippen auf den Boden geht hin.</td></tr>
+      <tr><td>Ende</td><td><kbd>Esc</kbd> oder Beenden oben im Bild. Die Kamera fliegt zurück.</td></tr>
+      <tr><td>Tipp</td><td>Blende vorher das Geschoss darüber aus, dann ist es heller. Mit Grundriss 1,5 m im Schnitt siehst du von oben in die Räume.</td></tr>
+    </table>
+    </section>
+
+    <section class="hpane" id="hp-tas" role="tabpanel" aria-labelledby="ht-tas" hidden>
+    <h2>Alle Tasten</h2>
     <table class="help">
       <tr><td><kbd>Strg</kbd> oder <kbd>Umschalt</kbd> und Klick</td><td>zur Auswahl hinzufügen</td></tr>
       <tr><td><kbd>Doppelklick</kbd> <kbd>F</kbd></td><td>auf Auswahl zoomen</td></tr>
       <tr><td><kbd>I</kbd> <kbd>X</kbd> <kbd>H</kbd></td><td>isolieren, Röntgen, ausblenden</td></tr>
       <tr><td><kbd>Umschalt</kbd> <kbd>H</kbd></td><td>alles einblenden</td></tr>
+      <tr><td><kbd>Strg</kbd> <kbd>Z</kbd></td><td>letzten Schritt zurück</td></tr>
       <tr><td><kbd>/</kbd></td><td>Suchfeld</td></tr>
-      <tr><td><kbd>Esc</kbd></td><td>Auswahl aufheben</td></tr>
-      <tr><td><kbd>R</kbd></td><td>Gesamtansicht</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Auswahl aufheben, Messen oder Begehen beenden</td></tr>
       <tr><td><kbd>V</kbd></td><td>Stil A oder B</td></tr>
       <tr><td><kbd>1</kbd> bis <kbd>6</kbd></td><td>Grundriss, Süd, Nord, West, Ost, Isometrie</td></tr>
       <tr><td><kbd>M</kbd></td><td>Messen an oder aus</td></tr>
+      <tr><td><kbd>G</kbd></td><td>Begehen an oder aus</td></tr>
       <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>Q</kbd> <kbd>E</kbd>, Pfeile</td><td>verschieben, mit Umschalt schneller. Alt und Pfeile drehen</td></tr>
       <tr><td><kbd>+</kbd> <kbd>-</kbd></td><td>zoomen</td></tr>
       <tr><td><kbd>Pos1</kbd> <kbd>R</kbd></td><td>ganzes Gebäude</td></tr>
       <tr><td><kbd>T</kbd></td><td>Ziehen dreht oder verschiebt</td></tr>
       <tr><td colspan="2" class="muted">Die Tasten wirken nach einem Klick ins Bild, nicht in Feldern und Knöpfen.</td></tr>
     </table>
+    </section>
+
+    <section class="hpane" id="hp-ueb" role="tabpanel" aria-labelledby="ht-ueb" hidden>
     <h2>Was dieser Viewer zeigt</h2>
     <p>Das Gebäude als Körper aus den gespeicherten Planungsdaten. Kein BIM-Programm und kein IFC. Es werden keine Maße ergänzt. Fehlt eine Höhe, erscheint eine flache Platte. Querschnitte unter 2 cm werden mit 2 cm gezeigt. Beides steht beim Objekt unter Darstellungshinweis. Stöße zwischen Leitungsteilen sind auf Gehrung oder mit kurzem Überstand geschlossen. Das Erdreich um und unter dem Gebäude ist Darstellung. Anlagenteile ohne Körper stehen nur im Modellbaum. Durchführungen durch Wand und Decke sitzen an den gespeicherten Orten, Hülse und Manschette sind Darstellung. Die Einfärbung Brandschutz zeigt die Anforderungen aus den Planungsdaten.</p>
+    <p>Die Außenanlagen kommen aus der Außenanlagenliste vom 18.11.2026. Lage und Maße stehen in der Liste, Form und Oberfläche sind Darstellung. Licht, Himmel, Werkstoffe, Texturen und die Böden je Raumnutzung sind ebenfalls Darstellung und nicht Teil der Planungsdaten. Die Texturen sind gemeinfrei (CC0).</p>
     <h2>Verbindungen</h2>
     <p>Die Liste Verbindet im Objektfenster kommt aus gespeicherten Verbindungen über Ports, Verbindungen und Trassenknoten. Netz zeigen folgt den Verbindungen derselben Anlage.</p>
     <p class="muted" id="srcInfo"></p>
+    </section>
   </div>
 </dialog>
 <input type="file" id="fileIn" accept=".json" style="display:none" autocomplete="off">
@@ -612,8 +673,10 @@ const WHITE = new THREE.Color(1, 1, 1);
 const CUT = {value: 0};
 const CUTMAT = new THREE.MeshBasicMaterial({color: 0x4b5058, side: THREE.BackSide, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2});
 function updateCutState(p) {
+  // Runde 5: deckende Körper nur mit Vorderseiten (Rückseiten liegen innen und sind verdeckt, spart etwa 0,5 ms GPU je Bild).
+  // Beidseitig bleiben durchsichtige Teile und Laub mit Ausschnitt (durch die Lücken sieht man die Rückseite). Schatten unverändert beidseitig.
   const on = CUT.value > 0.5 && !p.mat.transparent;
-  const side = on ? THREE.FrontSide : THREE.DoubleSide;
+  const side = on || (!p.mat.transparent && !p.dbl) ? THREE.FrontSide : THREE.DoubleSide;
   if (p.mat.side !== side) { p.mat.side = side; p.mat.needsUpdate = true; }
   p.meshCut.visible = on && p.meshV.visible;
 }
@@ -775,7 +838,7 @@ function makeGround() {
   const bo = S.man.building_outline;
   if (bo && bo.length > 2) sh.holes.push(new THREE.Path(bo.map(q => new THREE.Vector2(q[0], q[1]))));
   const g = new THREE.ShapeGeometry(sh); g.rotateX(-Math.PI / 2);
-  const m = new THREE.MeshStandardMaterial({color: new THREE.Color().setStyle('#a7b48f', THREE.SRGBColorSpace), roughness: 1, metalness: 0});
+  const m = new THREE.MeshStandardMaterial({color: new THREE.Color().setStyle('#a7b48f', THREE.SRGBColorSpace), roughness: 1, metalness: 0, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 2});
   m.onBeforeCompile = sh2 => {
     sh2.uniforms.haze = {value: GROUND.haze};
     sh2.vertexShader = 'varying vec3 vWP;\n' + sh2.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;');
@@ -783,13 +846,13 @@ function makeGround() {
       'float hd = length(vWP.xz - cameraPosition.xz); gl_FragColor.rgb = mix(gl_FragColor.rgb, haze, smoothstep(90.0, 900.0, hd));');
   };
   const mesh = new THREE.Mesh(g, m);
-  mesh.position.y = (S.man.ground_z ?? -0.17); mesh.receiveShadow = true; mesh.visible = false; mesh.renderOrder = -2;
+  mesh.position.y = (S.man.ground_z ?? -0.17); mesh.receiveShadow = true; mesh.visible = false; mesh.renderOrder = 1;  // Runde 5: zuletzt, was verdeckt ist, wird nicht schattiert
   scene.add(mesh); GROUND.mesh = mesh;
 }
 function syncGround(rich) {
   makeGround();
   if (GROUND.mesh) GROUND.mesh.visible = !!rich && S.extraOn.has('SONST') && !!S.layerOn.aussen;
-  OWU.groundOn.value = GROUND.mesh && GROUND.mesh.visible ? 1 : 0; OWU.groundY.value = S.man.ground_z ?? -0.17;
+  OWU.groundOn.value = GROUND.mesh && GROUND.mesh.visible ? 1 : 0; OWU.groundY.value = (S.man && S.man.ground_z) ?? -0.17;
 }
 
 /* Nachbearbeitung: Szene in MSAA-Ziel (Farbe HalfFloat + Tiefe), AO in halber Größe aus der Tiefe (Normalen aus der Tiefe rekonstruiert),
@@ -866,6 +929,11 @@ const COMP_MAT = new THREE.ShaderMaterial({
   vertexShader: VS, depthTest: false, depthWrite: false, toneMapped: true,
   fragmentShader: DEPTH_FN + `
 uniform sampler2D tColor; uniform sampler2D tAO; uniform float aoStrength; uniform float edge; uniform float useAO; uniform float sat; varying vec2 vUv;
+vec3 owNrm(vec3 p, vec3 pr, vec3 pl, vec3 pu, vec3 pd){
+  vec3 dx = abs(pr.z - p.z) < abs(pl.z - p.z) ? pr - p : p - pl;
+  vec3 dy = abs(pu.z - p.z) < abs(pd.z - p.z) ? pu - p : p - pd;
+  return normalize(cross(dx, dy));
+}
 void main(){
   vec4 col = texture2D(tColor, vUv);
   float d = texture2D(tDepth, vUv).x;
@@ -874,16 +942,18 @@ void main(){
     float ao = useAO > 0.5 ? texture2D(tAO, vUv).x : 1.0;
     c *= mix(1.0, ao, aoStrength);
     // Kantenlinien: Sprung in der Tiefe (relativ) oder im Normalenwinkel zwischen Nachbarn
-    vec3 p = viewPos(vUv), n = viewNormal(vUv, p);
-    float e = 0.0;
-    for (int k = 0; k < 4; k++) {
-      vec2 o = k == 0 ? vec2(texel.x, 0.0) : k == 1 ? vec2(-texel.x, 0.0) : k == 2 ? vec2(0.0, texel.y) : vec2(0.0, -texel.y);
-      vec3 q = viewPos(vUv + o);
-      float dz = abs(q.z - p.z) / max(-p.z, 0.3);
-      e = max(e, smoothstep(0.012, 0.04, dz));
-      vec3 nq = viewNormal(vUv + o, q);
-      e = max(e, smoothstep(0.35, 0.75, 1.0 - dot(n, nq)) * 0.6);
-    }
+    // Runde 5: jeder Tiefenwert nur einmal gelesen (13 statt 25), Normalen wie in viewNormal aus denselben Nachbarn
+    vec2 tx = vec2(texel.x, 0.0), ty = vec2(0.0, texel.y);
+    vec3 p = viewPos(vUv), pr = viewPos(vUv + tx), pl = viewPos(vUv - tx), pu = viewPos(vUv + ty), pd = viewPos(vUv - ty);
+    vec3 prr = viewPos(vUv + 2.0 * tx), pll = viewPos(vUv - 2.0 * tx), puu = viewPos(vUv + 2.0 * ty), pdd = viewPos(vUv - 2.0 * ty);
+    vec3 pru = viewPos(vUv + tx + ty), prd = viewPos(vUv + tx - ty), plu = viewPos(vUv - tx + ty), pld = viewPos(vUv - tx - ty);
+    vec3 n = owNrm(p, pr, pl, pu, pd);
+    vec3 nr = owNrm(pr, prr, p, pru, prd), nl = owNrm(pl, p, pll, plu, pld), nu = owNrm(pu, pru, plu, puu, p), nd = owNrm(pd, prd, pld, p, pdd);
+    float e = 0.0, iz = 1.0 / max(-p.z, 0.3);
+    e = max(e, smoothstep(0.012, 0.04, abs(pr.z - p.z) * iz)); e = max(e, smoothstep(0.35, 0.75, 1.0 - dot(n, nr)) * 0.6);
+    e = max(e, smoothstep(0.012, 0.04, abs(pl.z - p.z) * iz)); e = max(e, smoothstep(0.35, 0.75, 1.0 - dot(n, nl)) * 0.6);
+    e = max(e, smoothstep(0.012, 0.04, abs(pu.z - p.z) * iz)); e = max(e, smoothstep(0.35, 0.75, 1.0 - dot(n, nu)) * 0.6);
+    e = max(e, smoothstep(0.012, 0.04, abs(pd.z - p.z) * iz)); e = max(e, smoothstep(0.35, 0.75, 1.0 - dot(n, nd)) * 0.6);
     float fade = clamp(1.0 - (-p.z - 60.0) / 140.0, 0.35, 1.0) * (1.0 - smoothstep(160.0, 320.0, -p.z));   // ferne Kanten schwächer, am Horizont keine
     c *= 1.0 - edge * e * fade;
   }
@@ -1295,11 +1365,11 @@ const TEXK = {Plaster001: 0, Asphalt031: 1, LeafSet024: 2};
 // Material → [Feld (0: 512, 1: 1024), Ebene, Kachel in m, Anteil Materialfarbe 0..1, Stärke Normal, Stärke Rauheit, Farbe (sonst Materialfarbe), Kontrast der Struktur]
 // Helligkeit folgt immer der Materialfarbe. Anteil 0: Farbton der Textur, Anteil 1: Farbton des Materials mit der Struktur der Textur.
 const T5 = (l, s, t, n = 1, r = 1, c = null, k = 1) => [0, TEXL[l], s, t, n, r, c, k], T1 = (l, s, t, n = 1, r = 1, c = null, k = 1) => [1, TEXK[l], s, t, n, r, c, k];
-const TF = (e, fl) => (e[8] = fl, e);  // Zusatz: a Laub mit Ausschnitt (Alphatest), s Stoßfugen der Kanäle
+const TF = (e, fl) => (e[8] = fl, e);  // Zusatz: a Laub mit Ausschnitt (Alphatest), s Stoßfugen der Kanäle, e Relief aus der Normalenkarte auch im weichen Raumlicht (Raufaser, Putz)
 const TEXMAP = {
-  wand: T5('Wallpaper001A', 0.9, 0.85, 0.9), sturz: T5('Wallpaper001A', 0.9, 0.85, 0.9), trennwand: T5('Plaster003', 1.6, 0.85, 0.8),
+  wand: TF(T5('Wallpaper001A', 0.55, 0.88, 1.6, 1, null, 1.4), 'e'), sturz: TF(T5('Wallpaper001A', 0.55, 0.88, 1.6, 1, null, 1.4), 'e'), trennwand: TF(T5('Plaster003', 1.2, 0.85, 1.4, 1, null, 1.2), 'e'),  // Runde 5: Raufaser und Putz auch aus der Nähe erkennbar
   fassade: T1('Plaster001', 2.6, 0.55, 1.0), wandkern: T5('Sichtbeton', 2.4, 0.3, 1.0), stuetze: T5('Sichtbeton', 2.4, 0.3, 1.0), traeger: T5('Sichtbeton', 2.4, 0.3, 1.0),
-  decke: T5('Concrete046', 2.5, 0.4, 0.8), band: T5('Concrete046', 2.5, 0.4, 0.8), schwelle: T5('Concrete046', 1.5, 0.5, 0.8),
+  decke: T5('Concrete046', 2.5, 0.5, 0.7, 1, null, 0.5), band: T5('Concrete046', 2.5, 0.5, 0.7, 1, null, 0.5),  // Runde 5: Rohdecke ruhiger (weniger Flecken) schwelle: T5('Concrete046', 1.5, 0.5, 0.8),
   treppe: T5('Concrete048', 2.0, 0.45, 0.8), podest: T5('Concrete048', 2.0, 0.45, 0.8),
   boden_nuf: T5('Carpet001', 1.0, 1.0, 0.9, 1, '#7a838e', 0.8), boden_vf: T5('Rubber001', 1.2, 1.0, 0.5, 1, '#a7a399', 0.22), boden_san: T5('Tiles133A', 1.2, 0.55, 1.0, 1, '#e3e6e6'),
   boden_tf: T5('Concrete048', 2.0, 0.9, 0.7, 1, '#8e958f'),
@@ -1315,6 +1385,24 @@ const TEXMAP = {
   'tga:tga_electrical': T5('Metal012', 1.0, 0.8, 0.6, 1, null, 0.5), 'tga:tga_data': T5('Metal012', 1.0, 0.8, 0.6, 1, null, 0.5), 'tga:dev': T5('Metal027', 1.0, 0.85, 0.5, 1, null, 0.45),
 };
 for (const g of ['tga_automation', 'tga_safety', 'tga_water', 'tga_drainage', 'tga_sonst', 'tga_lift', 'tga_fire_fighting', 'tga_huelle']) TEXMAP['tga:' + g] = T5('Metal027', 1.0, 0.9, 0.45, 1, null, 0.45);
+/* Böden je Raumnutzung (Runde 5, Darstellung): die Nutzung des Raums wählt den Belag. Ohne Eintrag bleibt der Belag der Flächenart
+   (Nutzfläche Teppich, Verkehrsfläche Kautschuk, Sanitär Fliesen, Technik Beschichtung). Die Planungsdaten nennen keinen Belag. */
+const FLOOR_SEL = new Set(['boden_nuf', 'boden_vf']);
+const FLOOR_FIN = [null,
+  [T5('Wood026', 1.4, 0.78, 0.8, 1, '#a68a68', 0.8), '#a68a68', 0.55],      // 1 Parkett Eiche
+  [T5('Tiles133A', 0.9, 0.5, 1.0, 1, '#d6dad8'), '#d6dad8', 0.32],          // 2 Fliesen hell
+  [T5('Rubber001', 1.2, 0.9, 0.45, 1, '#7f8c82', 0.3), '#7f8c82', 0.6],      // 3 Linoleum graugrün
+  [T5('Concrete048', 2.0, 0.85, 0.6, 1, '#979b98', 0.55), '#979b98', 0.7],   // 4 Beschichtung grau
+  [T5('Concrete046', 1.2, 0.6, 0.6, 1, '#bcb7ad', 0.7), '#bcb7ad', 0.45]];   // 5 Betonwerkstein
+const FLOOR_USE = {
+  meeting: 1, demonstration: 1, sample_display: 1, sample_consultation: 1, dining: 1, training: 1, tutorial: 1,
+  staff_break: 2, cleaning: 2, cleaning_storage: 2, food_preparation: 2, dishwashing: 2, food_waste_holding: 2, cold_storage: 2, food_storage: 2,
+  light_workshop: 3, maintenance_workshop: 3, goods_inspection: 3, facility_management: 3,
+  storage: 4, archive_storage: 4, operations_storage: 4, spare_parts_storage: 4, furniture_storage: 4, sample_storage: 4, event_storage: 4, logistics_storage: 4,
+  tenant_storage: 4, tenant_goods_buffer: 4, returns_storage: 4, built_in_storage: 4, bicycle_storage: 4, garage_parking: 4, logistics: 4, goods_receiving: 4,
+  unfitted_reserve: 4, reserve: 4, service_corridor: 4, service_circulation: 4, vehicle_ramp: 4, food_service_circulation: 2,
+  stair: 5, stair_landing: 5, core_lobby: 5, common_entrance: 5
+};
 /* Technik in Stil B als Werkstoff (Wunsch main 19.11.): Kanäle verzinkt mit Stoßfugen, Geräte lackiert hellgrau, gedämmte Rohre Alu,
    übrige Rohre und Kabel in Medienfarbe. Der Schalter „Gewerke einfärben“ zeigt wieder die Anlagenfarben. Stil A bleibt bei den Anlagenfarben.
    Je Ebene: Farbe, Text für die Legende, Metallanteil. Darstellung, kein Weltdatum. */
@@ -1329,6 +1417,12 @@ const TGA_DEVART = new Set(['Endgerät/Auslass', 'Gerätehülle (zentral)', 'Anl
 function tgaSplit(pr, f) {  // Stil B: je Netz ein Teil Leitungen und ein Teil Geräte (eigene Werkstoffe), Objekte und Reihenfolge bleiben
   const I = S.idx, nT = pr.idx.length / 3, dev = new Uint8Array(nT); let nd = 0;
   for (let t = 0; t < nT; t++) { const o = pr.oid[pr.idx[3 * t]]; const d = o < S.worldN && TGA_DEVART.has(I.arts[I.art[o]]) ? 1 : 0; dev[t] = d; nd += d; }
+  if (nd > 0 && nd < nT) {  // Runde 5: Leitungen und Geräte in einem Zeichenaufruf, Geräte je Ecke markiert (eigene Farbe, Rauheit, Metall, Textur im Shader)
+    const dv = new Float32Array(pr.pos.length / 3);
+    for (let t = 0; t < nT; t++) if (dev[t]) { dv[pr.idx[3 * t]] = 1; dv[pr.idx[3 * t + 1]] = 1; dv[pr.idx[3 * t + 2]] = 1; }
+    const B = TGA_B[f.layer];
+    return [{pos: pr.pos, idx: pr.idx, oid: pr.oid, tgaPart: 'line', tgaB: B, devAttr: dv, devShare: nd / nT, metal0: pr.mat.metal || 0, mat: Object.assign({}, pr.mat, {metal: B[2], rough: 0.4, texKey: 'tga:' + f.layer})}];
+  }
   const parts = [];
   for (const d of [0, 1]) {
     const cnt = d ? nd : nT - nd; if (!cnt) continue;
@@ -1348,7 +1442,11 @@ function tgaSplit(pr, f) {  // Stil B: je Netz ein Teil Leitungen und ein Teil G
 const tgaGewOn = () => S.tgaGew || S.style !== 'B';
 function tgaColorSync() {
   const on = tgaGewOn(), b = S.style === 'B';
-  for (const p of S.prims) if (p.gewColor) { p.baseColor = on ? p.gewColor : p.metColor; p.mat.metalness = b ? p.metB : p.met0; applyLayerMaterial(p); }
+  for (const p of S.prims) if (p.gewColor) {
+    p.baseColor = on ? p.gewColor : p.metColor; p.mat.metalness = b ? p.metB : p.met0;
+    if (p.sel && p.sel.dev) { p.sel.base.copy(on ? p.gewColor : p.sel.metCol); p.sel.u.owSM.value[1] = b ? p.sel.metB : p.met0; }
+    applyLayerMaterial(p);
+  }
 }
 function setTgaGew(on) {
   S.tgaGew = !!on; try { LS.set('tgaGew', S.tgaGew ? '1' : '0'); } catch (e) {}
@@ -1383,6 +1481,12 @@ Object.assign(TEXMAP, {
   aus_rinde: T5('Bark012', 1.0, 0.35), aus_laub: TF(T1('LeafSet024', 0.55, 0.3, 0.8, 1, null, 0.9), 'a'), aus_laub2: TF(T1('LeafSet024', 0.41, 0.3, 0.8, 1, null, 0.9), 'a'), aus_laub_kern: T5('Grass004', 1.0, 0.5),
   aus_hecke: TF(T1('LeafSet024', 0.33, 0.35, 0.8, 1, null, 0.9), 'a'), aus_hecke_kern: T5('Grass004', 0.8, 0.5)
 });
+// Runde 5: Gruppen für gemeinsame Zeichenaufrufe der Außenanlagen. Der erste Eintrag ist der Grundwerkstoff, höchstens 6 je Gruppe,
+// Texturen nur aus demselben Feld wie der Grundwerkstoff (sonst einfarbig), Laub mit Ausschnitt für sich, Metall für sich (Spiegelbild), Licht bleibt einzeln (leuchtet).
+const AUS_GRP = [['aus_pflaster', 'aus_pflaster_dk', 'aus_granit', 'aus_randstein', 'aus_beton', 'aus_mulch'],
+  ['aus_holz', 'aus_rinde', 'aus_laub_kern', 'aus_hecke_kern', 'aus_kunststoff', 'aus_deckel'],
+  ['aus_stahl', 'aus_guss', 'aus_gitter', 'aus_leuchte'], ['aus_markierung', 'aus_markierung_blau', 'aus_rot', 'aus_weiss'],
+  ['aus_asphalt', 'aus_stellplatz'], ['aus_laub', 'aus_laub2', 'aus_hecke']];
 // Flächen der Welt in Stil B dunkler und farbiger (Asphalt, Pflaster, Rasen statt hellgrau), Darstellung
 const B_COL = {belag_park: '#46494c', belag_logistik: '#4d5053', belag_fuss: '#a29e96', belag_rad: '#9a8e84', hofbelag: '#a39c90', gruen: '#5e7d3b'};
 function ausObjects(idx, man) {
@@ -1424,7 +1528,7 @@ function ausBuild(style) {
   };
   const blob = (k, o, cx, cy, cz, rx, ry, rz, seed) => {  // Kronenteil: Ikosaeder, Ecken je Lage gleich verschoben (geschlossen, unregelmäßig)
     const b = bk(k);
-    for (let t = 0; t < ICO.length; t += 9) for (let j = 0; j < 3; j++) {
+    for (let t = 0; t < ICO.length; t += 9) for (const j of [0, 2, 1]) {  // Reihenfolge gedreht: die Achsen sind gespiegelt, so zeigen die Flächen nach außen (FrontSide)
       const x = ICO[t + 3 * j], y = ICO[t + 3 * j + 1], z = ICO[t + 3 * j + 2], s = 0.8 + 0.34 * hashN(x, y, z, seed);
       b.i.push(V(b, o, cx + x * rx * s, cy + z * ry * s, cz + y * rz * s));
     }
@@ -1491,11 +1595,26 @@ function ausBuild(style) {
       });
     }
   });
-  const prims = [];
-  for (const [k, b] of B) {
-    const m = AUS_MAT[k] || ['#999999', 0.8, 0, k], c = new THREE.Color(m[0]);
-    prims.push({pos: new Float32Array(b.p), idx: new Uint32Array(b.i), oid: new Uint32Array(b.o), mat: {color: [c.r, c.g, c.b, 1], key: k, name: 'aussen|' + k + '|base', label: m[3], rough: m[1], metal: m[2]}});
+  const prims = [], done = new Set();
+  const matOf = k => { const m = AUS_MAT[k] || ['#999999', 0.8, 0, k], c = new THREE.Color(m[0]); return {color: [c.r, c.g, c.b, 1], key: k, name: 'aussen|' + k + '|base', label: m[3], rough: m[1], metal: m[2]}; };
+  for (const g of AUS_GRP) {  // Runde 5: mehrere Werkstoffe je Zeichenaufruf (Nummer je Ecke, Tabellen im Shader), Dreiecke nach Objekt sortiert
+    const ks = g.filter(k => B.has(k)); if (ks.length < 2) continue;
+    const base = TEXMAP[ks[0]] || null;
+    let nV = 0, nI = 0; for (const k of ks) { nV += B.get(k).o.length; nI += B.get(k).i.length; }
+    const pos = new Float32Array(nV * 3), oid = new Uint32Array(nV), sv = new Float32Array(nV), raw = new Uint32Array(nI), slots = [];
+    let v0 = 0, i0 = 0;
+    ks.forEach((k, j) => {
+      const b = B.get(k); pos.set(b.p, v0 * 3); oid.set(b.o, v0); sv.fill(j, v0, v0 + b.o.length);
+      for (let i = 0; i < b.i.length; i++) raw[i0 + i] = b.i[i] + v0;
+      v0 += b.o.length; i0 += b.i.length; done.add(k);
+      if (j) { const m = AUS_MAT[k], t = TEXMAP[k] && base && TEXMAP[k][0] === base[0] ? TEXMAP[k] : [base ? base[0] : 0, base ? base[1] : 0, 1, 1, 0, 0, null, 0]; slots.push([j, t, m[0], m[1], m[2]]); }
+    });
+    const nT = nI / 3, key = new Float64Array(nT); for (let t = 0; t < nT; t++) key[t] = oid[raw[3 * t]] * nT + t;
+    key.sort(); const idx = new Uint32Array(nI);
+    for (let t = 0; t < nT; t++) { const q = key[t] % nT; idx[3 * t] = raw[3 * q]; idx[3 * t + 1] = raw[3 * q + 1]; idx[3 * t + 2] = raw[3 * q + 2]; }
+    prims.push({pos, idx, oid, selAttr: sv, selSlots: slots, mat: matOf(ks[0])});
   }
+  for (const [k, b] of B) if (!done.has(k)) prims.push({pos: new Float32Array(b.p), idx: new Uint32Array(b.i), oid: new Uint32Array(b.o), mat: matOf(k)});
   return prims;
 }
 function ausAttr(n) {  // Steckbrief Außenanlage: Art, Kostengruppe, Material, Angaben und Maße aus der Liste
@@ -1641,6 +1760,22 @@ void owTexSample(vec3 wp) {
 #endif
   owTxC = texture(owTC, p); owTxN = texture(owTNR, p); owTxA = 1.0;
 }`;
+// Runde 5: mehrere Werkstoffe in einem Zeichenaufruf (Technik Leitungen und Geräte, Böden je Raumnutzung). Je Ecke eine Nummer 0..5,
+// 0 ist der Werkstoff selbst, 1..5 kommen aus kleinen Tabellen (Farbe, Metall, Rauheit, Textur). Spart Zeichenaufrufe.
+const SELN = 6;
+const TEX_GLSL_SEL = TEX_GLSL.replace('uniform float owTL; uniform float owTS; uniform float owTT; uniform float owTNs; uniform float owTRs; uniform float owTK; uniform vec3 owTB;',
+  'uniform float owTL1; uniform float owTS1; uniform float owTT1; uniform float owTNs1; uniform float owTRs1; uniform float owTK1; uniform vec3 owTB1;\n' +
+  'uniform float owSTL[6]; uniform float owSTS[6]; uniform float owSTT[6]; uniform float owSTN[6]; uniform float owSTR[6]; uniform float owSTK[6];\n' +
+  'float owTL, owTS, owTT, owTNs, owTRs, owTK; vec3 owTB;\n' +
+  'void owSelTex(int k) { if (k > 0) { owTL = owSTL[k]; owTS = owSTS[k]; owTT = owSTT[k]; owTNs = owSTN[k]; owTRs = owSTR[k]; owTK = owSTK[k]; owTB = owSC[k]; } else { owTL = owTL1; owTS = owTS1; owTT = owTT1; owTNs = owTNs1; owTRs = owTRs1; owTK = owTK1; owTB = owTB1; } }');
+function selMake() {
+  const a = v => ({value: new Array(SELN).fill(v)});
+  return {u: {owSC: {value: Array.from({length: SELN}, () => new THREE.Color())}, owSM: a(0), owSR: a(0.5), owSTL: a(0), owSTS: a(1), owSTT: a(1), owSTN: a(1), owSTR: a(1), owSTK: a(1)}};
+}
+function selSet(sel, k, t, col, rough, metal = 0) {
+  const u = sel.u; u.owSTL.value[k] = t[1]; u.owSTS.value[k] = 1 / t[2]; u.owSTT.value[k] = t[3]; u.owSTN.value[k] = t[4]; u.owSTR.value[k] = t[5]; u.owSTK.value[k] = t[7] ?? 1;
+  if (col) u.owSC.value[k].set(col); u.owSR.value[k] = rough; u.owSM.value[k] = metal;
+}
 // AP-09e: Glas Stil B spiegelt leicht. Anteil nach Fresnel (senkrecht wenig, flach viel), Spiegelbild aus dem Umgebungslicht.
 // Ein durchsichtiges Material dämpft sonst auch die Spiegelung mit seiner Deckkraft.
 const GLASS_GLSL = `
@@ -1655,7 +1790,7 @@ const GLASS_GLSL = `
   }
 #endif
 #include <opaque_fragment>`;
-function attachPattern(mat, kind, glass, tex = null) {
+function attachPattern(mat, kind, glass, tex = null, sel = null) {
   // Die Netze haben keine Normalen (flatShading rechnet sie im Pixel). three nimmt die Normale aber für den Schattenversatz
   // (normalBias): ohne Attribut wird daraus NaN und kein Pixel liegt im Schatten. Deshalb feste Normale nach oben (AP-09d).
   // tex: Textur Stil B nach TEXMAP (Feld, Ebene, Kachel, Farbanteil, Normal, Rauheit, Farbe), Werte als Uniforms je Material
@@ -1668,22 +1803,33 @@ function attachPattern(mat, kind, glass, tex = null) {
       sh.uniforms.owOn = OWU.on; sh.uniforms.owGBase = OWU.gBase; sh.uniforms.owGMax = OWU.gMax;
       sh.fragmentShader = 'uniform float owOn; uniform float owGBase; uniform float owGMax;\n' + sh.fragmentShader.replace('#include <opaque_fragment>', GLASS_GLSL);
     }
-    if (!kind && !tu) return;
+    if (!kind && !tu && !sel) return;
     sh.uniforms.owOn = OWU.on; sh.uniforms.owPlinth = OWU.plinth;
     const fl = tu && tex[8] || '';
-    sh.vertexShader = 'varying vec3 vWP;\n' + (fl.includes('s') ? 'attribute float owAx; varying float vAx;\n' : '') + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;' + (fl.includes('s') ? ' vAx = owAx;' : ''));
+    sh.vertexShader = 'varying vec3 vWP;\n' + (fl.includes('s') ? 'attribute float owAx; varying float vAx;\n' : '') + (sel ? 'attribute float owSel; varying float vSel;\n' : '') + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;' + (fl.includes('s') ? ' vAx = owAx;' : '') + (sel ? ' vSel = owSel;' : ''));
     let fs = '#define OW_KIND ' + (kind || 0) + '\n' + PAT_GLSL + '\n';
+    if (sel) { fs += '#define OW_SEL 1\nvarying float vSel; uniform vec3 owSC[6]; uniform float owSM[6]; uniform float owSR[6];\n'; Object.assign(sh.uniforms, sel.u); }
     if (fl.includes('s')) { fs += '#define OW_SEAM 1\nvarying float vAx;\nuniform float owSB;\n'; sh.uniforms.owSB = OWU.sb; }
     if (fl.includes('a')) fs += '#define OW_ALPHA 1\n';
+    if (fl.includes('e')) fs += '#define OW_EMB 1\n';
     if (tu) {
-      Object.assign(sh.uniforms, tu); sh.uniforms.owTexOn = TEXU.on;
+      Object.assign(sh.uniforms, sel ? Object.fromEntries(Object.entries(tu).map(([k, v]) => [k + '1', v])) : tu); sh.uniforms.owTexOn = TEXU.on;
       sh.uniforms.owTC = tex[0] ? TEXU.c1 : TEXU.c0; sh.uniforms.owTNR = tex[0] ? TEXU.n1 : TEXU.n0;
-      fs += '#define OW_TEX 1\n' + TEX_GLSL + '\n';
+      fs += '#define OW_TEX 1\n' + (sel ? TEX_GLSL_SEL : TEX_GLSL) + '\n';
     }
     sh.fragmentShader = fs + sh.fragmentShader.replace('#include <color_fragment>', `#include <color_fragment>
+#ifdef OW_SEL
+  int owK = int(vSel + 0.5);
+#endif
 #ifndef USE_COLOR
   bool owT = false;
+#ifdef OW_SEL
+  if (owK > 0) diffuseColor.rgb = owSC[owK];
+#endif
 #ifdef OW_TEX
+#ifdef OW_SEL
+  owSelTex(owK);
+#endif
   if (owTexOn > 0.5 && owOn > 0.5) {
     owT = true; owTexSample(vWP);
     const vec3 owLw = vec3(0.2126, 0.7152, 0.0722);
@@ -1692,6 +1838,9 @@ function attachPattern(mat, kind, glass, tex = null) {
     float owD = clamp(1.0 + (dot(owTxC.rgb, owLw) / owLa - 1.0) * owTK, 0.3, 1.8);
     vec3 owNat = owLa > 0.0 ? mix(owAvg * owLb / owLa, owTxC.rgb * owLb / owLa, owTK) : owTB;
     diffuseColor.rgb = mix(owNat, owTB * owD, owTT);
+#ifdef OW_EMB
+    diffuseColor.rgb *= clamp(1.0 + 0.55 * dot(owTxN.rg * 2.0 - 1.0, vec2(0.55, 0.83)), 0.75, 1.2);  // Relief fest von oben links beleuchtet
+#endif
 #ifdef OW_ALPHA
     if (owTxC.a * (1.0 + max(owLod - 5.5, 0.0) * 0.35) < 0.5) discard;  // in der Ferne dichter, sonst lösen sich die Kronen auf
 #endif
@@ -1709,14 +1858,20 @@ function attachPattern(mat, kind, glass, tex = null) {
   }
 #endif
 #endif`).replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>
+#ifdef OW_SEL
+  if (owK > 0) roughnessFactor = owSR[owK];
+#endif
 #ifdef OW_TEX
   if (owTxA > 0.5) { float owAr = max(textureLod(owTNR, vec3(0.5, 0.5, owTL), 12.0).b, 0.05); roughnessFactor = clamp(roughnessFactor * mix(1.0, owTxN.b / owAr, owTRs), 0.04, 1.0); }
+#endif`).replace('#include <metalnessmap_fragment>', `#include <metalnessmap_fragment>
+#ifdef OW_SEL
+  if (owK > 0) metalnessFactor = owSM[owK];
 #endif`).replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
 #ifdef OW_TEX
   if (owTxA > 0.5) { vec2 owNxy = (owTxN.rg * 2.0 - 1.0) * owTNs; vec3 owNt = vec3(owNxy, sqrt(max(0.0, 1.0 - dot(owNxy, owNxy)))); normal = normalize((viewMatrix * vec4(normalize(owTxT * owNt.x + owTxB * owNt.y + owTxNw * owNt.z), 0.0)).xyz); }
 #endif`);
   };
-  mat.customProgramCacheKey = () => 'owpat' + kind + (glass ? 'g' : '') + (tu ? 't' + tex[0] + (tex[8] || '') : '');
+  mat.customProgramCacheKey = () => 'owpat' + kind + (glass ? 'g' : '') + (tu ? 't' + tex[0] + (tex[8] || '') : '') + (sel ? 'x' : '');
 }
 
 /* Erdreich (Darstellung): kein harter Kasten. Oberseite entfällt, wenn der Umgebungsboden die Geländefläche zeigt. Unterseite entfällt (Blick unter den Boden bleibt frei).
@@ -1757,6 +1912,7 @@ function splitDisplay(pr, f) {  // Darstellungsdatei (Fenster, Dach): ein Objekt
   if (!ok) { const o = dsp.roof ? Object.values(dsp.roof)[0] : dsp.base; noid.fill(o); }
   pr.oid = noid;
 }
+const SHELL_FIRST = new Set(['fassade', 'dach', 'dachbelag', 'dachzone_rlt', 'dachzone_kaelte', 'dachzone_zugang', 'blech', 'fensterbank', 'rahmen']);
 function addPrim(pr, f, rec) {
   if (!pr.tgaPart && pr.oid && TGA_B[f.layer] && (pr.mat.key || String(pr.mat.name).split('|')[1]) === 'tga') { for (const q of tgaSplit(pr, f)) addPrim(q, f, rec); return; }
   splitDisplay(pr, f);
@@ -1803,6 +1959,20 @@ function addPrim(pr, f, rec) {
   let gewColor = null, metColor = null;
   const metB = mat.metalness, met0 = envTex ? Math.min(pr.metal0 || 0, 0.6) : 0;
   if (pr.tgaPart) { gewColor = mat.color.clone(); metColor = new THREE.Color(pr.tgaB[0]); if (!tgaGewOn()) mat.color.copy(metColor); if (S.style !== 'B') mat.metalness = met0; }
+  let sel = null;
+  if (pr.devAttr) {  // Technik: 1 = Geräte
+    geo.setAttribute('owSel', new THREE.BufferAttribute(pr.devAttr, 1));
+    sel = selMake(); sel.dev = true; sel.base = new THREE.Color(); sel.metCol = new THREE.Color(TGA_DEV[0]); sel.metB = envTex ? Math.min(TGA_DEV[2], 0.6) : 0; sel.share = pr.devShare || 0;
+    selSet(sel, 1, TEXMAP['tga:dev'], null, 0.55, 0);
+    sel.base.copy(tgaGewOn() ? gewColor : sel.metCol); sel.u.owSC.value[1].copy(sel.base); sel.u.owSM.value[1] = S.style === 'B' ? sel.metB : met0;
+  } else if (pr.selAttr) {  // Außenanlagen: mehrere Werkstoffe in einem Zeichenaufruf
+    geo.setAttribute('owSel', new THREE.BufferAttribute(pr.selAttr, 1)); sel = selMake();
+    for (const [k, t, col, rough, mt] of pr.selSlots) selSet(sel, k, t, col, Math.max(0.25, rough), envTex ? Math.min(mt, 0.6) : 0);
+  } else if ((f.style || 'A') === 'B' && pr.oid && FLOOR_SEL.has(pr.mat.key || String(pr.mat.name).split('|')[1])) {  // Böden je Raumnutzung
+    const I = S.idx, sv = new Float32Array(nV); let any = false;
+    for (let v = 0; v < nV; v++) { const o = pr.oid[v]; const k = o < S.worldN ? FLOOR_USE[I.sub[o]] || 0 : 0; sv[v] = k; if (k) any = true; }
+    if (any) { geo.setAttribute('owSel', new THREE.BufferAttribute(sv, 1)); sel = selMake(); for (let k = 1; k < SELN; k++) { const d = FLOOR_FIN[k]; selSet(sel, k, d[0], d[1], d[2]); } }
+  }
   const texE = pr.mat.texKey ? TEXMAP[pr.mat.texKey] : null;
   if (texE && texE[8] && texE[8].includes('s')) {  // Achse je Objekt (längste waagrechte Seite, sonst senkrecht) für die Stoßfugen
     const ax = new Float32Array(nV);
@@ -1813,12 +1983,15 @@ function addPrim(pr, f, rec) {
   if (envTex && metal > 0) { mat.envMap = envTex; mat.envMapIntensity = 0.8; }
   const mkey = pr.mat.key || pr.mat.name.split('|')[1], styB = (f.style || 'A') === 'B';
   const pkind = styB ? PAT_KIND[mkey] : 0;
-  attachPattern(mat, pkind || 0, styB && mkey === 'glas', styB || pr.tgaPart ? texE || TEXMAP[mkey === 'tga' ? 'tga:' + f.layer : mkey] || null : null);  // Technikteile tragen das Metall auch, wenn die gemeinsame Datei in Stil A geladen wurde
+  const texU = styB || pr.tgaPart ? texE || TEXMAP[mkey === 'tga' ? 'tga:' + f.layer : mkey] || null : null;
+  attachPattern(mat, pkind || 0, styB && mkey === 'glas', texU, sel);  // Technikteile tragen das Metall auch, wenn die gemeinsame Datei in Stil A geladen wurde
   if (mkey === 'erdreich') earthShader(mat);
   // Lichtfläche der Leuchte und Rettungszeichen leuchten (AP-09f, Darstellung)
   if (styB && (mkey === 'licht' || mkey === 'schild_gruen')) { mat.emissive.copy(mat.color); mat.emissiveIntensity = mkey === 'licht' ? 1.6 : 0.6; }
+  mat.shadowSide = THREE.DoubleSide;
   const meshV = new THREE.Mesh(geo, mat);
   meshV.frustumCulled = true;
+  if (SHELL_FIRST.has(mkey)) meshV.renderOrder = -1;  // Runde 5: Hülle zuerst zeichnen, verdeckte Innenflächen fallen dann früh aus der Tiefenprüfung
   meshV.receiveShadow = true;
   meshV.visible = false;
   const meshCut = new THREE.Mesh(geo, CUTMAT);
@@ -1827,7 +2000,7 @@ function addPrim(pr, f, rec) {
   const nm = pr.mat.name.split('|');
   const p = {f, layer: f.layer, group: f.group, style: f.style || 'A', status: nm[2] || 'base', mkey: pr.mat.key || nm[1] || '', mlabel: pr.mat.label || '', tga: (pr.mat.key || nm[1]) === 'tga',
              metal, pos, idx, nV, nT, triObj, rO, rA, rB, bb, nR, bbox: pb, geo, posAttr, visIdx, ia, mat, meshV, meshCut, baseAlpha: c[3], baseColor: mat.color.clone(), oid: pr.oid, colAttr: null, ghost: null,
-             gewColor, metColor, metB, met0, tgaB: pr.tgaB || null};
+             gewColor, metColor, metB, met0, tgaB: pr.tgaB || null, sel, dbl: mkey === 'erdreich' || !!(texU && texU[8] && texU[8].includes('a'))};
   rec.prims = rec.prims || []; rec.prims.push(p);
   S.prims.push(p);
   for (let r = 0; r < nR; r++) { let l = S.objPrims.get(rO[r]); if (!l) S.objPrims.set(rO[r], l = []); l.push([p, r]); }
@@ -2106,6 +2279,7 @@ function applyLayerMaterial(p) {
   const cand = p.status === 'candidate' && !S.candTransparent;
   p.dispColor = cand ? p.baseColor.clone().lerp(WHITE, 0.5) : p.baseColor;
   if (S.colorMode === 'material') p.mat.color.copy(p.dispColor);
+  if (p.sel && p.sel.dev) p.sel.u.owSC.value[1].copy(p.sel.base).lerp(WHITE, cand ? 0.5 : 0);
   const a = (cand ? 1 : p.baseAlpha) * op;
   p.mat.opacity = a; p.mat.transparent = a < 0.999; p.mat.depthWrite = !(a < 0.999);
   p.mat.forceSinglePass = true;  // durchsichtige Körper in einem Durchgang (spart ein Viertel Zeichenzeit, Messung AP-05)
@@ -3020,7 +3194,7 @@ function renderLegend() {
     if (anyT && st === 'B') h += '<label class="li tgg"><input type="checkbox" id="lgTgaGew"' + (S.tgaGew ? ' checked' : '') + '><span class="t">Gewerke einfärben</span></label>';
     if (tgaB) {
       const cnt = new Map();
-      for (const p of S.prims) if (p.tgaB && p.meshV.visible && p.nVis) { const k = p.tgaB[1]; const e = cnt.get(k) || [p.tgaB[0], 0]; e[1] += p.nVis; cnt.set(k, e); }
+      for (const p of S.prims) if (p.tgaB && p.meshV.visible && p.nVis) { const nd = p.sel && p.sel.dev ? Math.round(p.nVis * p.sel.share) : 0; for (const [B, n] of [[p.tgaB, p.nVis - nd], [TGA_DEV, nd]]) if (n > 0) { const e = cnt.get(B[1]) || [B[0], 0]; e[1] += n; cnt.set(B[1], e); } }
       const top = [...cnt.entries()].sort((a, b) => b[1][1] - a[1][1]);
       h += '<h3>Technik als Werkstoff</h3>' + top.slice(0, LIM).map(([k, e]) => '<div class="li">' + sw(e[0]) + '<span class="t">' + esc(k) + '</span></div>').join('') + more(top.length);
     } else if (anyT) {
@@ -4047,6 +4221,16 @@ function wcLine() { $('#wcLine').textContent = COARSE ? 'Ein Finger dreht, zwei 
 wcLine(); addEventListener('resize', wcLine);
 $('#wcMoreB').onclick = () => { const w = $('#welcome'), o = !w.classList.contains('open'); w.classList.toggle('open', o); $('#wcBody').hidden = !o; $('#wcMoreB').textContent = o ? 'Weniger' : 'Mehr'; $('#wcMoreB').setAttribute('aria-expanded', o ? 'true' : 'false'); };
 $('#helpWc').onclick = () => { $('#help').close(); showWelcome(true); };
+function helpTab(id) {
+  document.querySelectorAll('#help .htabs button').forEach(b => { const on = b.id === id; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; const p = document.getElementById(b.getAttribute('aria-controls')); if (p) p.hidden = !on; });
+  $('#help').scrollTop = 0;
+}
+document.querySelectorAll('#help .htabs button').forEach(b => b.onclick = () => helpTab(b.id));
+$('#help .htabs').addEventListener('keydown', e => {
+  const bs = [...document.querySelectorAll('#help .htabs button')], i = bs.indexOf(document.activeElement); if (i < 0) return;
+  const j = e.key === 'ArrowRight' ? (i + 1) % bs.length : e.key === 'ArrowLeft' ? (i + bs.length - 1) % bs.length : e.key === 'Home' ? 0 : e.key === 'End' ? bs.length - 1 : -1;
+  if (j < 0) return; e.preventDefault(); bs[j].focus(); helpTab(bs[j].id);
+});
 { let seen = false; try { seen = LS.get(WC.key) === '1'; } catch (e) {} if (!seen) showWelcome(true); }
 function setNav(m, quiet = true) {
   S.nav = m === 'pan' ? 'pan' : 'orbit';

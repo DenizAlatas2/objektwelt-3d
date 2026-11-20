@@ -187,6 +187,16 @@ details.sec>summary{list-style:none;display:flex;align-items:center;gap:4px;heig
 details.sec>summary::-webkit-details-marker{display:none}
 details.sec>summary .n{margin-left:auto}
 .ci{padding:4px 0;border-top:1px solid var(--line);font-size:13px}
+.easy{margin:10px 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
+.easy .lead{font-weight:600;font-size:14px;line-height:1.35;margin-bottom:4px}
+.easy p{margin:5px 0;font-size:13px;line-height:1.45}
+.easy h4{margin:12px 0 4px;font-size:var(--fs-s);font-weight:600;color:var(--muted)}
+.easy svg{display:block;width:100%;height:auto;overflow:visible}
+.easy svg text{font-size:11px;fill:var(--text)}
+.easy svg text.mut{fill:var(--muted)}
+.easy svg .nb{cursor:pointer;outline:none}
+.easy svg .nb:hover rect:first-of-type,.easy svg .nb:focus-visible rect:first-of-type{stroke:var(--accent);stroke-width:1.5}
+.easy svg g.fl.nb:hover > rect:first-of-type{fill:color-mix(in srgb,var(--accent) 10%,transparent)}
 .ci:first-child{border-top:0}
 .ci .sub{color:var(--muted);font-size:var(--fs-s);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ci .lab{color:var(--muted);font-size:var(--fs-s);margin-right:6px}
@@ -2868,13 +2878,14 @@ async function renderAttr() {
   if (!I.body[n]) kv.push(['Körper', 'keiner, nur im Baum']);
   const mats = [...new Set(activePrims(n).map(([p]) => p.tga ? 'Systemfarbe' : String(matLabel(p)).replace(/\s*\(Darstellung\)/, '')))];
   if (mats.length) kv.push(['Darstellung ' + S.style, mats.join(', ') + (S.style === 'B' && !mats.every(m => m === 'Systemfarbe') ? ' (Darstellung, nicht in den Planungsdaten)' : '')]);
+  h += '<div id="aEasy"></div>';
   h += '<table class="kv" style="margin-top:8px">' + kv.map(r => '<tr><td>' + esc(r[0]) + '</td><td' + (r[2] ? ' title="' + esc(r[2]) + '"' : '') + '>' + esc(r[1]) + '</td></tr>').join('') + '</table>';
   if (BS.d && BS.of.has(n)) { const j = BS.of.get(n); secOpen.bs = secOpen.bs ?? true; h += sec('bs', 'Brandschutz', null, bsHtml(BS.d.o.k[j], BS.d.o.t[j])); }
   h += '<div id="aCon"></div><div id="aBody" class="note" style="margin-top:8px">Attribute werden geladen</div>';
   box.innerHTML = h;
   if ($('#aCopy')) $('#aCopy').onclick = () => copyText(I.id[n], 'Nummer kopiert');
   if ($('#aGrp')) $('#aGrp').onclick = () => { const gi = groupInfo(n); if (!gi) return; if (S.selGrp === gi.id) select(n, false); else select(n, false, {group: gi.members.filter(m => S.vis[m] && S.idx.body[m]), gid: gi.id}); };
-  if (n < S.worldN) renderCon(n);
+  if (n < S.worldN) { renderEasy(n); renderCon(n); }
   if (n >= S.worldN) { $('#aBody').className = ''; $('#aBody').innerHTML = ''; return; }
   try {
     const k = Math.floor(n / I.chunk), chunk = await getAttrChunk(k);
@@ -2980,6 +2991,197 @@ async function renderCon(n) {
   if ($('#conMore')) $('#conMore').onclick = () => { S.conAll = true; renderCon(n); };
   if ($('#cntAll')) $('#cntAll').onclick = () => { S.conAll = true; renderCon(n); };
   if ($('#aRoomSet')) $('#aRoomSet').onclick = () => showSet(new Set([n, ...cont.keys()]), n, 'Raum mit Inhalt');
+}
+/* ====================================================================================================
+   Kurz erklärt (Runde 17, Wunsch des Dozenten 20.11.2026): Was ist das, wofür ist es, womit ist es verbunden, durch welche Geschosse
+   geht es. Ohne Fachwörter, mit zwei kleinen Bildern: direkte Nachbarn und die Anlage über die Geschosse. Nur Darstellung aus Index
+   und graph.json, die Planungsdaten bleiben unverändert und stehen weiter darunter. */
+const EASY_DISC = {
+  heating: ['die Heizung', 'Rohrleitung', 'Sie bringt warmes Wasser zu den Heizflächen und Heizgeräten in den Räumen und wieder zurück.'],
+  cooling: ['die Kühlung', 'Rohrleitung', 'Sie bringt kaltes Wasser zu Kühldecken und Kühlgeräten und wieder zurück.'],
+  water: ['das Trinkwasser', 'Rohrleitung', 'Sie bringt Trinkwasser zu Waschbecken, WCs, Duschen und Küchen.'],
+  drainage: ['das Abwasser', 'Rohrleitung', 'Sie führt Schmutzwasser oder Regenwasser nach unten und aus dem Haus.'],
+  ventilation: ['die Lüftung', 'Luftkanal', 'Er bringt frische Luft in die Räume oder führt verbrauchte Luft nach draußen.'],
+  electrical: ['den Strom', 'Stromleitung', 'Sie bringt Strom zu Leuchten, Steckdosen und Geräten.'],
+  data: ['Netzwerk und Telefon', 'Datenleitung', 'Sie verbindet Netzwerk-, Telefon- und WLAN-Anschlüsse mit den Technikräumen.'],
+  automation: ['die Steuerung', 'Steuerleitung', 'Sie verbindet Fühler, Schalter und Regler, damit Heizung, Lüftung und Licht von selbst richtig laufen.'],
+  safety: ['die Sicherheitstechnik', 'Sicherheitsleitung', 'Sie verbindet Brandmelder, Alarm und Notbeleuchtung mit der Zentrale.'],
+  security: ['den Zutritt', 'Leitung', 'Sie verbindet Türleser und Zutrittstechnik mit der Zentrale.'],
+  lift: ['den Aufzug', 'Leitung', 'Sie gehört zur Technik des Aufzugs.'],
+  process: ['die technischen Arbeitsräume', 'Leitung', 'Sie versorgt die technischen Arbeitsräume.'],
+  fire_fighting: ['das Löschwasser', 'Rohrleitung', 'Sie bringt Löschwasser zu den Löschstellen.'],
+};
+const EASY_END = {
+  heating: 'Hier kommt die Heizung im Raum an und gibt Wärme ab oder verteilt sie auf die Heizkreise im Raum.',
+  cooling: 'Hier kommt die Kühlung im Raum an und nimmt Wärme aus dem Raum auf.',
+  water: 'Hier kommt das Trinkwasser an, zum Beispiel an einem Waschbecken, WC oder einer Dusche.',
+  drainage: 'Hier fließt Wasser in die Abwasserleitung, zum Beispiel aus einem Becken oder einem Bodenablauf.',
+  ventilation: 'Hier kommt frische Luft in den Raum oder verbrauchte Luft wird abgesaugt, meist über ein Gitter an Decke oder Wand.',
+  electrical: 'Hier kommt der Strom im Raum an, zum Beispiel an einer Leuchte, Steckdose oder an einem Gerät.',
+  data: 'Hier kommt das Netzwerk im Raum an, zum Beispiel an einer Netzwerkdose oder einem WLAN-Sender.',
+  automation: 'Hier misst oder schaltet die Steuerung im Raum, zum Beispiel mit einem Fühler oder Taster.',
+  safety: 'Hier meldet oder warnt die Sicherheitstechnik, zum Beispiel ein Brandmelder oder eine Notleuchte.',
+  security: 'Hier wird der Zutritt geprüft, zum Beispiel mit einem Kartenleser an der Tür.',
+  lift: 'Hier kommt die Technik des Aufzugs an.',
+  process: 'Hier wird ein technischer Arbeitsraum versorgt.',
+  fire_fighting: 'Hier kann die Feuerwehr Löschwasser entnehmen.',
+};
+const EASY_GEW = {'Heizung': 'heating', 'Kälte (Gebäude)': 'cooling', 'Trinkwasser': 'water', 'Abwasser/Entwässerung': 'drainage', 'Lüftung': 'ventilation',
+  'Elektro': 'electrical', 'Daten/IT': 'data', 'Gebäudeautomation': 'automation', 'Sicherheit/Brandmeldung': 'safety', 'Aufzug': 'lift', 'Zutritt': 'security'};
+const EASY_ROLE = {L: 'Leitung', E: 'Endgerät im Raum', A: 'Gerät der Anlage', H: 'Bauteil der Anlage', T: 'Halterung', D: 'Durchführung durch Wand oder Decke', K: 'Klappe'};
+const EASY_ROLE_PL = {L: 'Leitungen', E: 'Endgeräte', A: 'Geräte'};
+function easyRole(n) {
+  const a = S.idx.arts[S.idx.art[n]] || '';
+  if (/^Trasse|^Anlagenleitung/.test(a)) return 'L';
+  if (/^Endgerät/.test(a)) return 'E';
+  if (/^Anlagenteil/.test(a)) return 'A';
+  if (/hülle/i.test(a)) return /träger|konsole|halter|gestell|anker|schiene|abhängung|brücke|unterzug|platte|vergussbett|wandfüllung|endstück|sockel|knoten|formstück|lasche/i.test(String(S.idx.name[n] || '').split(',')[0]) ? 'T' : 'H';
+  if (/^Durchführung|abschottung|verschluss/i.test(a)) return 'D';
+  if (/klappe|Absperrvorrichtung/i.test(a)) return 'K';
+  return '';
+}
+function easyDisc(n) {
+  const I = S.idx, s = I.systems[I.system[n]];
+  return (s && s.discipline && EASY_DISC[s.discipline]) ? s.discipline : EASY_GEW[I.gewerke[I.gewerk[n]]] || '';
+}
+const easyShort = (o, max = 30) => { let t = String(S.idx.name[o] || '').split(',')[0].trim(); return t.length > max ? t.slice(0, max - 1) + '…' : t; };
+// Geschosse eines Objekts: Bits aus fmask, sonst aus der Höhe. 8 = Dach, 9 = außen
+function easyFloors(o) {
+  const I = S.idx, F = S.man.floors, out = [], m = I.fmask[o];
+  if (m) { for (let i = 0; i < F.length; i++) if (m & (1 << i)) out.push(i); return out; }
+  const b = I.bbox[o]; if (!b) return out;
+  const g = I.groups[I.group[o]];
+  const z0 = b[2] / 100, z1 = b[5] / 100, x = (b[0] + b[3]) / 200, y = (b[1] + b[4]) / 200;
+  const fp = EASY.fp || (EASY.fp = easyFootprint());
+  if (g === 'SONST' || x < fp[0] - 0.5 || x > fp[2] + 0.5 || y < fp[1] - 0.5 || y > fp[3] + 0.5) { out.push(9); return out; }
+  for (let i = 0; i < F.length; i++) if (z1 > F[i].lo + 0.05 && z0 < F[i].hi - 0.05) out.push(i);
+  if (z1 > F[F.length - 1].hi || g === 'DACH') out.push(8);
+  return out;
+}
+function easyFootprint() {
+  const I = S.idx, eg = I.groups.indexOf('F2'); let a = [1e9, 1e9, -1e9, -1e9];
+  for (let o = 0; o < S.worldN; o++) if (I.group[o] === eg && I.layer[o] >= 0 && I.layers[I.layer[o]].key === 'wand') { const b = I.bbox[o]; a = [Math.min(a[0], b[0] / 100), Math.min(a[1], b[1] / 100), Math.max(a[2], b[3] / 100), Math.max(a[3], b[4] / 100)]; }
+  return a;
+}
+const EASY = {sys: new Map(), fp: null};
+const easyFloorName = i => i === 8 ? 'Dach' : i === 9 ? 'außen' : S.man.floors[i].label;
+function easySpan(fl) {
+  const a = [...new Set(fl)].sort((x, y) => x - y); if (!a.length) return '';
+  const inner = a.filter(i => i < 8);
+  if (inner.length > 1 && inner[inner.length - 1] - inner[0] === inner.length - 1) return 'geht vom ' + easyFloorName(inner[0]) + ' bis ins ' + easyFloorName(inner[inner.length - 1]) + (a.includes(8) ? ' und aufs Dach' : '');
+  if (a.length === 1) return a[0] === 9 ? 'liegt außerhalb des Hauses' : a[0] === 8 ? 'liegt auf dem Dach' : 'liegt im ' + easyFloorName(a[0]);
+  return 'liegt in ' + a.map(easyFloorName).join(', ');
+}
+// Anlage je Geschoss: Zahl der Geräte, Leitungen und Endgeräte (einmal je Anlage gerechnet)
+function easySys(s) {
+  if (EASY.sys.has(s)) return EASY.sys.get(s);
+  const I = S.idx, rows = Array.from({length: 10}, () => ({A: [], L: [], E: []}));
+  for (let o = 0; o < S.worldN; o++) {
+    if (I.system[o] !== s || !I.body[o]) continue;
+    const r = easyRole(o); if (r !== 'A' && r !== 'L' && r !== 'E') continue;
+    for (const f of easyFloors(o)) rows[f][r].push(o);
+  }
+  EASY.sys.set(s, rows); return rows;
+}
+function easyNeighbours(n) {
+  const I = S.idx, groups = new Map();
+  for (const x of edgesOf(n)) {
+    if (x.c > 1 && !INTERN) continue;
+    const role = easyRole(x.o) || 'X', key = (x.k ? 'k' : '') + role + '|' + easyShort(x.o, 60);
+    let g = groups.get(key); if (!g) groups.set(key, g = {role, name: easyShort(x.o, 60), carried: !!x.k, side: x.side, list: []});
+    g.list.push(x.o); if (g.side !== x.side) g.side = 0;
+  }
+  return [...groups.values()].sort((a, b) => (a.carried - b.carried) || ('ALEHDKTX'.indexOf(a.role) - 'ALEHDKTX'.indexOf(b.role)) || b.list.length - a.list.length);
+}
+function easySvgNeighbours(n, gs, W = 300) {
+  // Senkrechte Liste: oben das gewählte Teil, darunter jede Gruppe direkt verbundener Teile an einer Linie. Breite wie das Feld, kein Überlappen.
+  const max = 8, show = gs.slice(0, max), rest = gs.slice(max).reduce((s, g) => s + g.list.length, 0);
+  const ch = 6.2, hc = 38, bh = 32, gap = 6, tx = 14, bx = 30, bw = W - bx - 1, top = hc + 10;
+  const fit = (t, w) => { const m = Math.max(6, Math.floor((w - 14) / ch)); return t.length > m ? t.slice(0, m - 1) + '…' : t; };
+  const H = top + Math.max(show.length, 1) * (bh + gap) + (rest ? 16 : 0);
+  let h = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Direkt verbundene Teile">';
+  h += '<rect x="0" y="0" width="' + W + '" height="' + hc + '" rx="6" fill="var(--accent)"/>' +
+    '<text x="10" y="15" style="fill:var(--accent-text);font-weight:600">Dieses Teil</text>' +
+    '<text x="10" y="30" style="fill:var(--accent-text)">' + esc(fit(easyShort(n, 80), W)) + '</text>';
+  if (!show.length) return h + '<text class="mut" x="' + tx + '" y="' + (top + 18) + '">keine gespeicherte Verbindung</text></svg>';
+  const yl = top + (show.length - 1) * (bh + gap) + bh / 2;
+  h += '<path d="M' + tx + ' ' + hc + ' V ' + yl + '" fill="none" stroke="var(--muted)" stroke-width="1.2"/>';
+  show.forEach((g, k) => {
+    const y = top + k * (bh + gap), my = y + bh / 2;
+    const label = (g.list.length > 1 ? g.list.length + ' × ' : '') + g.name, sub = g.carried ? 'trägt oder hält es' : g.role === 'L' && !/rohr|leitung|kanal|kabel|trasse|strang|anschluss|weg|steig|fall|lauf|verbindung|ring|schleife/i.test(g.name) ? 'Teil der Leitung' : (EASY_ROLE[g.role] || 'Teil');
+    h += '<path d="M' + tx + ' ' + my + ' H ' + bx + '" fill="none" stroke="var(--muted)" stroke-width="1.2"' + (g.carried ? ' stroke-dasharray="3 3"' : '') + '/>';
+    h += '<g class="nb" data-g="' + k + '" tabindex="0" role="button" aria-label="' + esc(label + ', ' + sub) + '"><title>' + esc(label + ' (' + sub + ')') + '</title>' +
+      '<rect x="' + bx + '" y="' + y + '" width="' + bw + '" height="' + bh + '" rx="5" fill="var(--panel)" stroke="var(--line)"' + (g.carried ? ' stroke-dasharray="3 3"' : '') + '/>' +
+      '<text x="' + (bx + 7) + '" y="' + (y + 13) + '">' + esc(fit(label, bw)) + '</text>' +
+      '<text class="mut" x="' + (bx + 7) + '" y="' + (y + 26) + '">' + esc(fit(sub, bw)) + '</text></g>';
+  });
+  if (rest) h += '<text class="mut" x="' + bx + '" y="' + (H - 3) + '">und ' + rest.toLocaleString('de') + ' weitere</text>';
+  return h + '</svg>';
+}
+function easySvgFloors(s, mine, color, W = 320) {
+  const rows = easySys(s), order = [8, 7, 6, 5, 4, 3, 2, 1, 0, 9].filter(i => i !== 9 || rows[9].A.length + rows[9].L.length + rows[9].E.length);
+  const max = {A: 1, L: 1, E: 1}; for (const r of rows) for (const k of 'ALE') max[k] = Math.max(max[k], r[k].length);
+  const rh = 20, top = 18, H = top + order.length * rh + 4, x0 = 52, cw = (W - x0 - 4) / 3, mineSet = new Set(mine);
+  let h = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Die Anlage über die Geschosse">';
+  ['Geräte', 'Leitungen', 'Endgeräte'].forEach((t, k) => { h += '<text class="mut" x="' + (x0 + k * cw + 2) + '" y="12">' + t + '</text>'; });
+  order.forEach((f, j) => {
+    const y = top + j * rh, r = rows[f], on = mineSet.has(f), any = r.A.length + r.L.length + r.E.length;
+    h += '<g class="fl' + (any ? ' nb' : '') + '" data-f="' + f + '"' + (any ? ' tabindex="0" role="button" aria-label="Anlage im ' + esc(easyFloorName(f)) + ' zeigen"' : '') + '><title>' + esc(easyFloorName(f) + ': ' + r.A.length + ' Geräte, ' + r.L.length + ' Leitungen, ' + r.E.length + ' Endgeräte' + (any ? '. Klicken zeigt die Anlage in diesem Geschoss.' : '')) + '</title>';
+    h += '<rect x="0" y="' + y + '" width="' + W + '" height="' + (rh - 2) + '" rx="3" fill="' + (on ? 'color-mix(in srgb,var(--accent) 16%,transparent)' : 'transparent') + '"/>';
+    if (on) h += '<rect x="0" y="' + y + '" width="3" height="' + (rh - 2) + '" fill="var(--accent)"/>';
+    h += '<text x="6" y="' + (y + 13) + '"' + (on ? ' style="font-weight:600"' : '') + '>' + esc(easyFloorName(f)) + '</text>';
+    'ALE'.split('').forEach((k, c) => {
+      const v = r[k].length, w = v ? Math.max(3, Math.sqrt(v / max[k]) * (cw - 38)) : 0, x = x0 + c * cw + 2;
+      if (v) h += '<rect x="' + x + '" y="' + (y + 4) + '" width="' + w.toFixed(1) + '" height="' + (rh - 10) + '" rx="2" fill="' + esc(color) + '" opacity="0.85"/>';
+      h += '<text class="mut" x="' + (x + w + 3) + '" y="' + (y + 13) + '">' + (v ? v.toLocaleString('de') : '') + '</text>';
+    });
+    h += '</g>';
+  });
+  return h + '</svg>';
+}
+async function renderEasy(n) {
+  const box = $('#aEasy'); if (!box) return;
+  const I = S.idx, role = easyRole(n), lk = I.layer[n] >= 0 ? I.layers[I.layer[n]].key : '';
+  if (!role || !(lk.startsWith('tga_') || lk === 'durchfuehrung' || lk.startsWith('bs_'))) { box.innerHTML = ''; return; }
+  if (!GR) { box.innerHTML = '<div class="easy"><p class="note">Kurz erklärt wird geladen</p></div>'; await loadGraph(); if (S.last !== n || !$('#aEasy')) return; }
+  const d = easyDisc(n), D = EASY_DISC[d] || ['die Technik', 'Leitung', ''], sysi = I.systems[I.system[n]], s = I.system[n];
+  const fl = easyFloors(n), short = easyShort(n, 60), W = Math.round(Math.max(230, (box.clientWidth || 300) - 26));
+  let lead, why;
+  if (role === 'L') { lead = D[1] + ' für ' + D[0]; why = D[2]; }
+  else if (role === 'E') { lead = short + ', ein Endgerät für ' + D[0]; why = EASY_END[d] || 'Hier kommt die Anlage im Raum an: Wärme, Kälte, Luft, Wasser, Strom oder Daten werden hier abgegeben oder aufgenommen.'; }
+  else if (role === 'A') { lead = short + ', ein Gerät für ' + D[0]; why = 'Solche Teile erzeugen, pumpen, verteilen, verzweigen oder messen. Sie sitzen an den Leitungen der Anlage, oft in Technikräumen.'; }
+  else if (role === 'D') { lead = short + ', eine Durchführung'; why = 'Hier geht eine Leitung durch eine Wand oder Decke. Bei Brandwänden wird die Öffnung dicht verschlossen.'; }
+  else if (role === 'K') { lead = short + ', eine Klappe'; why = 'Sie schließt im Brandfall den Kanal, damit Feuer und Rauch nicht weiterziehen.'; }
+  else if (role === 'T') { lead = short + ', eine Halterung'; why = 'Sie trägt oder hält Leitungen und Geräte an Decke, Wand oder Boden.'; }
+  else { lead = short + ', ein Bauteil für ' + D[0]; why = 'Das Modell zeigt es als einfache Form, so groß wie das Teil mit seinen Anschlüssen.'; }
+  const inR = GR.roomOf.get(n), sv = GR.served.get(n);
+  const rq = o => '„' + easyShort(o, 40) + '“', rIn = inR && inR.size ? [...inR.keys()].slice(0, 2) : [];
+  const svOnly = sv && sv.size === 1 && rIn.length === 1 && sv.has(rIn[0]);
+  const roomTxt = rIn.length ? (rIn.length === 1 ? 'im Raum ' : 'in den Räumen ') + rIn.map(rq).join(' und ') + (svOnly ? ' und versorgt diesen Raum' : '') : '';
+  const svTxt = sv && sv.size && !svOnly ? 'Versorgt ' + (sv.size === 1 ? 'den Raum ' : sv.size.toLocaleString('de') + ' Räume, zum Beispiel ') + [...sv].slice(0, 2).map(rq).join(' und ') + '.' : '';
+  const gs = easyNeighbours(n);
+  // Reichweite über die Anlage
+  const net = netOf(n, 1, 4000), cnt = {A: 0, L: 0, E: 0}, rooms = new Set(), nf = new Set();
+  for (const o of net) { if (o === n) continue; const r = easyRole(o); if (cnt[r] !== undefined) cnt[r]++; for (const f of easyFloors(o)) nf.add(f); if (r === 'E') { const q = GR.roomOf.get(o); if (q) for (const k of q.keys()) rooms.add(k); } }
+  const parts = ['E', 'A', 'L'].filter(k => cnt[k]).map(k => cnt[k].toLocaleString('de') + ' ' + (cnt[k] === 1 ? EASY_ROLE[k] : EASY_ROLE_PL[k]));
+  const plist = parts.length > 1 ? parts.slice(0, -1).join(', ') + ' und ' + parts[parts.length - 1] : parts.join('');
+  const reach = net.size > 1 && parts.length ? 'Über weitere Teile derselben Anlage hängen daran ' + plist + (rooms.size ? ' in ' + rooms.size.toLocaleString('de') + (rooms.size === 1 ? ' Raum' : ' Räumen') : '') + (nf.size ? ' ' + easySpan([...nf]).replace(/^liegt |^geht /, '') : '') + '.' : 'Für dieses Teil sind keine Verbindungen zu anderen Teilen gespeichert.';
+  let h = '<div class="easy" aria-label="Kurz erklärt"><div class="lead">' + esc(lead) + '</div>';
+  h += '<p>' + (sysi && sysi.id ? 'Gehört zur Anlage „' + esc(sysi.label) + '“. ' : '') + esc(why) + '</p>';
+  const sp = easySpan(fl) || 'hat keine Lage im Geschoss';
+  const s1 = sp[0].toUpperCase() + sp.slice(1) + (roomTxt ? (fl.length === 1 ? ' ' : '. Liegt ') + roomTxt : '') + '.';
+  h += '<p>' + esc(s1) + (svTxt ? ' ' + esc(svTxt) : '') + '</p>';
+  if (gs.length) h += '<h4>Direkt verbunden mit</h4>' + easySvgNeighbours(n, gs, W);
+  h += '<p>' + esc(reach) + '</p>';
+  if (s) h += '<h4>Die Anlage über die Geschosse</h4>' + easySvgFloors(s, fl, (sysi && sysi.color) || 'var(--muted)', W) +
+    '<p class="note">Hell hinterlegt: hier liegt das gewählte Teil. Eine Zeile anklicken zeigt die Anlage in diesem Geschoss, ein Kasten unter „Direkt verbunden mit“ zeigt das verbundene Teil.</p>';
+  h += '<div class="btns">' + (net.size > 1 ? '<button class="sm" id="eNet">Verbundenes im Modell zeigen</button>' : '') + (s ? '<button class="sm" id="eSys">Ganze Anlage zeigen</button>' : '') + '</div></div>';
+  box.innerHTML = h;
+  const act = (el, fn) => { el.onclick = fn; el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); } }; };
+  box.querySelectorAll('.nb[data-g]').forEach(el => act(el, () => { const g = gs[+el.dataset.g]; if (g.list.length === 1) goTo(g.list[0], {zoom: true}); else showSet(new Set([n, ...g.list]), n, g.name); }));
+  box.querySelectorAll('.nb[data-f]').forEach(el => act(el, () => { const r = easySys(s)[+el.dataset.f]; showSet(new Set([n, ...r.A, ...r.L, ...r.E]), n, 'Anlage im ' + easyFloorName(+el.dataset.f)); }));
+  if ($('#eNet')) $('#eNet').onclick = () => showNet(n);
+  if ($('#eSys')) $('#eSys').onclick = () => { const set = new Set([n]); for (const r of easySys(s)) for (const k of 'ALE') for (const o of r[k]) set.add(o); showSet(set, n, 'Anlage'); };
 }
 function netOf(n, maxc, cap = 5000) {
   // Breitensuche über Verbindungen (ohne getragen oder enthalten), weiter nur innerhalb derselben Anlage. Ohne Anlage nur die direkten Nachbarn.

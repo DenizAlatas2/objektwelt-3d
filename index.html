@@ -2995,7 +2995,8 @@ async function renderCon(n) {
 /* ====================================================================================================
    Kurz erklärt (Runde 17, Wunsch des Dozenten 20.11.2026): Was ist das, wofür ist es, womit ist es verbunden, durch welche Geschosse
    geht es. Ohne Fachwörter, mit zwei kleinen Bildern: direkte Nachbarn und die Anlage über die Geschosse. Nur Darstellung aus Index
-   und graph.json, die Planungsdaten bleiben unverändert und stehen weiter darunter. */
+   und graph.json, die Planungsdaten bleiben unverändert und stehen weiter darunter. Runde 19: Nachbarn aus denselben Kanten wie Verbindet,
+   der Satz „keine Verbindungen gespeichert“ nur noch, wenn das Teil wirklich keine gespeicherte Verbindung hat. */
 const EASY_DISC = {
   heating: ['die Heizung', 'Rohrleitung', 'Sie bringt warmes Wasser zu den Heizflächen und Heizgeräten in den Räumen und wieder zurück.'],
   cooling: ['die Kühlung', 'Rohrleitung', 'Sie bringt kaltes Wasser zu Kühldecken und Kühlgeräten und wieder zurück.'],
@@ -3086,10 +3087,11 @@ function easySys(s) {
 function easyNeighbours(n) {
   const I = S.idx, groups = new Map();
   for (const x of edgesOf(n)) {
-    if (x.c > 1 && !INTERN) continue;
+    // Runde 19: dieselben Kanten wie im Bereich Verbindet, auch zurückgestellte. Vorher fehlten sie hier und der Kasten widersprach der Liste.
+    // Zurückgestellte stehen als „geplant, noch nicht freigegeben“ da (Wortlaut main 20.11.), mit ?intern als „zurückgestellt“.
     const role = easyRole(x.o) || 'X', key = (x.k ? 'k' : '') + role + '|' + easyShort(x.o, 60);
-    let g = groups.get(key); if (!g) groups.set(key, g = {role, name: easyShort(x.o, 60), carried: !!x.k, side: x.side, list: []});
-    g.list.push(x.o); if (g.side !== x.side) g.side = 0;
+    let g = groups.get(key); if (!g) groups.set(key, g = {role, name: easyShort(x.o, 60), carried: !!x.k, side: x.side, held: true, list: []});
+    g.list.push(x.o); if (g.side !== x.side) g.side = 0; if (x.c <= 1) g.held = false;
   }
   return [...groups.values()].sort((a, b) => (a.carried - b.carried) || ('ALEHDKTX'.indexOf(a.role) - 'ALEHDKTX'.indexOf(b.role)) || b.list.length - a.list.length);
 }
@@ -3108,7 +3110,7 @@ function easySvgNeighbours(n, gs, W = 300) {
   h += '<path d="M' + tx + ' ' + hc + ' V ' + yl + '" fill="none" stroke="var(--muted)" stroke-width="1.2"/>';
   show.forEach((g, k) => {
     const y = top + k * (bh + gap), my = y + bh / 2;
-    const label = (g.list.length > 1 ? g.list.length + ' × ' : '') + g.name, sub = g.carried ? 'trägt oder hält es' : g.role === 'L' && !/rohr|leitung|kanal|kabel|trasse|strang|anschluss|weg|steig|fall|lauf|verbindung|ring|schleife/i.test(g.name) ? 'Teil der Leitung' : (EASY_ROLE[g.role] || 'Teil');
+    const label = (g.list.length > 1 ? g.list.length + ' × ' : '') + g.name, sub = (g.held ? (INTERN ? 'zurückgestellt, ' : 'geplant, noch nicht freigegeben, ') : '') + (g.carried ? 'trägt oder hält es' : g.role === 'L' && !/rohr|leitung|kanal|kabel|trasse|strang|anschluss|weg|steig|fall|lauf|verbindung|ring|schleife/i.test(g.name) ? 'Teil der Leitung' : (EASY_ROLE[g.role] || 'Teil'));
     h += '<path d="M' + tx + ' ' + my + ' H ' + bx + '" fill="none" stroke="var(--muted)" stroke-width="1.2"' + (g.carried ? ' stroke-dasharray="3 3"' : '') + '/>';
     h += '<g class="nb" data-g="' + k + '" tabindex="0" role="button" aria-label="' + esc(label + ', ' + sub) + '"><title>' + esc(label + ' (' + sub + ')') + '</title>' +
       '<rect x="' + bx + '" y="' + y + '" width="' + bw + '" height="' + bh + '" rx="5" fill="var(--panel)" stroke="var(--line)"' + (g.carried ? ' stroke-dasharray="3 3"' : '') + '/>' +
@@ -3173,14 +3175,14 @@ async function renderEasy(n) {
   const parts = ['E', 'A', 'L'].filter(k => cnt[k]).map(k => cnt[k].toLocaleString('de') + ' ' + (cnt[k] === 1 ? EASY_ROLE[k] : EASY_ROLE_PL[k]));
   const plist = parts.length > 1 ? parts.slice(0, -1).join(', ') + ' und ' + parts[parts.length - 1] : parts.join('');
   const where = nf.size ? ' ' + easySpan([...nf]).replace(/^liegt |^geht /, '') : '';
-  const reach = net.size > 1 && parts.length ? 'Dahinter hängen ' + plist + '.' + (rooms.size ? ' Sie versorgen ' + (rooms.size === 1 ? 'einen Raum' : rooms.size.toLocaleString('de') + ' Räume') + where + '.' : where ? ' Sie liegen' + where + '.' : '') : 'Für dieses Teil sind keine Verbindungen zu anderen Teilen gespeichert.';
+  const reach = net.size > 1 && parts.length ? 'Dahinter hängen ' + plist + '.' + (rooms.size ? ' Sie versorgen ' + (rooms.size === 1 ? 'einen Raum' : rooms.size.toLocaleString('de') + ' Räume') + where + '.' : where ? ' Sie liegen' + where + '.' : '') : gs.length ? '' : 'Für dieses Teil sind keine Verbindungen zu anderen Teilen gespeichert.';
   let h = '<div class="easy" aria-label="Kurz erklärt"><div class="lead">' + esc(lead) + '</div>';
   h += '<p>' + (sysi && sysi.id ? 'Gehört zur Anlage „' + esc(sysi.label) + '“. ' : '') + esc(why) + '</p>';
   const sp = easySpan(fl) || 'hat keine Lage im Geschoss';
   const s1 = sp[0].toUpperCase() + sp.slice(1) + (roomTxt ? (fl.length === 1 ? ' ' : '. Liegt ') + roomTxt : '') + '.';
   h += '<p>' + esc(s1) + (svTxt ? ' ' + esc(svTxt) : '') + '</p>';
   if (gs.length) h += '<h4>Direkt verbunden mit</h4>' + easySvgNeighbours(n, gs, W) + '<p class="note">Klick auf einen Kasten springt zu diesem Teil.</p>';
-  h += '<p>' + esc(reach) + '</p>';
+  if (reach) h += '<p>' + esc(reach) + '</p>';
   if (s) h += '<h4>Die Anlage über die Geschosse</h4>' + easySvgFloors(s, fl, (sysi && sysi.color) || 'var(--muted)', W) +
     '<p class="note">Hinterlegt: hier liegt das Teil. Klick auf eine Zeile zeigt die Anlage in diesem Geschoss.</p>';
   h += '<div class="btns">' + (net.size > 1 ? '<button class="sm" id="eNet">Verbundenes im Modell zeigen</button>' : '') + (s ? '<button class="sm" id="eSys">Ganze Anlage zeigen</button>' : '') + '</div></div>';

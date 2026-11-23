@@ -189,6 +189,11 @@ details.sec>summary .n{margin-left:auto}
 .ci{padding:4px 0;border-top:1px solid var(--line);font-size:13px}
 .easy{margin:10px 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel2)}
 .easy .lead{font-weight:600;font-size:14px;line-height:1.35;margin-bottom:4px}
+.td .art{color:var(--muted);font-size:var(--fs-s);margin:0 0 6px}
+.td table.kv td:first-child{width:52%}
+.td td.nf{color:var(--muted)}
+.td .zu{font-size:var(--fs-s);color:var(--muted);margin:6px 0 0}
+.td .zu .rel{font-size:var(--fs-s)}
 .easy p{margin:5px 0;font-size:13px;line-height:1.45}
 .easy h4{margin:12px 0 4px;font-size:var(--fs-s);font-weight:600;color:var(--muted)}
 .easy svg{display:block;width:100%;height:auto;overflow:visible}
@@ -2855,6 +2860,19 @@ function objLink(o, sub = '', tag = '', lab = '', tip = '') {
 // AP-09e: Herkunft „Liegt in Raum“ als kurzer Text, das Weltfeld steht im Hinweis
 const ROOM_VIA = {'portal.from_space_id': 'Öffnung aus diesem Raum', 'portal.to_space_id': 'Öffnung in diesen Raum', 'portal_door_design.swing_into_space_id': 'Tür schlägt in diesen Raum'};
 const roomVia = f => ROOM_VIA[f] || 'Raum laut Planungsdaten';
+// Runde 21: Block Technische Daten. Kennwerte je Anlagenart aus den Planungsdaten (td im Attributblock: a Anlagenart, w Liste aus Kennwert,
+// Wert, Einheit, Quelle, nf Kernwerte ohne Angabe, zu Anlage, von der die Werte stammen). Die Quelle steht im Hinweis.
+function tdHtml(td) {
+  const I = S.idx, w = td.w || [], nf = td.nf || [];
+  const wert = r => String(r[1]) + (r[2] ? '\u00a0' + r[2] : '');
+  let h = '<div class="easy td"><div class="lead">Technische Daten</div>' + (td.a ? '<p class="art">' + esc(td.a) + '</p>' : '');
+  if (w.length || nf.length) h += '<table class="kv">' + w.map(r => '<tr><td>' + esc(r[0]) + '</td><td' + (r[3] ? ' title="Quelle in den Planungsdaten: ' + esc(r[3]) + '"' : '') + '>' + esc(wert(r)) + '</td></tr>').join('') +
+    nf.map(k => '<tr><td>' + esc(k) + '</td><td class="nf">nicht festgelegt</td></tr>').join('') + '</table>';
+  else h += '<p class="note">In den Planungsdaten sind für dieses Teil keine Kennwerte festgelegt.</p>';
+  if (td.zu) { const id = String(td.zu).split('|').pop(), tn = S.idToNum.get(id);
+    h += '<p class="zu">Werte der Anlage ' + (tn === undefined ? esc(id) : '<button type="button" class="rel" data-n="' + tn + '" title="' + esc(id) + '">' + esc(I.name[tn]) + '</button>') + '</p>'; }
+  return h + '</div>';
+}
 async function renderAttr() {
   const box = $('#attr');
   panelsOnSelect();
@@ -2878,10 +2896,10 @@ async function renderAttr() {
   if (!I.body[n]) kv.push(['Körper', 'keiner, nur im Baum']);
   const mats = [...new Set(activePrims(n).map(([p]) => p.tga ? 'Systemfarbe' : String(matLabel(p)).replace(/\s*\(Darstellung\)/, '')))];
   if (mats.length) kv.push(['Darstellung ' + S.style, mats.join(', ') + (S.style === 'B' && !mats.every(m => m === 'Systemfarbe') ? ' (Darstellung, nicht in den Planungsdaten)' : '')]);
-  h += '<div id="aEasy"></div>';
-  h += '<table class="kv" style="margin-top:8px">' + kv.map(r => '<tr><td>' + esc(r[0]) + '</td><td' + (r[2] ? ' title="' + esc(r[2]) + '"' : '') + '>' + esc(r[1]) + '</td></tr>').join('') + '</table>';
+  h += '<div id="aTd"></div><div id="aEasy"></div>';
+  h += '<table class="kv" id="aKv" style="margin-top:8px">' + kv.map(r => '<tr><td>' + esc(r[0]) + '</td><td' + (r[2] ? ' title="' + esc(r[2]) + '"' : '') + '>' + esc(r[1]) + '</td></tr>').join('') + '</table>';
   if (BS.d && BS.of.has(n)) { const j = BS.of.get(n); secOpen.bs = secOpen.bs ?? true; h += sec('bs', 'Brandschutz', null, bsHtml(BS.d.o.k[j], BS.d.o.t[j])); }
-  h += '<div id="aCon"></div><div id="aBody" class="note" style="margin-top:8px">Attribute werden geladen</div>';
+  h += '<div id="aCon"></div><div id="aBody" class="note" style="margin-top:8px">Daten werden geladen</div>';
   box.innerHTML = h;
   if ($('#aCopy')) $('#aCopy').onclick = () => copyText(I.id[n], 'Nummer kopiert');
   if ($('#aGrp')) $('#aGrp').onclick = () => { const gi = groupInfo(n); if (!gi) return; if (S.selGrp === gi.id) select(n, false); else select(n, false, {group: gi.members.filter(m => S.vis[m] && S.idx.body[m]), gid: gi.id}); };
@@ -2891,6 +2909,7 @@ async function renderAttr() {
     const k = Math.floor(n / I.chunk), chunk = await getAttrChunk(k);
     if (S.last !== n) return;
     const a = chunk[String(n)];
+    if (a.td && $('#aTd')) $('#aTd').innerHTML = tdHtml(a.td);
     const m = v => dez(v / 100, 2);
     let b = '';
     if (a.ds && a.ds.length) b += sec('ds', 'Darstellungshinweis', null, a.ds.map(x => '<p class="dsl">' + esc(x) + '</p>').join(''));
@@ -2901,7 +2920,7 @@ async function renderAttr() {
       const tn = S.idToNum.get(r[1]);
       return '<div class="ci"><span class="lab" title="' + esc(r[0]) + '">' + esc(relLabel(r[0])) + '</span>' + (tn === undefined ? esc(r[1]) : '<button type="button" class="rel" data-n="' + tn + '" title="' + esc(r[1]) + '">' + esc(I.name[tn]) + '</button>') + '</div>';
     }).join(''));
-    b += sec('att', 'Attribute' + (TAB_LABEL[a.tab] ? ', ' + TAB_LABEL[a.tab] : ''), a.f.length, '<p class="note" title="Tabelle in den Planungsdaten: ' + esc(a.tab) + '">' + (INTERN ? 'Planungsstatus: ' + esc(I.raw_status[I.rawstatus[n]] || 'ohne Angabe') + '. ' : '') + 'Gespeicherte Werte der Planung. Leere Felder fehlen hier, leer ist nicht 0.</p><table class="kv">' +
+    b += sec('att', 'Alle Planungsdaten' + (TAB_LABEL[a.tab] ? ', ' + TAB_LABEL[a.tab] : ''), a.f.length, '<p class="note" title="Tabelle in den Planungsdaten: ' + esc(a.tab) + '">' + (INTERN ? 'Planungsstatus: ' + esc(I.raw_status[I.rawstatus[n]] || 'ohne Angabe') + '. ' : '') + 'Gespeicherte Werte der Planung. Leere Felder fehlen hier, leer ist nicht 0.</p><table class="kv">' +
       a.f.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</table>');
     if (a.pc && a.pc.length) b += sec('pc', 'Anlagenteil', null, '<table class="kv">' + a.pc.map(r => '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>').join('') + '</table>');
     $('#aBody').className = ''; $('#aBody').innerHTML = b;
@@ -2921,7 +2940,7 @@ function attrSize(n, a) {
   const rund = (a.ds || []).some(x => /Querschnitt: rund/.test(x)) || (ow === oh && (!iw || iw === ih) && !/Lüftung|Elektro|Daten|Gebäudeautomation|Sicherheit/.test(I.gewerke[I.gewerk[n]]));
   const dim = (w, h) => rund ? 'Ø ' + mm(w) + ' mm' : mm(w) + ' × ' + mm(h || w) + ' mm';
   const parts = []; if (ow && (!iw || ow >= iw)) parts.push(dim(ow, oh) + ' außen'); if (iw) parts.push(dim(iw, ih) + ' innen');
-  const tb = $('#attr table.kv'); if (!tb || !parts.length) return;
+  const tb = $('#aKv'); if (!tb || !parts.length) return;
   const tr = document.createElement('tr'); tr.innerHTML = '<td>Querschnitt</td><td title="Gespeicherte Werte der Planung">' + esc(parts.join(', ')) + '</td>'; tb.appendChild(tr);
 }
 $('#attr').addEventListener('toggle', e => { const d = e.target; if (d.dataset && d.dataset.k) secOpen[d.dataset.k] = d.open; }, true);

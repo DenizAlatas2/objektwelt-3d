@@ -534,7 +534,7 @@ body:not(.intern) .intern{display:none !important}
       <div id="cutBar" hidden role="group" aria-label="Schnitt"></div>
       <div id="navRow">
         <div id="nav" role="toolbar" aria-label="Kamera">
-          <span class="seg" id="navSeg" role="group" aria-label="Ziehen mit Maus oder Finger"><button type="button" id="bNavO" data-nm="orbit" aria-pressed="true" title="Ziehen dreht das Modell (Taste T wechselt)"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M13.2 8.6A5.2 5.2 0 1 1 11.4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11.8 1.6l-.2 2.8-2.8-.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Drehen</span></button><button type="button" id="bNavP" data-nm="pan" aria-pressed="false" title="Ziehen verschiebt das Bild (Taste T wechselt)"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1.5v13M1.5 8h13M8 1.5L6.2 3.3M8 1.5l1.8 1.8M8 14.5l-1.8-1.8M8 14.5l1.8-1.8M1.5 8l1.8-1.8M1.5 8l1.8 1.8M14.5 8l-1.8-1.8M14.5 8l-1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Verschieben</span></button></span>
+          <span class="seg" id="navSeg" role="group" aria-label="Ziehen mit Maus oder Finger"><button type="button" id="bNavO" data-nm="orbit" aria-pressed="true" title="Ziehen dreht das Modell (Taste T wechselt)"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M13.2 8.6A5.2 5.2 0 1 1 11.4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M11.8 1.6l-.2 2.8-2.8-.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Drehen</span></button><button type="button" id="bNavP" data-nm="pan" aria-pressed="false" title="Ziehen verschiebt das Bild. Mit gedrücktem Mausrad drehen. Taste T wechselt den Modus."><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1.5v13M1.5 8h13M8 1.5L6.2 3.3M8 1.5l1.8 1.8M8 14.5l-1.8-1.8M8 14.5l1.8-1.8M1.5 8l1.8-1.8M1.5 8l1.8 1.8M14.5 8l-1.8-1.8M14.5 8l-1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Verschieben</span></button></span>
           <span class="nsep" aria-hidden="true"></span>
           <button type="button" class="ib" id="bZoomOut" title="Herauszoomen (Taste Minus)" aria-label="Herauszoomen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
           <button type="button" class="ib" id="bZoomIn" title="Hineinzoomen (Taste Plus)" aria-label="Hineinzoomen"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M8 3v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
@@ -571,7 +571,7 @@ body:not(.intern) .intern{display:none !important}
     <section class="hpane" id="hp-bew" role="tabpanel" aria-labelledby="ht-bew">
     <h2>Mit Maus, Trackpad, Finger und Tastatur</h2>
     <table class="help">
-      <tr><td>Maus</td><td>Linke Taste ziehen dreht. Rechte oder mittlere Taste oder Umschalt, Strg oder Cmd und Ziehen verschiebt. Das Rad zoomt zum Mauszeiger. Doppelklick fliegt zum Objekt.</td></tr>
+      <tr><td>Maus</td><td>Im Modus Drehen dreht die linke Taste und die mittlere Taste verschiebt. Im Modus Verschieben dreht ein gedrücktes Mausrad vorübergehend. Die rechte Taste verschiebt, Umschalt, Strg oder Cmd wechselt die Funktion beim Ziehen. Das Rad zoomt zum Mauszeiger. Doppelklick fliegt zum Objekt.</td></tr>
       <tr><td>Trackpad</td><td>Zwei Finger wischen verschiebt. Spreizen und Zusammenziehen zoomt zum Zeiger. Drehen: Taste drücken und ziehen, oder Wahltaste (Alt) halten und mit zwei Fingern wischen, oder den Schalter Drehen unten im Bild nutzen.</td></tr>
       <tr><td>Touch</td><td>Ein Finger zieht. Was er tut, steht im Schalter Drehen und Verschieben unten im Bild. Zwei Finger verschieben, zoomen und drehen. Tippen wählt ein Objekt. Doppeltippen fliegt hin.</td></tr>
       <tr><td>Tastatur</td><td>Pfeiltasten verschieben. W A S D bewegen auf dem Boden, Q und E hoch und runter. Plus und Minus zoomen. Alt und Pfeile drehen. Mit Umschalt rennst du. Die Tasten wirken nach einem Klick ins Bild.</td></tr>
@@ -4030,6 +4030,7 @@ $('#tabs').addEventListener('keydown', e => {
 
 let drag = null;
 cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('mousedown', e => { if (e.button === 1) e.preventDefault(); });
 const ptrs = new Map(); let pinch = null;  // aktive Zeiger für Touch
 const pinchOf = () => { const [a, b] = [...ptrs.values()]; return {d: Math.hypot(a.x - b.x, a.y - b.y) || 1, x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, ang: Math.atan2(b.y - a.y, b.x - a.x)}; };
 /* Greifen: der Punkt unter dem Zeiger (Strahl auf den Körper, sonst Ebene durch das Ziel) bleibt beim Verschieben unter dem Zeiger,
@@ -4100,13 +4101,28 @@ function dragKind(e) {  // 'rotate' oder 'pan'
   if (S.mode === 'walk') return 'pan';  // Runde 7: Begehen, Ziehen geht (vor, zurück, seitlich)
   return S.nav === 'pan' ? 'pan' : 'rotate';
 }
+function wheelOrbit(e) {
+  return e.pointerType === 'mouse' && S.mode !== 'walk' && S.nav === 'pan' && (e.buttons & 4) !== 0;
+}
 function endPtr(e) {
-  ptrs.delete(e.pointerId); if (!ptrs.size) { document.body.classList.remove('ziehen'); setMarker(null); }
+  ptrs.delete(e.pointerId);
+  if (!ptrs.size) {
+    document.body.classList.remove('ziehen');
+    setMarker(null);
+    if (drag?.wheelOrbit) syncNavButtons();
+  }
   if (ptrs.size < 2) pinch = null;
   if (ptrs.size === 1 && drag) { const p = [...ptrs.values()][0]; drag.x = p.x; drag.y = p.y; drag.P = anchorAt(p.x, p.y); }
 }
 cv.addEventListener('pointercancel', e => { endPtr(e); if (!ptrs.size) drag = null; });
-cv.addEventListener('lostpointercapture', e => { if (ptrs.has(e.pointerId)) { endPtr(e); if (!ptrs.size) drag = null; } });
+cv.addEventListener('lostpointercapture', e => {
+  if (!ptrs.has(e.pointerId)) return;
+  if (drag?.multi && e.pointerType === 'mouse' && e.buttons !== 0) {
+    try { cv.setPointerCapture(e.pointerId); return; } catch (x) {}
+  }
+  endPtr(e);
+  if (!ptrs.size) drag = null;
+});
 for (const ev of ['pointerdown', 'wheel', 'gesturestart', 'touchstart']) cv.addEventListener(ev, () => { CAM.user = true; }, {capture: true, passive: true});
 cv.addEventListener('pointerdown', e => {
   e.preventDefault(); cv.focus({preventScroll: true}); try { cv.setPointerCapture(e.pointerId); } catch (x) {}
@@ -4114,7 +4130,8 @@ cv.addEventListener('pointerdown', e => {
   ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
   if (ptrs.size === 2) { pinch = pinchOf(); pinch.P = anchorAt(pinch.x, pinch.y); if (drag) { drag.moved = true; drag.multi = true; setMarker(null); } document.body.classList.add('ziehen'); return; }
   if (ptrs.size > 2) return;
-  drag = {x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, btn: e.button, kind: dragKind(e), touch: e.pointerType !== 'mouse', moved: false, add: e.ctrlKey || e.metaKey || e.shiftKey, P: null, t: performance.now()};
+  drag = {x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, btn: e.button, kind: dragKind(e), wheelOrbit: wheelOrbit(e), touch: e.pointerType !== 'mouse', moved: false, add: e.ctrlKey || e.metaKey || e.shiftKey, P: null, t: performance.now()};
+  if (drag.wheelOrbit) syncNavButtons('orbit');
   $('#tip').style.display = 'none'; AC.P = null;
   try { drag.P = anchorAt(e.clientX, e.clientY); } catch (x) {}
   document.body.classList.add('ziehen');
@@ -4133,14 +4150,26 @@ cv.addEventListener('pointermove', e => {
     p.P = pinch.P; pinch = p; camDirect(); return;
   }
   if (!drag) { if (e.pointerType === 'mouse') { if (MEAS.on) measHoverSoon(e); else hoverSoon(e); } return; }
+  const temporaryOrbit = wheelOrbit(e);
+  if (temporaryOrbit !== drag.wheelOrbit) {
+    drag.wheelOrbit = temporaryOrbit;
+    drag.multi = true;
+    drag.x = e.clientX;
+    drag.y = e.clientY;
+    drag.P = anchorAt(drag.x, drag.y);
+    setMarker(null);
+    syncNavButtons(temporaryOrbit ? 'orbit' : S.nav);
+    return;
+  }
   if (!drag.moved) {
     if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) <= (drag.touch ? 8 : 3)) return;
     drag.moved = true; WALK.arm && walkArm(false);
   }
   const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
   drag.x = e.clientX; drag.y = e.clientY;
-  if (S.mode === 'walk' && drag.kind === 'pan') walkPan(dx, dy);
-  else if (drag.kind === 'pan') { if (drag.P) panGrab(drag.P, e.clientX, e.clientY); else panPx(dx, dy); }
+  const kind = temporaryOrbit ? 'rotate' : drag.kind;
+  if (S.mode === 'walk' && kind === 'pan') walkPan(dx, dy);
+  else if (kind === 'pan') { if (drag.P) panGrab(drag.P, e.clientX, e.clientY); else panPx(dx, dy); }
   else { orbitPx(dx, dy, S.mode === 'walk' ? null : drag.P); if (drag.P && !drag.touch && S.mode !== 'walk') setMarker(drag.P); }
   camDirect();
 });
@@ -4571,9 +4600,12 @@ $('#help .htabs').addEventListener('keydown', e => {
   if (j < 0) return; e.preventDefault(); bs[j].focus(); helpTab(bs[j].id);
 });
 { let seen = false; try { seen = LS.get(WC.key) === '1'; } catch (e) {} if (!seen) showWelcome(true); }
+function syncNavButtons(nav = S.nav) {
+  document.querySelectorAll('#navSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.nm === nav ? 'true' : 'false'));
+}
 function setNav(m, quiet = true) {
   S.nav = m === 'pan' ? 'pan' : 'orbit';
-  document.querySelectorAll('#navSeg button').forEach(b => b.setAttribute('aria-pressed', b.dataset.nm === S.nav ? 'true' : 'false'));
+  syncNavButtons();
   try { LS.set('nav', S.nav); } catch (e) {}
   if (!quiet) showMsg(S.nav === 'pan' ? 'Ziehen verschiebt das Bild' : 'Ziehen dreht das Modell', 1800);
 }

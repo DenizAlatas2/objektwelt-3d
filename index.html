@@ -3166,6 +3166,13 @@ async function renderAttr() {
     if (a.td && $('#aTd')) $('#aTd').innerHTML = tdHtml(a.td);
     const m = v => dez(v / 100, 2);
     let b = '';
+    if (a.tab === 'fire_compartment') {
+      const fields = new Map(a.f);
+      const finding = fields.get('finding');
+      if (fields.get('status') === 'smoke_section_gavo_area_limit_exceeded_evidence_open' && finding) {
+        b += '<p class="note" data-fire-review>' + esc(finding) + '</p>';
+      }
+    }
     if (roomId && !floorDetail) {
       const finish = a.f.find(([key]) => key === 'floor_finish')?.[1];
       const value = [...$('#aKv').rows].find(row => row.cells[0].textContent === 'Bodenbelag')?.cells[1];

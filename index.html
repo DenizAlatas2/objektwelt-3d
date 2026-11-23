@@ -1429,15 +1429,27 @@ const TEXMAP = {
   'tga:tga_electrical': T5('Metal012', 1.0, 0.8, 0.6, 1, null, 0.5), 'tga:tga_data': T5('Metal012', 1.0, 0.8, 0.6, 1, null, 0.5), 'tga:dev': T5('Metal027', 1.0, 0.85, 0.5, 1, null, 0.45),
 };
 for (const g of ['tga_automation', 'tga_safety', 'tga_water', 'tga_drainage', 'tga_sonst', 'tga_lift', 'tga_fire_fighting', 'tga_huelle']) TEXMAP['tga:' + g] = T5('Metal027', 1.0, 0.9, 0.45, 1, null, 0.45);
-/* Böden je Raumnutzung (Runde 5, Darstellung): die Nutzung des Raums wählt den Belag. Ohne Eintrag bleibt der Belag der Flächenart
-   (Nutzfläche Teppich, Verkehrsfläche Kautschuk, Sanitär Fliesen, Technik Beschichtung). Die Planungsdaten nennen keinen Belag. */
+/* Belegte Beläge haben in Stil B Vorrang. Übrige Böden werden nach Raumnutzung dargestellt. */
+const FLOOR_TILE = 6, FLOOR_SEALED = 7, FLOOR_OS8 = 8;
+const OS8_DETAILS = {slot: FLOOR_OS8, label: 'Oberflächenschutz OS 8', source: 'Tiefgaragenplanung'};
+const FLOOR_DETAILS = {
+  W01_SPC_0109: {slot: FLOOR_TILE, label: 'Feinsteinzeug', source: 'Raumbuch',
+    treatment: 'Nicht belegt', cleaning: 'Maschinelle Sonderreinigung dokumentiert'},
+  W01_SPC_8022: {slot: FLOOR_SEALED, label: 'Versiegelter Industrieboden', source: 'Planung für die Kälteverteilung',
+    treatment: 'Versiegelung vorgesehen, System offen'},
+  W01_SPC_9115: OS8_DETAILS, W01_SPC_9116: OS8_DETAILS, W01_SPC_9117: OS8_DETAILS,
+  W01_GST_0004: {...OS8_DETAILS, treatment: 'WU-Beton mit OS 8, XF4 im offenen Rampenteil zu bestätigen'},
+};
 const FLOOR_SEL = new Set(['boden_nuf', 'boden_vf']);
 const FLOOR_FIN = [null,
   [T5('Wood026', 1.4, 0.78, 0.8, 1, '#a68a68', 0.8), '#a68a68', 0.55],      // 1 Parkett Eiche
   [T5('Tiles133A', 3.0, 0.5, 1.0, 1, '#d6dad8'), '#d6dad8', 0.32],          // 2 Fliesen hell
   [T5('Rubber001', 1.2, 0.9, 0.45, 1, '#7f8c82', 0.3), '#7f8c82', 0.6],      // 3 Linoleum graugrün
   [T5('Concrete048', 2.0, 0.85, 0.6, 1, '#979b98', 0.55), '#979b98', 0.7],   // 4 Beschichtung grau
-  [T5('Concrete046', 1.2, 0.6, 0.6, 1, '#bcb7ad', 0.7), '#bcb7ad', 0.45]];   // 5 Betonwerkstein
+  [T5('Concrete046', 1.2, 0.6, 0.6, 1, '#bcb7ad', 0.7), '#bcb7ad', 0.45],
+  [T5('Tiles133A', 3.0, 0.7, 0.75, 0.8, '#c6c5bf'), '#c6c5bf', 0.42],       // Feinsteinzeug
+  [T5('Concrete048', 2.0, 1, 0.22, 0.65, '#9a9d97', 0.28), '#9a9d97', 0.50], // versiegelter Industrieboden
+  [T5('Concrete047A', 2.0, 1, 0.65, 0.8, '#888c8a', 0.35), '#888c8a', 0.72]]; // OS 8
 const FLOOR_USE = {
   meeting: 1, demonstration: 1, sample_display: 1, sample_consultation: 1, dining: 1, training: 1, tutorial: 1,
   staff_break: 2, cleaning: 2, cleaning_storage: 2, food_preparation: 2, dishwashing: 2, food_waste_holding: 2, cold_storage: 2, food_storage: 2,
@@ -1804,12 +1816,11 @@ void owTexSample(vec3 wp) {
 #endif
   owTxC = texture(owTC, p); owTxN = texture(owTNR, p); owTxA = 1.0;
 }`;
-// Runde 5: mehrere Werkstoffe in einem Zeichenaufruf (Technik Leitungen und Geräte, Böden je Raumnutzung). Je Ecke eine Nummer 0..5,
-// 0 ist der Werkstoff selbst, 1..5 kommen aus kleinen Tabellen (Farbe, Metall, Rauheit, Textur). Spart Zeichenaufrufe.
-const SELN = 6;
+// Mehrere Werkstoffe in einem Zeichenaufruf. Der Slot 0 nutzt den Grundwerkstoff.
+const SELN = FLOOR_FIN.length;
 const TEX_GLSL_SEL = TEX_GLSL.replace('uniform float owTL; uniform float owTS; uniform float owTT; uniform float owTNs; uniform float owTRs; uniform float owTK; uniform vec3 owTB;',
   'uniform float owTL1; uniform float owTS1; uniform float owTT1; uniform float owTNs1; uniform float owTRs1; uniform float owTK1; uniform vec3 owTB1;\n' +
-  'uniform float owSTL[6]; uniform float owSTS[6]; uniform float owSTT[6]; uniform float owSTN[6]; uniform float owSTR[6]; uniform float owSTK[6];\n' +
+  `uniform float owSTL[${SELN}]; uniform float owSTS[${SELN}]; uniform float owSTT[${SELN}]; uniform float owSTN[${SELN}]; uniform float owSTR[${SELN}]; uniform float owSTK[${SELN}];\n` +
   'float owTL, owTS, owTT, owTNs, owTRs, owTK; vec3 owTB;\n' +
   'void owSelTex(int k) { if (k > 0) { owTL = owSTL[k]; owTS = owSTS[k]; owTT = owSTT[k]; owTNs = owSTN[k]; owTRs = owSTR[k]; owTK = owSTK[k]; owTB = owSC[k]; } else { owTL = owTL1; owTS = owTS1; owTT = owTT1; owTNs = owTNs1; owTRs = owTRs1; owTK = owTK1; owTB = owTB1; } }');
 function selMake() {
@@ -1852,7 +1863,7 @@ function attachPattern(mat, kind, glass, tex = null, sel = null) {
     const fl = tu && tex[8] || '';
     sh.vertexShader = 'varying vec3 vWP;\n' + (fl.includes('s') ? 'attribute float owAx; varying float vAx;\n' : '') + (sel ? 'attribute float owSel; varying float vSel;\n' : '') + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWP = (modelMatrix * vec4(transformed, 1.0)).xyz;' + (fl.includes('s') ? ' vAx = owAx;' : '') + (sel ? ' vSel = owSel;' : ''));
     let fs = '#define OW_KIND ' + (kind || 0) + '\n' + PAT_GLSL + '\n';
-    if (sel) { fs += '#define OW_SEL 1\nvarying float vSel; uniform vec3 owSC[6]; uniform float owSM[6]; uniform float owSR[6];\n'; Object.assign(sh.uniforms, sel.u); }
+    if (sel) { fs += `#define OW_SEL 1\nvarying float vSel; uniform vec3 owSC[${SELN}]; uniform float owSM[${SELN}]; uniform float owSR[${SELN}];\n`; Object.assign(sh.uniforms, sel.u); }
     if (fl.includes('s')) { fs += '#define OW_SEAM 1\nvarying float vAx;\nuniform float owSB;\n'; sh.uniforms.owSB = OWU.sb; }
     if (fl.includes('a')) fs += '#define OW_ALPHA 1\n';
     if (fl.includes('e')) fs += '#define OW_EMB 1\n';
@@ -1893,7 +1904,14 @@ function attachPattern(mat, kind, glass, tex = null, sel = null) {
 #endif
   }
 #endif
-  if (owOn > 0.5 && !owT) diffuseColor.rgb *= owPattern(vWP);
+  if (owOn > 0.5 && !owT) {
+#ifdef OW_SEL
+    if (owK == ${FLOOR_TILE}) diffuseColor.rgb *= owSlab(vWP.xz, vec2(0.6), 0.0, 0.003, 0.22, 0.025);
+    else if (owK != ${FLOOR_SEALED} && owK != ${FLOOR_OS8}) diffuseColor.rgb *= owPattern(vWP);
+#else
+    diffuseColor.rgb *= owPattern(vWP);
+#endif
+  }
 #ifdef OW_SEAM
   if (owOn > 0.5 && owSB > 0.5) {  // Stoßfugen mit Flansch alle 1,25 m quer zur Kanalachse, verblassen mit dem Abstand
     float owSc = vAx < 0.5 ? vWP.x : vAx < 1.5 ? vWP.z : vWP.y, owFw = fwidth(owSc), owDm = abs(fract(owSc / 1.25 + 0.5) - 0.5) * 1.25;
@@ -2012,10 +2030,24 @@ function addPrim(pr, f, rec) {
   } else if (pr.selAttr) {  // Außenanlagen: mehrere Werkstoffe in einem Zeichenaufruf
     geo.setAttribute('owSel', new THREE.BufferAttribute(pr.selAttr, 1)); sel = selMake();
     for (const [k, t, col, rough, mt] of pr.selSlots) selSet(sel, k, t, col, Math.max(0.25, rough), envTex ? Math.min(mt, 0.6) : 0);
-  } else if ((f.style || 'A') === 'B' && pr.oid && FLOOR_SEL.has(pr.mat.key || String(pr.mat.name).split('|')[1])) {  // Böden je Raumnutzung
-    const I = S.idx, sv = new Float32Array(nV); let any = false;
-    for (let v = 0; v < nV; v++) { const o = pr.oid[v]; const k = o < S.worldN ? FLOOR_USE[I.sub[o]] || 0 : 0; sv[v] = k; if (k) any = true; }
-    if (any) { geo.setAttribute('owSel', new THREE.BufferAttribute(sv, 1)); sel = selMake(); for (let k = 1; k < SELN; k++) { const d = FLOOR_FIN[k]; selSet(sel, k, d[0], d[1], d[2]); } }
+  } else if ((f.style || 'A') === 'B' && pr.oid) {
+    const I = S.idx, key = pr.mat.key || String(pr.mat.name).split('|')[1];
+    const byUse = FLOOR_SEL.has(key);
+    if (byUse || key === 'boden_tf' || key === 'tg_fahrbahn') {
+      const slots = new Float32Array(nV);
+      let any = false;
+      for (let v = 0; v < nV; v++) {
+        const o = pr.oid[v];
+        const slot = FLOOR_DETAILS[I.id[o]]?.slot ?? (byUse && o < S.worldN ? FLOOR_USE[I.sub[o]] || 0 : 0);
+        slots[v] = slot;
+        any ||= slot !== 0;
+      }
+      if (any) {
+        geo.setAttribute('owSel', new THREE.BufferAttribute(slots, 1));
+        sel = selMake();
+        for (let k = 1; k < SELN; k++) selSet(sel, k, ...FLOOR_FIN[k]);
+      }
+    }
   }
   const texE = pr.mat.texKey ? TEXMAP[pr.mat.texKey] : null;
   if (texE && texE[8] && texE[8].includes('s')) {  // Achse je Objekt (längste waagrechte Seite, sonst senkrecht) für die Stoßfugen
@@ -3089,13 +3121,24 @@ async function renderAttr() {
     kv.push(['Raumnummer', roomSign ? roomSign.room_number : roomId[1]]);
     kv.push(['Raumname', roomSign ? roomSign.room_name : I.name[n]]);
   }
+  const floorDetail = FLOOR_DETAILS[I.id[n]];
+  if (floorDetail) {
+    kv.push(['Bodenbelag', floorDetail.label, floorDetail.source]);
+    kv.push(['Quelle Bodenbelag', floorDetail.source]);
+    kv.push(['Hersteller und Produkt', 'Nicht belegt']);
+    if (floorDetail.treatment) kv.push(['Oberflächenbehandlung', floorDetail.treatment]);
+    if (floorDetail.cleaning) kv.push(['Reinigung', floorDetail.cleaning]);
+  } else if (roomId) {
+    kv.push(['Bodenbelag', 'Nicht belegt', 'Die Textur im Modell folgt der Raumnutzung.']);
+  }
   if (objectDetail?.raumnummer) kv.push(['Raumnummer', objectDetail.raumnummer]);
   if (sysi && sysi.id) kv.push(['Anlage', sysi.label]);
   kv.push(['Kostengruppe', kgName(n), S.man.object_cost_groups?.[I.id[n]] ? 'Zuordnung aus den Planungsdaten' : 'Für die Ansicht aus Ebene, Gewerk, Art und Anlage abgeleitet']);
   if (INTERN) kv.push(['Status', I.statuses[I.status[n]]]);
   if (!I.body[n]) kv.push(['Körper', 'keiner, nur im Baum']);
   const mats = [...new Set(activePrims(n).map(([p]) => p.tga ? 'Systemfarbe' : String(matLabel(p)).replace(/\s*\(Darstellung\)/, '')))];
-  if (mats.length) kv.push(['Darstellung ' + S.style, mats.join(', ') + (S.style === 'B' && !mats.every(m => m === 'Systemfarbe') ? ' (Darstellung, nicht in den Planungsdaten)' : '')]);
+  if (floorDetail && S.style === 'B') kv.push(['Textur im Modell', 'Neutrales Materialmuster']);
+  else if (mats.length) kv.push(['Darstellung ' + S.style, mats.join(', ') + (S.style === 'B' && !mats.every(m => m === 'Systemfarbe') ? ' (Darstellung, nicht in den Planungsdaten)' : '')]);
   h += '<div id="aTd"></div><div id="aEasy"></div>';
   h += '<table class="kv" id="aKv" style="margin-top:8px">' + kv.map(r => '<tr><td>' + esc(r[0]) + '</td><td' + (r[2] ? ' title="' + esc(r[2]) + '"' : '') + '>' + esc(r[1]) + '</td></tr>').join('') + '</table>';
   if (BS.d && BS.of.has(n)) { const j = BS.of.get(n); secOpen.bs = secOpen.bs ?? true; h += sec('bs', 'Brandschutz', null, bsHtml(BS.d.o.k[j], BS.d.o.t[j])); }
@@ -3112,7 +3155,18 @@ async function renderAttr() {
     if (a.td && $('#aTd')) $('#aTd').innerHTML = tdHtml(a.td);
     const m = v => dez(v / 100, 2);
     let b = '';
-    if (a.ds && a.ds.length) b += sec('ds', 'Darstellungshinweis', null, a.ds.map(x => '<p class="dsl">' + esc(x) + '</p>').join(''));
+    if (roomId && !floorDetail) {
+      const finish = a.f.find(([key]) => key === 'floor_finish')?.[1];
+      const value = [...$('#aKv').rows].find(row => row.cells[0].textContent === 'Bodenbelag')?.cells[1];
+      if (finish && value) {
+        value.textContent = finish;
+        value.title = 'Planungsdaten';
+      }
+    }
+    if (a.ds && a.ds.length) {
+      const notes = roomId ? a.ds.map(x => x.replace(/ Der Belag ist Darstellung[^.]*\(floor_finish bleibt NULL\)\./, '')) : a.ds;
+      b += sec('ds', 'Darstellungshinweis', null, notes.map(x => '<p class="dsl">' + esc(x) + '</p>').join(''));
+    }
     const bb = I.bbox[n];
     if (I.body[n]) b += sec('geo', 'Geometrie', null, '<table class="kv">' + a.geo.map(g => '<tr><td>' + esc(g[0]) + '</td><td>' + esc(g[1]) + '</td></tr>').join('') +
       '<tr><td>Hüllquader in m</td><td>X ' + m(bb[0]) + ' bis ' + m(bb[3]) + '<br>Y ' + m(bb[1]) + ' bis ' + m(bb[4]) + '<br>Z ' + m(bb[2]) + ' bis ' + m(bb[5]) + '</td></tr></table>');

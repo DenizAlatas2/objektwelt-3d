@@ -2,7 +2,7 @@
 <style>
 :root{
   --bg:#f3f4f6; --panel:#ffffff; --panel2:#f1f2f4; --text:#1d2127; --muted:#5f6772; --line:#dde0e5; --accent:#c2410c; --accent-text:#ffffff;
-  --hover:#eceef1; --scene:#e8eaed; --r:6px; --h:28px; --fs:13px; --fs-s:12px; --sc:1; --tap:34px; --field-line:#8a919c; color-scheme:light dark;
+  --hover:#eceef1; --scene:#e8eaed; --r:6px; --h:28px; --fs:13px; --fs-s:12px; --tap:34px; --field-line:#8a919c; color-scheme:light dark;
 }
 :root[data-theme="light"]{color-scheme:light}
 @media (prefers-color-scheme: dark){
@@ -18,7 +18,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none !important}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:var(--fs)/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-#app{--lw:clamp(260px,22vw,calc(330px*var(--sc)));--rw:clamp(280px,24vw,calc(360px*var(--sc)));display:grid;grid-template-columns:var(--lw) minmax(0,1fr) var(--rw);grid-template-rows:auto minmax(0,1fr) 24px;height:100%}
+#app{--lw:clamp(260px,22vw,330px);--rw:clamp(280px,24vw,360px);display:grid;grid-template-columns:var(--lw) minmax(0,1fr) var(--rw);grid-template-rows:auto minmax(0,1fr) 24px;height:100%}
 #app.l-off{--lw:0px} #app.l-off #left{display:none}
 #app.r-off{--rw:0px} #app.r-off #right{display:none}
 /* AP-11: schmale Breiten (bis 1400 px): Leisten liegen über dem 3D-Bild, das Bild behält seine Größe */
@@ -286,8 +286,6 @@ canvas.arm{cursor:crosshair !important}
 .help td:first-child{white-space:nowrap;padding-right:12px}
 @media (pointer:coarse),(max-width:900px){ #floors .fr button.only{height:44px;padding:0 10px} .fchev{height:44px;width:44px} .fsp{width:44px} #floors .ft{min-height:44px} .row button.only{height:44px;padding:0 10px} .kgh{min-height:44px} .mb .mi{min-height:44px} }
 @media (max-width:700px){ .navlab{display:none} #hidPanel,#selMenu{max-height:36vh}  #acts{padding:4px} }
-@media (min-width:1900px){ :root{--fs:15px;--fs-s:14px;--sc:1.25;--h:32px;--tap:40px} }
-@media (min-width:2500px){ :root{--fs:18px;--fs-s:16px;--sc:1.5;--h:38px;--tap:48px} }
 /* ===== all out: ruhige Oberfläche. Schwebende Teile im Bild mit gleicher Form (Rundung 10 px, Schatten, Rand),
    Werkzeugleiste unten in der Mitte, Abstände in Schritten von 4 px. ===== */
 :root{--rf:10px;--shadow:0 1px 2px rgba(16,24,40,.06),0 6px 18px rgba(16,24,40,.10);--glass:rgba(255,255,255,.94);--tb:36px}
@@ -353,7 +351,6 @@ header h1{font-size:14px;letter-spacing:.01em;margin-right:10px}
 @media (pointer:coarse),(max-width:900px){ :root{--tb:44px} #cutBar .mi{min-height:44px} #welcome .wf button{height:44px} #nav .seg{padding:0} #nav .seg button{height:var(--tb)} }
 @media (max-width:700px){ #welcome{width:100%;align-self:stretch} #nav{width:auto;justify-content:center;max-width:100%} #navRow{flex-direction:row;align-items:flex-end} #nav .seg .lbl{display:none} #nav .seg button{padding:0 10px} #cutBar{display:flex} #cutBar[hidden]{display:none} }
 #nav.nlc .seg .lbl{display:none} #nav.nlc .seg button{padding:0 10px} #nav.nlc2{flex-wrap:wrap;justify-content:center;max-width:100%} #nav.nlc2 .nsep{display:none}
-@media (min-width:1900px){ :root{--tb:40px} }
 /* Erstkarte kompakt (19.11.): eine Zeile am unteren Rand, aufklappbar, auf dem Telefon nur ein Satz */
 #welcome{padding:3px 3px 3px 12px;width:auto;max-width:min(760px,100%);align-self:center}
 #welcome .wh{margin:0;min-height:34px;gap:10px;font-size:var(--fs-s)}
@@ -363,7 +360,16 @@ header h1{font-size:14px;letter-spacing:.01em;margin-right:10px}
 #welcome.open .wl{visibility:hidden}
 #wcBody{margin:4px 8px 0 0}
 @media (pointer:coarse),(max-width:600px){ #welcome .wt,#welcome .wm{display:none} #welcome{align-self:stretch;max-width:100%} #welcome .wh{min-height:44px} }
-@media (min-width:2500px){ :root{--tb:48px} }
+/* Breite Desktopfenster. Schrift und Bedienhöhen folgen der Fensterhöhe, die Seitenleisten bleiben kompakt. */
+@media (pointer:fine) and (min-width:1900px){
+  :root{
+    --fs:clamp(13px,calc(11.5px + .167vh),14.5px);
+    --fs-s:clamp(12px,calc(10.5px + .167vh),13.5px);
+    --h:clamp(28px,calc(24px + .444vh),33px);
+    --tap:clamp(34px,calc(30px + .444vh),39px);
+    --tb:clamp(36px,calc(32px + .444vh),41px);
+  }
+}
 /* Messen */
 :root{--meas:#0b63f6}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){--meas:#5b9dff} }

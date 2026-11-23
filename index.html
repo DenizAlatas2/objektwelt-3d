@@ -695,7 +695,7 @@ const DATA = 'data/';
 const S = {
   man: null, idx: null, N: 0, vis: null, idToNum: new Map(), hay: null,
   floorOn: new Set(), extraOn: new Set(), layerOn: {}, layerOp: {}, gewOff: new Set(), sysOff: new Set(), artOff: new Set(), statOff: new Set(), leafOff: new Set(), kgOff: new Set(), nav: 'orbit', wheelMode: 'auto', zoomSpeed: 1, restMode: 'ghost', conDepth: '2', menuOpen: false, role: 0, roleRest: 'ghost', roleOn: [], hidOpen: false,
-  hidden: new Set(), isolate: null, ghost: false, xray: false, gv: null, colorMode: 'material', sel: [], selSet: new Set(), last: -1, selGrp: -1,
+  hidden: new Set(), isolate: null, kindView: null, ghost: false, xray: false, gv: null, colorMode: 'material', sel: [], selSet: new Set(), last: -1, selGrp: -1,
   files: new Map(), prims: [], objPrims: new Map(), mode: 'orbit', theme: 'auto',
   clip: {x: {on: false, pos: 36, keep: 'lo'}, y: {on: false, pos: 24, keep: 'lo'}, z: {on: false, pos: 12, keep: 'lo'}},
   cam: {target: new THREE.Vector3(36, 6, -24), yaw: 0.6, pitch: 0.7, dist: 110, fov: 50},
@@ -2248,7 +2248,7 @@ function computeVis() {
   let floorMask = 0; for (const i of S.floorOn) floorMask |= 1 << i;
   const grp = I.groups;
   const layerVis = I.layers.map(l => !!S.layerOn[l.key]);
-  const iso = S.isolate, hid = S.hidden, gv = S.gv, ghostAll = S.ghost, xr = S.xray;
+  const iso = S.isolate, hid = S.hidden, gv = S.gv, ghostAll = S.ghost, xr = S.xray, kindView = currentKindView();
   const lo = new Uint8Array(LF.list.length); for (const id of S.leafOff) lo[id] = 1;
   const kgo = new Uint8Array(KG.list.length + 1); for (const k of S.kgOff) kgo[k] = 1; const kgOf = KG.of;
   const lfOf = LF.of, role = S.role, rof = LF.roleOf, rGhost = roleGhostOn();
@@ -2272,7 +2272,7 @@ function computeVis() {
     const rm = role > 0 && base && rof[i] !== role;  // Gewerk-Rolle: nicht dieses Gewerk
     if (ok && (hid.has(i) || (iso && !iso.has(i)) || rm)) ok = false;
     vis[i] = ok ? 1 : 0;
-    gv[i] = !ok && (ghostAll || (xr && base) || (rm && rGhost && !hid.has(i))) ? 1 : 0;  // blass: alles Ausgeblendete (Schalter), beim Röntgen der Rest, in der Gewerk-Rolle das übrige Gebäude
+    gv[i] = !ok && (!kindView || iso.has(i)) && (ghostAll || (xr && base) || (rm && rGhost && !hid.has(i))) ? 1 : 0;  // blass: alles Ausgeblendete (Schalter), beim Röntgen der Rest, in der Gewerk-Rolle das übrige Gebäude
     if (ok && I.body[i]) cnt++;
   }
   S.visCount = cnt;
@@ -3240,8 +3240,8 @@ async function showNet(n) {
   const note = INTERN && all.size > net.size ? ' Mit zurückgestellten Verbindungen wären es ' + all.size.toLocaleString('de') + '. Dafür im Filter den Status zurückgestellt einschalten.' : '';
   await showSet(net, n, 'Netz', note);
 }
-async function showSet(set, n, what, note = '') {
-  // Geschosse und Ebenen der Objekte laden, Gewerk, Anlage und Objektart freigeben, dann Menge wählen und röntgen
+function enableSet(set) {
+  // Geschosse, Ebenen und Filter für die gewünschte Menge freigeben.
   const I = S.idx;
   let changed = false;
   for (const o of set) {
@@ -3256,7 +3256,11 @@ async function showSet(set, n, what, note = '') {
     const lf = LF.of[o]; if (lf >= 0 && S.leafOff.has(lf)) { S.leafOff.delete(lf); changed = true; }
     if (S.role && LF.roleOf[o] !== S.role) { S.role = 0; syncRoleUI(); changed = true; }
   }
-  if (changed) { buildFilterUI(); showMsg(what + ' wird geladen', 0); await syncLoads(); }
+  return changed;
+}
+async function showSet(set, n, what, note = '') {
+  const I = S.idx;
+  if (enableSet(set)) { buildFilterUI(); showMsg(what + ' wird geladen', 0); await syncLoads(); }
   S.sel = [...set].filter(o => o !== n); S.sel.push(n); S.selSet = new Set(S.sel); S.last = n; S.selGrp = -1;
   S.isolate = new Set(set); S.xray = S.restMode !== 'hide';
   applyVisibility(); renderAttr(); renderTree(true);
@@ -3285,6 +3289,51 @@ function groupName(g) {
   const L = LF.list[g.id]; return (L.gew === 'Technik ohne System' ? 'ohne System' : L.gew) + ', ' + (L.cls === 'L' ? 'Leitungen' : 'Anlagen');
 }
 function selGroups() { const m = new Map(); for (const n of S.sel) { const g = groupOf(n); m.set(g.t + g.id, g); } return [...m.values()]; }
+function currentKindView() {
+  return S.kindView?.shown === S.isolate ? S.kindView : null;
+}
+function applyKindView(view, set) {
+  S.kindView = view;
+  view.shown = S.isolate = set;
+  S.xray = false;
+  if (enableSet(set)) { buildFilterUI(); syncLoads(); }
+  applyVisibility(); renderTree(true);
+}
+function showOnlyKind() {
+  const gs = selGroups(); if (!gs.length) return;
+  const arts = new Set(gs.filter(g => g.t === 'art').map(g => g.id));
+  const leaves = new Set(gs.filter(g => g.t === 'leaf').map(g => g.id));
+  const I = S.idx, base = new Set();
+  for (let i = 0; i < S.N; i++) {
+    if (I.body[i] && (arts.has(I.art[i]) || leaves.has(LF.of[i]))) base.add(i);
+  }
+  if (!base.size) { showMsg('Keine gezeichneten Bauteile dieser Art.'); return; }
+  S.menuOpen = false;
+  applyKindView({base, connected: false, loading: false}, new Set(base));
+}
+async function toggleKindConnections() {
+  const view = currentKindView(); if (!view || view.loading) return;
+  if (view.connected) {
+    view.connected = false;
+    applyKindView(view, new Set(view.base));
+    return;
+  }
+  view.loading = true; renderActs();
+  const graph = await loadGraph();
+  view.loading = false;
+  if (view !== currentKindView()) return;
+  if (!graph.none) {
+    const held = S.idx.status_keys.indexOf('held');
+    const set = bfsDepth(view.base, 1, held >= 0 && !S.statOff.has(held) ? 2 : 1);
+    for (const i of set) if (!S.idx.body[i] || S.statOff.has(S.idx.status[i]) && !view.base.has(i)) set.delete(i);
+    if (set.size > view.base.size) {
+      view.connected = true;
+      applyKindView(view, set);
+      return;
+    }
+  }
+  renderActs(); showMsg('Keine gezeichneten Anschlüsse.');
+}
 function hideKind() {
   const gs = selGroups(); if (!gs.length) return;
   for (const g of gs) { if (g.t === 'art') S.artOff.add(g.id); else S.leafOff.add(g.id); }
@@ -3297,13 +3346,14 @@ function offCount() { return S.hidden.size + S.artOff.size + S.leafOff.size + S.
 function showAll() { S.hidden.clear(); S.isolate = null; S.xray = false; S.kgOff.clear(); S.gewOff.clear(); S.sysOff.clear(); S.artOff.clear(); S.leafOff.clear(); buildFilterUI(); applyVisibility(); renderTree(true); }
 function renderActs() {
   const box = $('#acts'); if (!S.idx) return;
-  const k = S.sel.length, noff = offCount(), off = !!(noff || S.isolate);
+  const k = S.sel.length, noff = offCount(), off = !!(noff || S.isolate), kind = currentKindView();
   box.classList.toggle('on', !!(k || off)); $('#stage').classList.toggle('acts-on', !!(k || off));
   let h = '';
   if (k) h += '<span class="cnt">' + k.toLocaleString('de') + ' gewählt</span><button data-a="zoom" title="Auf Auswahl zoomen (F)">Zoom</button>' +
     '<button data-a="hide" title="Nur die Auswahl ausblenden (H)">Ausblenden</button>' +
-    '<button data-a="iso" title="Nur die Auswahl zeigen, nochmal klicken hebt auf (I)" aria-pressed="' + !!(S.isolate && !S.xray) + '">Nur dies zeigen</button>' +
-    '<button data-a="menu" title="Alle dieser Art ausblenden, gleiche Anlage, Verbundenes, Kostengruppe" aria-expanded="' + !!S.menuOpen + '" aria-pressed="' + !!S.menuOpen + '">Mehr</button>';
+    '<button data-a="iso" title="Nur die Auswahl zeigen, nochmal klicken hebt auf (I)" aria-pressed="' + !!(S.isolate && !S.xray && !kind) + '">Nur dies zeigen</button>' +
+    '<button data-a="menu" title="Weitere Aktionen zur Auswahl" aria-expanded="' + !!S.menuOpen + '" aria-pressed="' + !!S.menuOpen + '">Mehr</button>';
+  if (kind) h += '<button data-a="kindCon" title="Direkt verbundene Leitungen und Bauteile" aria-pressed="' + kind.connected + '"' + (kind.loading ? ' disabled' : '') + '>Anschlüsse</button>';
   if (off) h += (noff ? '<button data-a="list" title="Liste der ausgeblendeten Elemente" aria-pressed="' + S.hidOpen + '">Ausgeblendet (' + noff.toLocaleString('de') + ')</button>' : '') +
     '<button data-a="all" title="Alles Ausgeblendete und Isolierte wieder zeigen (Umschalt H)">Alles zeigen</button>';
   if (k) h += '<button class="ib" data-a="clr" title="Auswahl aufheben (Esc)" aria-label="Auswahl aufheben">' + IC.close + '</button>';
@@ -3324,6 +3374,7 @@ function renderMenu() {
   const kgTxt = kg ? (kg.code ? 'KG ' + kg.code + ' ' : '') + kg.label + ', ' + kg.nAll.toLocaleString('de') : '';
   const mk = (a, t, sub, dis, tip) => '<button type="button" class="mi" data-a="' + a + '"' + (dis ? ' disabled' : '') + (tip ? ' title="' + esc(tip) + '"' : '') + '><span>' + esc(t) + '</span>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</button>';
   box.innerHTML = '<div class="mh"><span>Mehr zur Auswahl</span><span class="sp"></span><button type="button" class="ib" data-a="menu" aria-label="Menü schließen" title="Schließen">' + IC.close + '</button></div><div class="mb">' +
+    mk('onlyKind', 'Nur diese Art zeigen', kindTxt, false, kindTxt) +
     mk('kind', 'Alle dieser Art ausblenden', kindTxt, false, kindTxt) +
     mk('xray', S.xray ? 'Röntgen beenden' : 'Röntgen') +
     '<div class="mr mz"><h3>Zeigen</h3><span class="sp"></span><span class="muted">Rest</span><span class="seg" id="mRest" role="group" aria-label="Der Rest"><button type="button" data-r="ghost" aria-pressed="' + (S.restMode !== 'hide') + '" class="' + (S.restMode !== 'hide' ? 'act' : '') + '">blass</button><button type="button" data-r="hide" aria-pressed="' + (S.restMode === 'hide') + '" class="' + (S.restMode === 'hide' ? 'act' : '') + '">aus</button></span></div>' +
@@ -3369,7 +3420,7 @@ async function showKGOf() {
   const set = new Set(); for (let i = 0; i < S.N; i++) if (KG.of[i] === k) set.add(i);
   await showSet(set, n, (KG.list[k].code ? 'KG ' + KG.list[k].code + ' ' : '') + KG.list[k].label);
 }
-const ACT = {zoom: zoomSel, iso: isolateSel, xray: () => { xraySel(); renderMenu(); }, hide: () => { S.menuOpen = false; hideSel(); }, kind: () => { S.menuOpen = false; hideKind(); }, all: () => { S.menuOpen = false; showAll(); },
+const ACT = {zoom: zoomSel, iso: isolateSel, onlyKind: showOnlyKind, kindCon: toggleKindConnections, xray: () => { xraySel(); renderMenu(); }, hide: () => { S.menuOpen = false; hideSel(); }, kind: () => { S.menuOpen = false; hideKind(); }, all: () => { S.menuOpen = false; showAll(); },
   list: () => { S.hidOpen = !S.hidOpen; if (S.hidOpen) S.menuOpen = false; renderActs(); }, clr: () => select(-1), menu: () => { S.menuOpen = !S.menuOpen; if (S.menuOpen) S.hidOpen = false; renderActs(); }, sys: showSystemOf, con: showConnected, kgs: showKGOf};
 $('#acts').onclick = $('#selMenu').onclick = e => { const b = e.target.closest('button[data-a]'); if (!b || b.disabled) return; ACT[b.dataset.a](); };
 

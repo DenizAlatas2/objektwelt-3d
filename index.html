@@ -3181,6 +3181,21 @@ async function renderAttr() {
         value.title = 'Planungsdaten';
       }
     }
+    if (a.tab === 'space') {
+      const note = a.f.find(([key]) => key === 'use_note')?.[1];
+      const prefix = 'Bodenpflege laut Akte: ';
+      if (typeof note === 'string' && note.startsWith(prefix)) {
+        const care = note.slice(prefix.length).split(/\r?\n/, 1)[0];
+        const table = $('#aKv');
+        const existing = [...table.rows].find(row => row.cells[0].textContent === 'Reinigung');
+        const row = existing || table.insertRow();
+        if (!existing) {
+          row.insertCell().textContent = 'Reinigung';
+          row.insertCell();
+        }
+        row.cells[1].textContent = care;
+      }
+    }
     if (a.ds && a.ds.length) {
       const notes = roomId ? a.ds.map(x => x.replace(/ Der Belag ist Darstellung[^.]*\(floor_finish bleibt NULL\)\./, '')) : a.ds;
       b += sec('ds', 'Darstellungshinweis', null, notes.map(x => '<p class="dsl">' + esc(x) + '</p>').join(''));

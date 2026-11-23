@@ -2256,10 +2256,8 @@ function computeVis() {
   const deckeL = I.layers.findIndex(l => l.key === 'decke');
   const topSel = S.floorOn.size ? Math.max(...S.floorOn) : -1, roofOn = S.extraOn.has('DACH'), walking = S.mode === 'walk';
   let cnt = 0;
-  for (let i = 0; i < N; i++) {
-    let ok;
+  const setVisibility = (i, ok) => {
     const fm = I.fmask[i];
-    if (fm) ok = (fm & floorMask) !== 0; else ok = S.extraOn.has(grp[I.group[i]]);
     if (ok) {
       const l = I.layer[i];
       if (l >= 0 && !layerVis[l]) ok = false;
@@ -2274,15 +2272,189 @@ function computeVis() {
     vis[i] = ok ? 1 : 0;
     gv[i] = !ok && (!kindView || iso.has(i)) && (ghostAll || (xr && base) || (rm && rGhost && !hid.has(i))) ? 1 : 0;  // blass: alles Ausgeblendete (Schalter), beim Röntgen der Rest, in der Gewerk-Rolle das übrige Gebäude
     if (ok && I.body[i]) cnt++;
+  };
+  for (let i = 0; i < N; i++) {
+    const fm = I.fmask[i];
+    setVisibility(i, fm ? (fm & floorMask) !== 0 : S.extraOn.has(grp[I.group[i]]));
+  }
+  if (roofOn && !S.extraOn.has('MULTI')) {
+    const linkedRoutes = new Set();
+    for (const [head, routes] of Object.entries(S.man.roof_vent_routes || {})) {
+      if (vis[head]) for (const route of routes) linkedRoutes.add(route);
+    }
+    for (const route of linkedRoutes) setVisibility(route, true);
   }
   S.visCount = cnt;
 }
+const ROOM_SIGNS = (() => {
+// Ein Canvas-Atlas je Geschoss, ein Mesh je Wand. Das Viewer-UI bleibt beim Aufrufer.
+const TILE_W = 384;
+const TILE_H = 156;
+const COLS = 5;
+const PAD = 5;
+
+function wrapTitle(context, value, width) {
+  const words = value.trim().split(/\s+/);
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    const next = line ? line + ' ' + word : word;
+    if (line && context.measureText(next).width > width) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function paintLabel(context, x, y, sign) {
+  context.fillStyle = '#f4f3ee';
+  context.fillRect(x + PAD, y + PAD, TILE_W - 2 * PAD, TILE_H - 2 * PAD);
+  context.fillStyle = '#181d20';
+  context.textBaseline = 'top';
+  context.font = '700 45px system-ui, sans-serif';
+  context.fillText(sign.room_number, x + 23, y + 13);
+  let lines;
+  let nameSize = 33;
+  for (; nameSize >= 19; nameSize--) {
+    context.font = '600 ' + nameSize + 'px system-ui, sans-serif';
+    lines = wrapTitle(context, sign.room_name, TILE_W - 46);
+    if (lines.length <= 2 && lines.every(line => context.measureText(line).width <= TILE_W - 46)) break;
+  }
+  if (nameSize < 19) throw new Error('Raumname passt nicht auf das Schild: ' + sign.room_number);
+  lines.forEach((line, i) => context.fillText(line, x + 23, y + 69 + i * (nameSize + 4)));
+}
+
+function buildRoomSigns(THREE, records) {
+  const floors = Map.groupBy ? Map.groupBy(records, row => row.group) : partition(records, row => row.group);
+  const group = new THREE.Group();
+  group.name = 'Raumschilder';
+  const wallMeshes = [];
+  for (const [floor, signs] of floors) {
+    const canvas = document.createElement('canvas');
+    canvas.width = COLS * TILE_W;
+    canvas.height = Math.ceil(signs.length / COLS) * TILE_H;
+    const context = canvas.getContext('2d');
+    const positions = new Map();
+    signs.forEach((sign, i) => {
+      const x = (i % COLS) * TILE_W;
+      const y = Math.floor(i / COLS) * TILE_H;
+      paintLabel(context, x, y, sign);
+      positions.set(sign, [x, y]);
+    });
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 4;
+    const material = new THREE.MeshBasicMaterial({map: texture, side: THREE.FrontSide, depthTest: true, depthWrite: true, toneMapped: false});
+    for (const [wallId, wallSigns] of partition(signs, sign => sign.wall_id)) {
+      const vertices = [];
+      const uvs = [];
+      const faces = [];
+      for (const sign of wallSigns) {
+        const [x, y] = positions.get(sign);
+        const [cx, cy, cz] = sign.center_xyz_m;
+        const [rx, ry] = sign.right_xyz;
+        const offset = vertices.length / 3;
+        for (const [side, top] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+          const a = side * sign.width_m / 2;
+          const b = top * sign.height_m / 2;
+          vertices.push(cx + rx * a, cz + b, -(cy + ry * a));
+          uvs.push((x + (side < 0 ? PAD + 0.5 : TILE_W - PAD - 0.5)) / canvas.width,
+                   1 - (y + (top > 0 ? PAD + 0.5 : TILE_H - PAD - 0.5)) / canvas.height);
+        }
+        faces.push(offset, offset + 1, offset + 2, offset, offset + 2, offset + 3);
+      }
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      geometry.setIndex(faces);
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.userData = {floor, wallId, wallSigns};
+      group.add(mesh);
+      wallMeshes.push(mesh);
+    }
+  }
+  return {group, wallMeshes};
+}
+
+function partition(records, keyFor) {
+  const groups = new Map();
+  for (const record of records) {
+    const key = keyFor(record);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(record);
+  }
+  return groups;
+}
+
+  const head1223 = '62537809efb3460c68186bd996901c6bbdb046aa73a3be6a29f6fb072f74fcaf';
+  const byId = new Map();
+  let walls = [];
+  let alreadyRequested = false;
+
+  function updateVisibility() {
+    for (const mesh of walls) {
+      const {wallId, floor} = mesh.userData;
+      const wall = S.idToNum.get(wallId);
+      mesh.visible = wall !== undefined && groupOn(floor) && S.vis[wall] === 1
+        && activePrims(wall).some(([p]) => p.meshV.visible);
+    }
+  }
+  function detail(id) {
+    return byId.get(id);
+  }
+
+  async function load() {
+    const man = S.man;
+    const version = Number(man.version);
+    const explicitSha = man.raum_schilder?.source_seed_sha256;
+    const source = man.source_seed_sha256;
+    const expected = explicitSha || (version === 1223 || source === head1223 ? head1223 : '');
+    if (Number.isFinite(version) && version > 0 && version < 1223) return;
+    if (alreadyRequested || !/^[a-f0-9]{64}$/.test(expected) || (source && source !== expected)) return;
+    alreadyRequested = true;
+    try {
+      const response = await fetch(DATA + 'raum_schilder.json');
+      if (!response.ok) return;
+      const data = await response.json();
+      if (data.source_seed_sha256 !== expected || !Array.isArray(data.signs)) return;
+      const valid = data.signs.every(row => {
+        const {portal_id, door_design_id, wall_id, room_space_id, group} = row;
+        if (![portal_id, door_design_id, wall_id, room_space_id].every(id => S.idToNum.has(id))) return false;
+        const wall = S.idToNum.get(wall_id);
+        const floor = Number(group.slice(1));
+        return /^F\d+$/.test(group) && Number.isInteger(floor) && Boolean(S.idx.fmask[wall] & (1 << floor))
+          && S.idx.layers[S.idx.layer[wall]]?.key === 'wand' && S.idx.groups[S.idx.group[wall]] === group;
+      });
+      if (!valid) return;
+      const render = buildRoomSigns(THREE, data.signs);
+      walls = render.wallMeshes;
+      for (const row of data.signs) {
+        byId.set(row.room_space_id, row);
+        byId.set(row.portal_id, row);
+        byId.set(row.door_design_id, row);
+      }
+      scene.add(render.group);
+      updateVisibility();
+      if (S.last >= 0) renderAttr();
+      invalidate();
+    } catch (error) {
+      console.warn('Raumschilder', error);
+    }
+  }
+  return {load, updateVisibility, detail};
+})();
+
 function applyVisibility() {
   if (!S.idx) return;
   computeVis();
   let tris = 0;
   for (const p of S.prims) tris += rebuildPrim(p);
   S.metrics.tris = tris;
+  ROOM_SIGNS.updateVisibility();
   shadowDirty = true;
   refreshStatus();
   updateSelectionMeshes();
@@ -2318,7 +2490,7 @@ function rebuildPrim(p) {
 function applyLayerMaterial(p) {
   // Kandidaten (Entscheidung main 16.11.): standardmäßig deckend und aufgehellt; Schnellschalter „Kandidaten halbtransparent“ = alte Darstellung
   const op = S.layerOp[p.layer] ?? 1;
-  const cand = p.status === 'candidate' && !S.candTransparent;
+  const cand = p.status === 'candidate' && !S.candTransparent && p.mkey !== 'zone' && p.mkey !== 'huelle_tga';
   p.dispColor = cand ? p.baseColor.clone().lerp(WHITE, 0.5) : p.baseColor;
   if (S.colorMode === 'material') p.mat.color.copy(p.dispColor);
   if (p.sel && p.sel.dev) p.sel.u.owSC.value[1].copy(p.sel.base).lerp(WHITE, cand ? 0.5 : 0);
@@ -2628,7 +2800,15 @@ async function goTo(n, opts = {}) {
     applyVisibility();
   }
   await select(n, !!opts.add);
-  if (opts.zoom !== false && I.body[n]) { const b = objBox(n); if (!b.isEmpty()) zoomToBox(b, 2.2); }
+  if (opts.zoom !== false && I.body[n]) {
+    const box = objBox(n);
+    if (!box.isEmpty()) {
+      for (const route of S.man.roof_vent_routes?.[n] || []) {
+        if (S.vis[route]) box.min.y = Math.min(box.min.y, Math.max(objBox(route).min.y, box.max.y - 1.25));
+      }
+      zoomToBox(box, 2.2);
+    }
+  }
 }
 
 /* ====================================================================================================
@@ -2896,6 +3076,12 @@ async function renderAttr() {
   if (n >= S.worldN) h += '<div class="note">Darstellung, kein Planungsobjekt' + (I.arts[I.art[n]] === 'Fenster (Darstellung)' ? '. Abgeleitet aus den Fensteranteilen der Heizlast.' : '.') + '</div>';
   if (S.sel.length > 1) h += '<div class="note">' + S.sel.length.toLocaleString('de') + ' gewählt, hier das zuletzt gewählte</div>';
   const kv = [['Art', I.arts[I.art[n]] + (SUB_LABEL[I.sub[n]] ? ', ' + SUB_LABEL[I.sub[n]] : ''), I.sub[n] ? 'Unterart in den Planungsdaten: ' + I.sub[n] : ''], ['Geschoss', floorLabel(n)], ['Gewerk', I.gewerke[I.gewerk[n]]]];
+  const roomSign = ROOM_SIGNS.detail(I.id[n]);
+  const roomId = /^W01_SPC_(\d{4})$/.exec(I.id[n]);
+  if (roomSign || roomId) {
+    kv.push(['Raumnummer', roomSign ? roomSign.room_number : roomId[1]]);
+    kv.push(['Raumname', roomSign ? roomSign.room_name : I.name[n]]);
+  }
   if (sysi && sysi.id) kv.push(['Anlage', sysi.label]);
   kv.push(['Kostengruppe', kgName(n), 'Zuordnung zur Ansicht, abgeleitet aus Ebene, Gewerk, Art und Anlage. Keine Angabe aus den Planungsdaten.']);
   if (INTERN) kv.push(['Status', I.statuses[I.status[n]]]);
@@ -4831,7 +5017,7 @@ async function start() {
     const standIso = String(man.stand || man.created || '').slice(0, 10), standDe = /^\d{4}-\d\d-\d\d$/.test(standIso) ? standIso.slice(8, 10) + '.' + standIso.slice(5, 7) + '.' + standIso.slice(0, 4) : standIso;
     $('#srcInfo').textContent = 'Stand ' + standDe + (man.version ? ', Version ' + man.version : '') + (man.with_tga ? ' mit Technik' : ' ohne Technik') + '. ' + man.objects_with_body.toLocaleString('de') + ' Körper und ' + man.objects_without_body.toLocaleString('de') + ' Objekte ohne Körper. Materialien, Möbelformen und Fenster in Stil B sind Darstellung und nicht Teil der Planungsdaten. Texturen frei lizenziert (CC0), Liste in tex/LIZENZ.txt.';
     renderLegend(); loadBS();
-    syncLoads(); applyVisibility();
+    syncLoads(); applyVisibility(); ROOM_SIGNS.load();
     S.cam.target.set(36, 6, -24); updateCamera(true); renderTree(); renderActs(); renderCutBar();
     // erste Ansicht, sobald etwas geladen ist
     S.fitted = true; autoFrame(); if (!CAM.user && idxBounds().isEmpty()) { CAM.auto = true; setView('iso'); camSnap(); CAM.auto = false; } syncWalkUI();
